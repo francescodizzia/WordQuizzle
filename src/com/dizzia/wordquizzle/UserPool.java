@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class UserPool {
     //Username e password
-    private final ConcurrentHashMap<String,String> userDatabase;
+    private final ConcurrentHashMap<String, User> userDatabase;
 
     public UserPool(){
         userDatabase = new ConcurrentHashMap<>();
@@ -20,12 +20,13 @@ public class UserPool {
         if(userDatabase.containsKey(username))
            throw new UserAlreadyTakenException();
 
-        userDatabase.put(username, password);
+        User user = new User(password);
+        userDatabase.put(username, user);
         return "Utente '" + username + "' registrato con successo!";
     }
 
-    public String getRegisteredUsers(){
-        return userDatabase.keySet().toString();
+    public ConcurrentHashMap<String, User> getRegisteredUsers(){
+        return userDatabase;
     }
 
 }

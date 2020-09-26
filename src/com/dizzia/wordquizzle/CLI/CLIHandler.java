@@ -31,9 +31,7 @@ public class CLIHandler {
             String response = stub.registra_utente(args[1], args[2]);
             System.out.println("response: " + response);
         }
-        else if(compareCMD("LOGIN", 3)){
-            ;
-        }
+
 
     }
 }
