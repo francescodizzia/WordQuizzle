@@ -26,8 +26,6 @@ public class WQClient implements Runnable{
     }
 
 
-
-
     public void run() {
         int port = 1919;
         int m = (int) (Math.random() * 1000);

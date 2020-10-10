@@ -1,31 +1,28 @@
 {
   "userGraph": {
-    "enrico": [],
-    "dario": [
-      {
-        "username": "domenico",
-        "password": "caverna"
-      }
+    "lezzo": [
+      "Pippo"
     ],
-    "domenico": [
-      {
-        "username": "dario",
-        "password": "doccia"
-      }
+    "harry": [
+      "Pippo"
+    ],
+    "Pippo": [
+      "lezzo",
+      "harry"
     ]
   },
   "userTable": {
-    "enrico": {
-      "username": "enrico",
-      "password": "zerodx"
+    "lezzo": {
+      "username": "lezzo",
+      "password": "incimaalgreppo"
     },
-    "dario": {
-      "username": "dario",
-      "password": "doccia"
+    "harry": {
+      "username": "harry",
+      "password": "potter"
     },
-    "domenico": {
-      "username": "domenico",
-      "password": "caverna"
+    "Pippo": {
+      "username": "pippo",
+      "password": "teo"
     }
   }
 }

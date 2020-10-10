@@ -4,13 +4,14 @@ import com.dizzia.wordquizzle.Exceptions.UserAlreadyTakenException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 
 public class Database {
         //Grafo delle amicizie
-        private final ConcurrentHashMap<String, Set<User>> userGraph;
+        private final ConcurrentHashMap<String, HashSet<String>> userGraph;
 
         //Tabella contenente le info di tutti gli utenti
         private final ConcurrentHashMap<String, User> userTable;
@@ -33,33 +34,31 @@ public class Database {
                 throw new UserAlreadyTakenException();
             }
 
-            userGraph.put(username, new HashSet<User>());
+            userGraph.put(username, new HashSet<>());
         }
 
 
         public void makeFriends(String usernameA, String usernameB) {
-          if (!userGraph.containsKey(usernameA) || !userGraph.containsKey(usernameB)) {
+          if(!userGraph.containsKey(usernameA) || !userGraph.containsKey(usernameB)) {
                 throw new IllegalArgumentException();
-            }
+          }
 
-            userGraph.get(usernameA).add(userTable.get(usernameB));
-            userGraph.get(usernameB).add(userTable.get(usernameA));
+//            userGraph.get(usernameA).add(userTable.get(usernameB));
+//            userGraph.get(usernameB).add(userTable.get(usernameA))
+
+          userGraph.get(usernameA).add(usernameB);
+          userGraph.get(usernameB).add(usernameA);
         }
 
 
 
-        public ArrayList<String> getFriendList(String username){
-            ArrayList<String> friendList = new ArrayList<>();
-            Set<User> userSet = userGraph.get(username);
-
-            for(User u: userSet)
-                friendList.add(u.getUsername());
-
-            return friendList;
+        public List<String> getFriendList(String username){
+            return new ArrayList<String>(userGraph.get(username));
         }
 
         public boolean isFriendWith(String usernameA, String usernameB) {
-            return userGraph.get(usernameA).contains(userTable.get(usernameB));
+            return userGraph.get(usernameA).contains(usernameB);
+            //return userGraph.get(usernameA).contains(userTable.get(usernameB));
         }
 
 
