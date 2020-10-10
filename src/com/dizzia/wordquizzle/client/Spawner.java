@@ -1,6 +1,5 @@
-package com.dizzia.wordquizzle;
+package com.dizzia.wordquizzle.client;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 

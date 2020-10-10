@@ -1,11 +1,8 @@
-package com.dizzia.wordquizzle;
+package com.dizzia.wordquizzle.database;
 
 import com.dizzia.wordquizzle.Exceptions.UserAlreadyTakenException;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -21,9 +18,9 @@ public class Database {
             userTable = new ConcurrentHashMap<>();
         }
 
-        public ConcurrentHashMap<String, User> getUserTable(){
-            return userTable;
-        }
+//        public ConcurrentHashMap<String, User> getUserTable(){
+//            return userTable;
+//        }
 
 
         public void newUser(String username, String password) throws UserAlreadyTakenException {
@@ -52,13 +49,12 @@ public class Database {
 
 
 
-        public List<String> getFriendList(String username){
-            return new ArrayList<String>(userGraph.get(username));
-        }
+//        public ArrayList<String> getFriendList(String username){
+//            return new ArrayList<>(userGraph.get(username));
+//        }
 
         public boolean isFriendWith(String usernameA, String usernameB) {
             return userGraph.get(usernameA).contains(usernameB);
-            //return userGraph.get(usernameA).contains(userTable.get(usernameB));
         }
 
 

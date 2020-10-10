@@ -1,7 +1,5 @@
-package com.dizzia.wordquizzle;
+package com.dizzia.wordquizzle.database;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class User {
 

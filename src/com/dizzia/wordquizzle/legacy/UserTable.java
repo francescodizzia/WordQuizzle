@@ -1,6 +1,6 @@
 package com.dizzia.wordquizzle.legacy;
 
-import com.dizzia.wordquizzle.User;
+import com.dizzia.wordquizzle.database.User;
 
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;

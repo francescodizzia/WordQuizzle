@@ -1,7 +1,7 @@
-package com.dizzia.wordquizzle;
+package com.dizzia.wordquizzle.server;
 
+import com.dizzia.wordquizzle.database.Database;
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
-import com.dizzia.wordquizzle.legacy.UsersGraph;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -20,14 +20,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ServerHandler implements Runnable {
 //    private final UsersGraph graph;
 
-    private Database database;
+    private final Database database;
     private final ConcurrentHashMap<String, Boolean> loggedUsers;
 
 
-    public ServerHandler(Database database) throws IOException {
+    public ServerHandler(Database database) {
         loggedUsers = new ConcurrentHashMap<>();
         this.database = database;
-
     }
 
 

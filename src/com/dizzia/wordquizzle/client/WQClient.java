@@ -1,9 +1,10 @@
-package com.dizzia.wordquizzle;
+package com.dizzia.wordquizzle.client;
 
 import com.dizzia.wordquizzle.Exceptions.UserAlreadyTakenException;
+import com.dizzia.wordquizzle.RegisterInterface;
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
@@ -11,48 +12,49 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.Scanner;
 
-public class CLIent {
+public class WQClient implements Runnable{
     static Registry registry;
     static RegisterInterface stub;
 
+    private static String USERNAME;
+
     public static void registra_utente(String nickUtente, String password) throws RemoteException, NotBoundException, UserAlreadyTakenException {
-         registry = LocateRegistry.getRegistry(RegisterInterface.REG_PORT);
+        registry = LocateRegistry.getRegistry(RegisterInterface.REG_PORT);
         stub = (RegisterInterface) registry.lookup("WordQuizzle_" + RegisterInterface.MATRICOLA);
         stub.registerUser(nickUtente, password);
     }
 
 
-    public static void main(String[] args){
+    public void run() {
         int port = 1919;
+        int m = (int) (Math.random() * 1000);
+        try {
+            registra_utente(Thread.currentThread().getName(), "pass_" + m);
+        } catch (RemoteException | UserAlreadyTakenException | NotBoundException e) {
+            e.printStackTrace();
+        }
 
         try {
             SocketAddress address = new InetSocketAddress("localhost", port);
             SocketChannel server = SocketChannel.open(address);
 
-            Scanner s = new Scanner(System.in);
-            int i = 0;
-            while(true) {
-                String string = s.nextLine();
-                i++;
+//            Scanner s = new Scanner(System.in);
+//            while(true) {
+//                String string = s.nextLine();
+//
+//                ByteBufferIO.writeString(server, string);
+//
+//                int result_code = ByteBufferIO.readInt(server);
+//                System.out.println(result_code);
+//            }
 
-                if(string.equals("quit"))
-                    break;
-
-                String[] a = string.split(" ");
-                if(a[0].equalsIgnoreCase("register")) {
-                    registra_utente(a[1], a[2]);
-                }
-                ByteBufferIO.writeString(server, string);
-
-                int result_code = ByteBufferIO.readInt(server);
-                System.out.println(result_code);
-            }
-
-        } catch (IOException | NotBoundException | UserAlreadyTakenException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
-    }
 
+
+
+
+    }
 }

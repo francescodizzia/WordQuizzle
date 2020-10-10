@@ -1,28 +1,25 @@
-package com.dizzia.wordquizzle;
+package com.dizzia.wordquizzle.server;
 
+import com.dizzia.wordquizzle.database.Database;
 import com.dizzia.wordquizzle.Exceptions.UserAlreadyTakenException;
-import com.dizzia.wordquizzle.legacy.UserTable;
-import com.dizzia.wordquizzle.legacy.UsersGraph;
+import com.dizzia.wordquizzle.RegisterInterface;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
 import java.io.*;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 
-public class WQServer implements RegisterInterface{
-//    static UserTable table;
-//    static UsersGraph graph;
+public class WQServer implements RegisterInterface {
     static ServerHandler server;
     static Database db;
 
 
-    public void registerUser(String nickUtente, String password) throws RemoteException, UserAlreadyTakenException, NotBoundException {
+    public void registerUser(String nickUtente, String password) throws UserAlreadyTakenException {
         db.newUser(nickUtente, password);
         try {
             server.serialize();
