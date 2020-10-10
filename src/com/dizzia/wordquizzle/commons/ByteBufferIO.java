@@ -6,11 +6,11 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 
 public class ByteBufferIO {
-    static int MAX_STRING_LENGTH = 64;
+    public static int MAX_STRING_LENGTH = 128;
     static int INTEGER_BYTE_SIZE = 4;
 
     public static int readInt(SocketChannel channel) throws IOException {
-        ByteBuffer input = ByteBuffer.allocateDirect(INTEGER_BYTE_SIZE);
+        ByteBuffer input = ByteBuffer.allocateDirect(4);
         input.clear();
         channel.read(input);
         input.flip();

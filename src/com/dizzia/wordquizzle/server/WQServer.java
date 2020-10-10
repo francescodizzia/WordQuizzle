@@ -1,13 +1,15 @@
 package com.dizzia.wordquizzle.server;
 
-import com.dizzia.wordquizzle.database.Database;
-import com.dizzia.wordquizzle.Exceptions.UserAlreadyTakenException;
+import com.dizzia.wordquizzle.commons.exceptions.UserAlreadyTakenException;
 import com.dizzia.wordquizzle.RegisterInterface;
+import com.dizzia.wordquizzle.commons.StatusCode;
+import com.dizzia.wordquizzle.database.Database;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 
-import java.io.*;
+import java.io.FileReader;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -19,13 +21,19 @@ public class WQServer implements RegisterInterface {
     static Database db;
 
 
-    public void registerUser(String nickUtente, String password) throws UserAlreadyTakenException {
-        db.newUser(nickUtente, password);
+    public int registerUser(String nickUtente, String password) {
+        try {
+            db.newUser(nickUtente, password);
+        } catch (UserAlreadyTakenException e) {
+            return StatusCode.ERROR;
+        }
         try {
             server.serialize();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        return StatusCode.OK;
     }
 
     private static void deserialize() throws IOException {

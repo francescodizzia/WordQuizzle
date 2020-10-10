@@ -1,0 +1,67 @@
+{
+  "userGraph": {
+    "sharkL": [],
+    "dario": [
+      "mangaka96",
+      "volpescu"
+    ],
+    "victor": [
+      "mangaka96"
+    ],
+    "sgrodolox": [],
+    "domenico": [],
+    "fossa": [
+      "mangaka96"
+    ],
+    "mangaka96": [
+      "victor",
+      "dario",
+      "fossa"
+    ],
+    "volpescu": [
+      "dario"
+    ]
+  },
+  "userTable": {
+    "sharkL": {
+      "username": "sharkl",
+      "password": "a",
+      "score": 0
+    },
+    "dario": {
+      "username": "dario",
+      "password": "moccia",
+      "score": 999
+    },
+    "victor": {
+      "username": "victor",
+      "password": "laslo",
+      "score": 0
+    },
+    "sgrodolox": {
+      "username": "sgrodolox",
+      "password": "a",
+      "score": 0
+    },
+    "domenico": {
+      "username": "domenico",
+      "password": "caverna",
+      "score": 0
+    },
+    "fossa": {
+      "username": "fossa",
+      "password": "in",
+      "score": 0
+    },
+    "mangaka96": {
+      "username": "mangaka96",
+      "password": "xd",
+      "score": 0
+    },
+    "volpescu": {
+      "username": "volpescu",
+      "password": "kek",
+      "score": 0
+    }
+  }
+}

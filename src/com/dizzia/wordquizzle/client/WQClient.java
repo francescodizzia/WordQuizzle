@@ -1,10 +1,9 @@
 package com.dizzia.wordquizzle.client;
 
-import com.dizzia.wordquizzle.Exceptions.UserAlreadyTakenException;
+import com.dizzia.wordquizzle.commons.exceptions.UserAlreadyTakenException;
 import com.dizzia.wordquizzle.RegisterInterface;
-import com.dizzia.wordquizzle.commons.ByteBufferIO;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;

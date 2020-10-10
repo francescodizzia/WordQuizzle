@@ -1,7 +1,8 @@
 package com.dizzia.wordquizzle.server;
 
-import com.dizzia.wordquizzle.database.Database;
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
+import com.dizzia.wordquizzle.commons.StatusCode;
+import com.dizzia.wordquizzle.database.Database;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -9,17 +10,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerHandler implements Runnable {
-//    private final UsersGraph graph;
-
     private final Database database;
     private final ConcurrentHashMap<String, Boolean> loggedUsers;
 
@@ -33,7 +34,7 @@ public class ServerHandler implements Runnable {
     public synchronized void serialize() throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String jsonString = gson.toJson(database);
-        System.out.println("\nStringa json: " + jsonString + "\n");
+        //System.out.println("\nStringa json: " + jsonString + "\n");
         FileWriter file = new FileWriter("./backup.json");
         file.write(jsonString);
         file.close();
@@ -41,22 +42,32 @@ public class ServerHandler implements Runnable {
 
 
 
-    private void commandParser(String command) {
+    private void commandParser(String command, SocketChannel client, SelectionKey key) {
         String[] args = command.split(" ");
+        ClientResources resources = (ClientResources) key.attachment();
+        String CURRENT_USER = resources.getUsername();
         String COMMAND_NAME = args[0].toUpperCase();
+        ByteBuffer buffer = resources.buffer;
+
 
         switch (COMMAND_NAME) {
             case "LOGIN":
-                System.out.println("login preso");
                 loggedUsers.put(args[1], true);
-                try {
-                    serialize();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                System.out.println(loggedUsers.keySet());
+                resources.setUsername(args[1]);
+//                k_ID = new ClientResources(args[1]);
+//                key.attach(k_ID);
+                resources.buffer.clear();
+                resources.buffer.putInt(StatusCode.OK);
+                resources.buffer.flip();
+                key.interestOps(SelectionKey.OP_WRITE);
                 break;
             case "ADD_FRIEND":
-                database.makeFriends(args[1], args[2]);
+                database.makeFriends(CURRENT_USER, args[1]);
+                resources.buffer.clear();
+                resources.buffer.putInt(StatusCode.OK);
+                resources.buffer.flip();
+                key.interestOps(SelectionKey.OP_WRITE);
                 try {
                     serialize();
                 } catch (IOException e) {
@@ -64,13 +75,35 @@ public class ServerHandler implements Runnable {
                 }
                 break;
             case "FRIENDLIST":
-                System.out.println("friendlist TODO");
+                String list = database.getFriendList(CURRENT_USER);
+                resources.buffer.clear();
+                resources.buffer.put(list.getBytes());
+                resources.buffer.flip();
+                key.interestOps(SelectionKey.OP_WRITE);
+                System.out.println("ciao");
                 break;
             case "CHALLENGE":
                 System.out.println("challenge TODO");
                 break;
             case "PRINT":
                 System.out.println("Online users: \t" + loggedUsers.keySet());
+                resources.buffer.clear();
+                resources.buffer.putInt(StatusCode.OK);
+                resources.buffer.flip();
+                database.updateScore(CURRENT_USER, 999);
+                key.interestOps(SelectionKey.OP_WRITE);
+                break;
+            case "SCORE":
+                resources.buffer.clear();
+                resources.buffer.putInt(database.getScore(CURRENT_USER));
+                resources.buffer.flip();
+                key.interestOps(SelectionKey.OP_WRITE);
+                break;
+            case "LOGOUT":
+                loggedUsers.remove(CURRENT_USER);
+                System.out.println(CURRENT_USER+ " logged out");
+                System.out.println(loggedUsers.keySet());
+                key.interestOps(SelectionKey.OP_READ);
                 break;
         }
     }
@@ -114,57 +147,64 @@ public class ServerHandler implements Runnable {
                         SocketChannel client = server.accept();
                         System.out.println("Accepted connection from " + client);
                         client.configureBlocking(false);
-                        client.register(selector, SelectionKey.OP_READ);
+                        SelectionKey key2 = client.register(selector, SelectionKey.OP_READ);
+                        ClientResources resources = new ClientResources();
+                        key2.attach(resources);
                     }
                     else if(key.isReadable()){
+                        ClientResources resources = (ClientResources) key.attachment();
+                        String username = resources.getUsername();
+                        System.out.println("[" + username + "] isReadable");
                         SocketChannel client = (SocketChannel) key.channel();
-                        /*ByteBuffer input = ByteBuffer.allocate(8);
+
+//                        String line = ByteBufferIO.readString(client);
+                        ByteBuffer input = resources.buffer;
                         input.clear();
-                        client.read(input);
+                        int read_byte = client.read(input);
+
+//                        if(read_byte == -1)
+//                            if(!id.equalsIgnoreCase("anonymous")) {
+//                                loggedUsers.remove(id);
+//                                System.out.println(id + " has logged out");
+//                                System.out.println(loggedUsers.keySet());
+//                            }
+
                         input.flip();
-                        System.out.println("Ricevuto: " + input.getDouble());
-                        */
+                        String line = StandardCharsets.UTF_8.decode(input).toString();
 
-                        /*
-                        ByteBuffer input = ByteBuffer.allocate(16);
-                        input.clear();
-                        client.read(input);
-                        input.flip();
-                        String result = StandardCharsets.UTF_8.decode(input).toString();
-                        */
-                        String result = ByteBufferIO.readString(client);
-                        this.commandParser(result);
-                        System.out.println("Ricevuto: " + result);
-
-
-                        key.interestOps(SelectionKey.OP_WRITE);
+                        this.commandParser(line, client, key);
+                        System.out.println("Ricevuto: " + line);
                     }
                     else if(key.isWritable()){
+                        ClientResources k = (ClientResources) key.attachment();
+                        String username = k.getUsername();
+                        System.out.println("[" + username + "] isWriteable");
                         SocketChannel client = (SocketChannel) key.channel();
-//                        ByteBuffer output = ByteBuffer.allocate(4);
+                        //client.configureBlocking(false);
+
+                        ByteBuffer output = k.buffer;
 //                        output.clear();
-//                        output.putInt(200);
+//                        output.putInt(StatusCode.OK);
 //                        output.flip();
+                        client.write(output);
 
-//                        if (!output.hasRemaining()) {
-//                            output.rewind();
-//                            int value = output.getInt();
-//                            output.clear();
-//                            output.putInt(value + 1);
-//                            output.flip();
-//                        }
+                        //ByteBufferIO.writeInt(client, 200);
+                        System.out.println("Mando come risposta: " + StatusCode.OK);
 
-//                        client.write(output);
-//                        output.rewind();
-
-                        ByteBufferIO.writeInt(client, 200);
-                        System.out.println("Mando come risposta: " + 200);
+                        //if HA FINITO DI LEGGERE QUALCOSA SWITCHA A WRITE PER MANDARE LA RISPOSTA TODO
                         key.interestOps(SelectionKey.OP_READ);
                     }
                 } catch (IOException ex) {
                     key.cancel();
                     try {
                         key.channel().close();
+                        ClientResources resources = (ClientResources) key.attachment();
+
+                        String username = resources.getUsername();
+                        System.out.println("ADDIO " + username);
+                        loggedUsers.remove(username);
+                        System.out.println(loggedUsers.keySet());
+
                     } catch (IOException cex) {
                         cex.printStackTrace();
                     }

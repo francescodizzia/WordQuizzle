@@ -1,6 +1,6 @@
 package com.dizzia.wordquizzle;
 
-import com.dizzia.wordquizzle.Exceptions.UserAlreadyTakenException;
+import com.dizzia.wordquizzle.commons.exceptions.UserAlreadyTakenException;
 
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
@@ -11,5 +11,5 @@ public interface RegisterInterface extends Remote {
     public static final int REG_PORT = 9998;
     public static final int STUB_PORT = 9999;
 
-    public void registerUser(String nickUtente, String password) throws RemoteException, UserAlreadyTakenException, NotBoundException;
+    public int registerUser(String nickUtente, String password) throws RemoteException, UserAlreadyTakenException, NotBoundException;
 }

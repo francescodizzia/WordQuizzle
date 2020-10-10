@@ -1,8 +1,11 @@
 package com.dizzia.wordquizzle.database;
 
-import com.dizzia.wordquizzle.Exceptions.UserAlreadyTakenException;
+import com.dizzia.wordquizzle.commons.exceptions.UserAlreadyTakenException;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -49,14 +52,24 @@ public class Database {
 
 
 
-//        public ArrayList<String> getFriendList(String username){
-//            return new ArrayList<>(userGraph.get(username));
-//        }
+        public String getFriendList(String username){
+            //return new ArrayList<>(userGraph.get(username)).toString();
+            List<String> list = new ArrayList<String>(userGraph.get(username));
+            Gson gson = new Gson();
+            return gson.toJson(list);
+        }
 
         public boolean isFriendWith(String usernameA, String usernameB) {
             return userGraph.get(usernameA).contains(usernameB);
         }
 
+        public int getScore(String username){
+            return userTable.get(username).getScore();
+        }
+
+        public void updateScore(String username, int newScore){
+            userTable.get(username).updateScore(newScore);
+        }
 
 /*
         public void removeVertex(T v) {

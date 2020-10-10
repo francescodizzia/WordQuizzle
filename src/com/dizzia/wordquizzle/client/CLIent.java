@@ -1,8 +1,10 @@
 package com.dizzia.wordquizzle.client;
 
-import com.dizzia.wordquizzle.Exceptions.UserAlreadyTakenException;
+
 import com.dizzia.wordquizzle.RegisterInterface;
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
+import com.dizzia.wordquizzle.commons.StatusCode;
+import com.dizzia.wordquizzle.commons.exceptions.UserAlreadyTakenException;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -18,42 +20,96 @@ public class CLIent {
     static Registry registry;
     static RegisterInterface stub;
 
-    public static void registra_utente(String nickUtente, String password) throws RemoteException, NotBoundException, UserAlreadyTakenException {
-         registry = LocateRegistry.getRegistry(RegisterInterface.REG_PORT);
+    public static int registra_utente(String nickUtente, String password) throws RemoteException, NotBoundException, UserAlreadyTakenException {
+        registry = LocateRegistry.getRegistry(RegisterInterface.REG_PORT);
         stub = (RegisterInterface) registry.lookup("WordQuizzle_" + RegisterInterface.MATRICOLA);
-        stub.registerUser(nickUtente, password);
+        return stub.registerUser(nickUtente, password);
     }
 
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws RemoteException, NotBoundException, UserAlreadyTakenException {
         int port = 1919;
+        String USERNAME = "";
+        String PASSWORD = "";
+        boolean logged = false;
+
+        print("Benvenuto/a in WordQuizzle!\n");
+        Scanner scanner = new Scanner(System.in);
+
+
+        while(true) {
+            String string = scanner.nextLine();
+
+            if(string.equals("quit"))
+                break;
+
+            String[] a = string.split(" ");
+            if(a[0].equalsIgnoreCase("register")) {
+                if(registra_utente(a[1], a[2]) == StatusCode.OK) {
+                    print("Registrazione effettuata con successo");
+                    USERNAME = a[1];
+                    PASSWORD = a[2];
+                    break;
+                }else{
+                    print("RIP ROP"); //TODO
+                }
+            }else if(a[0].equalsIgnoreCase("login")){
+                USERNAME = a[1];
+                PASSWORD = a[2];
+                break;
+            }
+
+        }
+
+
 
         try {
             SocketAddress address = new InetSocketAddress("localhost", port);
             SocketChannel server = SocketChannel.open(address);
 
+            //Tentativo di login
+            ByteBufferIO.writeString(server, "login " + USERNAME + " " + PASSWORD);
+            int login_result = ByteBufferIO.readInt(server);
+
+            if(login_result == StatusCode.OK) {
+                print("Login effettuato con successo!");
+                logged = true;
+            }
+            else
+                print("Login fallito, riprova!");
+
+
+            //Command line interface start
+
             Scanner s = new Scanner(System.in);
-            int i = 0;
             while(true) {
                 String string = s.nextLine();
-                i++;
 
                 if(string.equals("quit"))
                     break;
 
-                String[] a = string.split(" ");
-                if(a[0].equalsIgnoreCase("register")) {
-                    registra_utente(a[1], a[2]);
-                }
+
                 ByteBufferIO.writeString(server, string);
 
-                int result_code = ByteBufferIO.readInt(server);
-                System.out.println(result_code);
+                if(string.equals("friendlist")){
+                    System.out.println(ByteBufferIO.readString(server));
+                }else {
+                    int result_code = ByteBufferIO.readInt(server);
+                    System.out.println(result_code);
+                }
             }
 
-        } catch (IOException | NotBoundException | UserAlreadyTakenException ex) {
+
+            ByteBufferIO.writeString(server, "logout");
+
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+
+    private static void print(String string){
+        System.out.println(string);
     }
 
 }

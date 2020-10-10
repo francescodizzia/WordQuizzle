@@ -1,4 +1,4 @@
-package com.dizzia.wordquizzle.Exceptions;
+package com.dizzia.wordquizzle.commons.exceptions;
 
 public class UserAlreadyTakenException extends Exception{
     public UserAlreadyTakenException(){
