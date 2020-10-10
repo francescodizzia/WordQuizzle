@@ -11,5 +11,5 @@ public interface RegisterInterface extends Remote {
     public static final int REG_PORT = 9998;
     public static final int STUB_PORT = 9999;
 
-    public void registra_utente_helper(String nickUtente, String password) throws RemoteException, UserAlreadyTakenException, NotBoundException;
+    public void registerUser(String nickUtente, String password) throws RemoteException, UserAlreadyTakenException, NotBoundException;
 }

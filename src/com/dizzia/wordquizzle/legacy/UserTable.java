@@ -1,4 +1,6 @@
-package com.dizzia.wordquizzle;
+package com.dizzia.wordquizzle.legacy;
+
+import com.dizzia.wordquizzle.User;
 
 import java.io.Serializable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,7 +12,7 @@ public class UserTable implements Serializable {
         userTable = new ConcurrentHashMap<>();
     }
 
-    public User newUser(String username, String password){
+    public User addUser(String username, String password){
         User user = new User(username, password);
         userTable.put(username, user);
         return user;

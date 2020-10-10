@@ -1,6 +1,7 @@
-package com.dizzia.wordquizzle;
+package com.dizzia.wordquizzle.legacy;
 
 import com.dizzia.wordquizzle.Exceptions.UserAlreadyTakenException;
+import com.dizzia.wordquizzle.User;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,9 +18,13 @@ public class UsersGraph {
             this.table = table;
         }
 
+        public UserTable getUserTable(){
+            return this.table;
+        }
+
     //TODO
-        public void newUser(String username, String password) throws UserAlreadyTakenException {
-            User user = table.newUser(username, password);
+        public void addUser(String username, String password) throws UserAlreadyTakenException {
+            User user = table.addUser(username, password);
 
             if (this.adjacencyList.containsKey(username)) {
                 throw new UserAlreadyTakenException();

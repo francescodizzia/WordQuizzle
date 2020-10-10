@@ -1,1 +1,31 @@
-{"Fabio":true,"Davide":true,"Tano":true,"Arnaldo":true,"pool-1-thread-1":true,"pool-1-thread-3":true,"pool-1-thread-2":true,"Stefano":true,"pool-1-thread-5":true,"pool-1-thread-4":true,"Raffaele":true,"Andrea":true}
+{
+  "userGraph": {
+    "enrico": [],
+    "dario": [
+      {
+        "username": "domenico",
+        "password": "caverna"
+      }
+    ],
+    "domenico": [
+      {
+        "username": "dario",
+        "password": "doccia"
+      }
+    ]
+  },
+  "userTable": {
+    "enrico": {
+      "username": "enrico",
+      "password": "zerodx"
+    },
+    "dario": {
+      "username": "dario",
+      "password": "doccia"
+    },
+    "domenico": {
+      "username": "domenico",
+      "password": "caverna"
+    }
+  }
+}

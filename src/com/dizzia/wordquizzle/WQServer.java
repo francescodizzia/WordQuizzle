@@ -1,12 +1,14 @@
 package com.dizzia.wordquizzle;
 
 import com.dizzia.wordquizzle.Exceptions.UserAlreadyTakenException;
+import com.dizzia.wordquizzle.legacy.UserTable;
+import com.dizzia.wordquizzle.legacy.UsersGraph;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
 
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -14,16 +16,38 @@ import java.rmi.server.UnicastRemoteObject;
 
 
 public class WQServer implements RegisterInterface{
-    static UserTable table;
-    static UsersGraph graph;
+//    static UserTable table;
+//    static UsersGraph graph;
+    static ServerHandler server;
+    static Database db;
 
-    public void registra_utente_helper(String nickUtente, String password) throws RemoteException, UserAlreadyTakenException {
-        graph.newUser(nickUtente, password);
+
+    public void registerUser(String nickUtente, String password) throws RemoteException, UserAlreadyTakenException, NotBoundException {
+        db.newUser(nickUtente, password);
+        try {
+            server.serialize();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
+    private static void deserialize() throws IOException {
+        FileReader file = new FileReader("./backup.json");
+        Gson gson = new Gson();
+        JsonReader reader = new JsonReader(file);
+        db = gson.fromJson(reader, new TypeToken<Database>(){}.getType());
+        file.close();
+    }
+
+
+
     public static void main(String[] args) throws IOException {
-        table = new UserTable();
-        graph = new UsersGraph(table);
+        try{
+            deserialize();
+        } catch (IOException e){
+            db = new Database();
+        }
+
 
         try {
             WQServer obj = new WQServer();
@@ -36,7 +60,7 @@ public class WQServer implements RegisterInterface{
             e.printStackTrace();
         }
 
-        ServerHandler server = new ServerHandler(table);
+        server = new ServerHandler(db);
         Thread thread = new Thread(server);
         thread.start();
 
@@ -45,5 +69,6 @@ public class WQServer implements RegisterInterface{
 
 
     }
+
 
 }

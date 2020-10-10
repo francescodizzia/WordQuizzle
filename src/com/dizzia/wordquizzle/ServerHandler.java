@@ -1,65 +1,50 @@
 package com.dizzia.wordquizzle;
 
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
+import com.dizzia.wordquizzle.legacy.UsersGraph;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.google.gson.GsonBuilder;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerHandler implements Runnable {
-    private UserTable table;
-    private ConcurrentHashMap<String, Boolean> loggedUsers;
+//    private final UsersGraph graph;
 
-    public ServerHandler(UserTable table) {
-        this.table = table;
+    private Database database;
+    private final ConcurrentHashMap<String, Boolean> loggedUsers;
+
+
+    public ServerHandler(Database database) throws IOException {
         loggedUsers = new ConcurrentHashMap<>();
+        this.database = database;
 
-        try {
-            deserialize();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 
-    private void serialize() throws IOException {
-        Gson gson = new Gson();
-        String jsonString = gson.toJson(loggedUsers);
+
+    public synchronized void serialize() throws IOException {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String jsonString = gson.toJson(database);
         System.out.println("\nStringa json: " + jsonString + "\n");
         FileWriter file = new FileWriter("./backup.json");
         file.write(jsonString);
         file.close();
     }
 
-    private void deserialize() throws FileNotFoundException {
-        FileReader file = new FileReader("./backup.json");
-        Gson gson = new Gson();
-        JsonReader reader = new JsonReader(file);
-        loggedUsers = gson.fromJson(reader, new TypeToken<ConcurrentHashMap<String, Boolean>>(){}.getType());
-    }
-
 
 
     private void commandParser(String command) {
         String[] args = command.split(" ");
-        String COMMAND_NAME = args[0];
+        String COMMAND_NAME = args[0].toUpperCase();
 
         switch (COMMAND_NAME) {
             case "LOGIN":
@@ -72,7 +57,12 @@ public class ServerHandler implements Runnable {
                 }
                 break;
             case "ADD_FRIEND":
-                System.out.println("add_friend TODO");
+                database.makeFriends(args[1], args[2]);
+                try {
+                    serialize();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
             case "FRIENDLIST":
                 System.out.println("friendlist TODO");
@@ -185,5 +175,6 @@ public class ServerHandler implements Runnable {
 
         }
     }
+
 }
 
