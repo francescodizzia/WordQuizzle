@@ -1,26 +1,46 @@
 package com.dizzia.wordquizzle;
 
-import java.util.HashSet;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class User {
-    private final String password;
-    HashSet<String> friendList;
 
-    public User(String password) {
+    private final String username;
+    private final String password;
+
+
+    public User(String username, String password) {
+        this.username = username.toLowerCase();
         this.password = password;
-        friendList = new HashSet<>();
+    }
+
+
+    public String getUsername(){
+        return username;
     }
 
     public String getPassword(){
         return password;
     }
 
-    public void addFriend(String friend){
-        friendList.add(friend);
+
+/*
+    @Override
+    public boolean equals(Object o){
+        if(o instanceof User){
+            return username.equalsIgnoreCase(((User)o).username);
+        } else{
+            return false;
+        }
     }
 
-    public HashSet<String> getFriends(){
-        return friendList;
+
+
+    @Override
+    public int hashCode(){
+            return username.hashCode();
+    }
+*/
+
     }
 
-}

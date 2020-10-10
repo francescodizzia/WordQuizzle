@@ -1,57 +1,49 @@
 package com.dizzia.wordquizzle;
 
-import com.dizzia.wordquizzle.CLI.CLIServer;
 import com.dizzia.wordquizzle.Exceptions.UserAlreadyTakenException;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-import static com.dizzia.wordquizzle.WQInterface.TCP_PORT;
 
 public class WQServer implements RegisterInterface{
-    public static UserPool database;
+    static UserTable table;
+    static UsersGraph graph;
 
-    public String registra_utente(String nickUtente, String password) throws RemoteException, UserAlreadyTakenException {
-        return database.addUser(nickUtente, password);
+    public void registra_utente_helper(String nickUtente, String password) throws RemoteException, UserAlreadyTakenException {
+        graph.newUser(nickUtente, password);
     }
 
     public static void main(String[] args) throws IOException {
-        database = new UserPool();
-        CLIServer cmd = new CLIServer(database);
-        Thread t = new Thread(cmd);
-        t.setDaemon(false);
-        t.start();
+        table = new UserTable();
+        graph = new UsersGraph(table);
 
         try {
             WQServer obj = new WQServer();
             RegisterInterface stub = (RegisterInterface) UnicastRemoteObject.exportObject(obj, STUB_PORT);
 
             Registry registry = LocateRegistry.createRegistry(REG_PORT);
-            registry.rebind("WQ" + MATRICOLA, stub);
+            registry.rebind("WordQuizzle_" + MATRICOLA, stub);
 
         } catch (RemoteException e) {
             e.printStackTrace();
         }
 
-        ServerSocket serverSocket = new ServerSocket(TCP_PORT);
-        System.out.println("Listening for clients...");
+        ServerHandler server = new ServerHandler(table);
+        Thread thread = new Thread(server);
+        thread.start();
 
-        while(true) {
-            Socket socket = serverSocket.accept();
+        //System.setProperty("java.rmi.server.hostname","95.248.187.159");
 
-            // read data from the client
-            // send data to the client
-            OutputStream output = socket.getOutputStream();
-            PrintWriter writer = new PrintWriter(output, true);
-
-            writer.println("Hello world");
-        }
 
 
     }
+
 }
