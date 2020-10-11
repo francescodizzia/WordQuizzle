@@ -22,10 +22,13 @@ public class WQServer implements RegisterInterface {
 
 
     public int registerUser(String nickUtente, String password) {
+        if(password == null || password.equals(""))
+            return StatusCode.EMPTY_PASSWORD;
+
         try {
             db.newUser(nickUtente, password);
         } catch (UserAlreadyTakenException e) {
-            return StatusCode.ERROR;
+            return StatusCode.USER_ALREADY_REGISTERED;
         }
         try {
             server.serialize();

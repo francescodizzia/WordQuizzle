@@ -1,15 +1,12 @@
 {
   "userGraph": {
     "sharkL": [],
-    "dario": [
-      "mangaka96",
-      "volpescu"
-    ],
-    "victor": [
-      "mangaka96"
-    ],
     "sgrodolox": [],
-    "domenico": [],
+    "domenico": [
+      "dario"
+    ],
+    "prova": [],
+    "mottura": [],
     "fossa": [
       "mangaka96"
     ],
@@ -18,24 +15,29 @@
       "dario",
       "fossa"
     ],
+    "masella": [],
+    "monitor": [],
+    "crash": [
+      "dario"
+    ],
+    "victor": [
+      "mangaka96"
+    ],
+    "dario": [
+      "domenico",
+      "mangaka96",
+      "volpescu",
+      "crash"
+    ],
     "volpescu": [
       "dario"
-    ]
+    ],
+    "zeb89": []
   },
   "userTable": {
     "sharkL": {
       "username": "sharkl",
       "password": "a",
-      "score": 0
-    },
-    "dario": {
-      "username": "dario",
-      "password": "moccia",
-      "score": 999
-    },
-    "victor": {
-      "username": "victor",
-      "password": "laslo",
       "score": 0
     },
     "sgrodolox": {
@@ -48,6 +50,16 @@
       "password": "caverna",
       "score": 0
     },
+    "prova": {
+      "username": "prova",
+      "password": "test",
+      "score": 0
+    },
+    "mottura": {
+      "username": "mottura",
+      "password": "ageag",
+      "score": 0
+    },
     "fossa": {
       "username": "fossa",
       "password": "in",
@@ -58,9 +70,39 @@
       "password": "xd",
       "score": 0
     },
+    "masella": {
+      "username": "masella",
+      "password": "orso",
+      "score": 0
+    },
+    "monitor": {
+      "username": "monitor",
+      "password": "vanzina",
+      "score": 0
+    },
+    "crash": {
+      "username": "crash",
+      "password": "4",
+      "score": 0
+    },
+    "victor": {
+      "username": "victor",
+      "password": "ciao",
+      "score": 0
+    },
+    "dario": {
+      "username": "dario",
+      "password": "f",
+      "score": 0
+    },
     "volpescu": {
       "username": "volpescu",
       "password": "kek",
+      "score": 0
+    },
+    "zeb89": {
+      "username": "zeb89",
+      "password": "lezzo",
       "score": 0
     }
   }

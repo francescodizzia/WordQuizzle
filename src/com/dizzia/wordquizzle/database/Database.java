@@ -1,5 +1,6 @@
 package com.dizzia.wordquizzle.database;
 
+import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.commons.exceptions.UserAlreadyTakenException;
 import com.google.gson.Gson;
 
@@ -24,6 +25,19 @@ public class Database {
 //        public ConcurrentHashMap<String, User> getUserTable(){
 //            return userTable;
 //        }
+
+
+        public int checkCredentials(String username, String password){
+            User user = userTable.get(username);
+
+            if(user == null){
+                return StatusCode.USER_NOT_FOUND;
+            }else if(user.getPassword().equals(password)){
+                return StatusCode.OK;
+            }
+
+            return StatusCode.WRONG_PASSWORD;
+        }
 
 
         public void newUser(String username, String password) throws UserAlreadyTakenException {

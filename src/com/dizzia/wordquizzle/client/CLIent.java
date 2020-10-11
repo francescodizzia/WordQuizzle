@@ -20,9 +20,13 @@ public class CLIent {
     static Registry registry;
     static RegisterInterface stub;
 
-    public static int registra_utente(String nickUtente, String password) throws RemoteException, NotBoundException, UserAlreadyTakenException {
+    public static int registra_utente(String nickUtente, String password) throws RemoteException {
         registry = LocateRegistry.getRegistry(RegisterInterface.REG_PORT);
-        stub = (RegisterInterface) registry.lookup("WordQuizzle_" + RegisterInterface.MATRICOLA);
+        try {
+            stub = (RegisterInterface) registry.lookup("WordQuizzle_" + RegisterInterface.MATRICOLA);
+        } catch (NotBoundException e) {
+            e.printStackTrace();
+        }
         return stub.registerUser(nickUtente, password);
     }
 
@@ -37,30 +41,29 @@ public class CLIent {
         Scanner scanner = new Scanner(System.in);
 
 
-        while(true) {
+        while (true) {
             String string = scanner.nextLine();
 
-            if(string.equals("quit"))
+            if (string.equals("quit"))
                 break;
 
             String[] a = string.split(" ");
-            if(a[0].equalsIgnoreCase("register")) {
-                if(registra_utente(a[1], a[2]) == StatusCode.OK) {
+            if (a[0].equalsIgnoreCase("register")) {
+                if (registra_utente(a[1], a[2]) == StatusCode.OK) {
                     print("Registrazione effettuata con successo");
                     USERNAME = a[1];
                     PASSWORD = a[2];
                     break;
-                }else{
+                } else {
                     print("RIP ROP"); //TODO
                 }
-            }else if(a[0].equalsIgnoreCase("login")){
+            } else if (a[0].equalsIgnoreCase("login")) {
                 USERNAME = a[1];
                 PASSWORD = a[2];
                 break;
             }
 
         }
-
 
 
         try {
@@ -71,29 +74,28 @@ public class CLIent {
             ByteBufferIO.writeString(server, "login " + USERNAME + " " + PASSWORD);
             int login_result = ByteBufferIO.readInt(server);
 
-            if(login_result == StatusCode.OK) {
+            if (login_result == StatusCode.OK) {
                 print("Login effettuato con successo!");
                 logged = true;
-            }
-            else
+            } else
                 print("Login fallito, riprova!");
 
 
             //Command line interface start
 
             Scanner s = new Scanner(System.in);
-            while(true) {
+            while (true) {
                 String string = s.nextLine();
 
-                if(string.equals("quit"))
+                if (string.equals("quit"))
                     break;
 
 
                 ByteBufferIO.writeString(server, string);
 
-                if(string.equals("friendlist")){
+                if (string.equals("friendlist")) {
                     System.out.println(ByteBufferIO.readString(server));
-                }else {
+                } else {
                     int result_code = ByteBufferIO.readInt(server);
                     System.out.println(result_code);
                 }
@@ -108,7 +110,7 @@ public class CLIent {
     }
 
 
-    private static void print(String string){
+    private static void print(String string) {
         System.out.println(string);
     }
 
