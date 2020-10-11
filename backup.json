@@ -1,5 +1,6 @@
 {
   "userGraph": {
+    "a": [],
     "sharkL": [],
     "sgrodolox": [],
     "domenico": [
@@ -35,6 +36,11 @@
     "zeb89": []
   },
   "userTable": {
+    "a": {
+      "username": "a",
+      "password": "b",
+      "score": 0
+    },
     "sharkL": {
       "username": "sharkl",
       "password": "a",
