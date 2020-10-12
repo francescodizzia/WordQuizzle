@@ -5,6 +5,7 @@ import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.database.Database;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.sun.org.apache.xml.internal.utils.res.XResources_es;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,7 +15,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Set;
@@ -24,6 +27,7 @@ public class ServerHandler implements Runnable {
     private final Database database;
     private final ConcurrentHashMap<String, InetSocketAddress> loggedUsers;
     private final ConcurrentHashMap<String, SelectionKey> keyMap;
+
 
     public ServerHandler(Database database) {
         loggedUsers = new ConcurrentHashMap<>();
@@ -40,20 +44,22 @@ public class ServerHandler implements Runnable {
         file.close();
     }
 
-    private void sendUDP(InetSocketAddress address, String message) throws SocketException {
+
+
+
+    private void sendUDP(InetSocketAddress address, int port, String message) throws SocketException {
         DatagramSocket datagramSocket = new DatagramSocket();
         byte[] buffer;
 
-        buffer = message.getBytes();
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address.getAddress(), address.getPort());
-        System.out.println(address.getPort());
+        buffer = message.getBytes(StandardCharsets.UTF_8);
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address.getAddress(), port);
+        System.out.println(port);
         try {
             datagramSocket.send(packet);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
 
     private void commandParser(String command, SocketChannel client, SelectionKey key) {
@@ -63,6 +69,7 @@ public class ServerHandler implements Runnable {
         String COMMAND_NAME = args[0].toUpperCase();
         ByteBuffer buffer = resources.buffer;
 
+        System.out.println(Arrays.toString(args));
 
         switch (COMMAND_NAME) {
             case "LOGIN":
@@ -72,6 +79,7 @@ public class ServerHandler implements Runnable {
                     System.out.println(loggedUsers.keySet());
                     resources.setUsername(args[1]);
                     keyMap.put(args[1], key);
+                    resources.port = Integer.parseInt(args[3]);
                 }
                 resources.buffer.clear();
                 resources.buffer.putInt(login_result);
@@ -102,7 +110,8 @@ public class ServerHandler implements Runnable {
                 System.out.println("richiesta di sfida da " + CURRENT_USER + " [" + loggedUsers.get(CURRENT_USER) +"] a "
                                     + args[1] + " [" + loggedUsers.get(args[1]) + "]");
                 try {
-                    sendUDP(loggedUsers.get(args[1]), "sfida " + CURRENT_USER);
+                    ClientResources friend = (ClientResources) keyMap.get(args[1]).attachment();
+                    sendUDP(loggedUsers.get(args[1]), friend.getUDP_port(), "sfida " + CURRENT_USER);
                 } catch (SocketException e) {
                     e.printStackTrace();
                 }
@@ -132,9 +141,11 @@ public class ServerHandler implements Runnable {
                 key.interestOps(SelectionKey.OP_READ);
                 break;
             case "ZIZIZI":
-
                 key.interestOps(0);
-                //ChallengeHandler h = new ChallengeHandler(key, keyMap.get(args[1]));
+                System.out.println("UZZIUH: " + args[1] + "[fine]");
+                System.out.println(args[1]);
+
+                System.out.println(keyMap.get("crash"));
                 ChallengeHandler h = new ChallengeHandler(keyMap.get(CURRENT_USER), keyMap.get(args[1]));
                 Thread t = new Thread(h);
                 t.start();
@@ -142,6 +153,8 @@ public class ServerHandler implements Runnable {
 
         }
     }
+
+
 
     public void run() {
         int port = 1919;
@@ -199,6 +212,7 @@ public class ServerHandler implements Runnable {
 
                         input.flip();
                         String line = StandardCharsets.UTF_8.decode(input).toString();
+                        //String line = new String(input.array(), StandardCharsets.UTF_8);
 
                         commandParser(line, client, key);
                         System.out.println("Ricevuto: " + line);

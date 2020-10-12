@@ -1,4 +1,4 @@
-package com.dizzia.wordquizzle.client;
+package com.dizzia.wordquizzle.legacy.client;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;

@@ -1,4 +1,4 @@
-package com.dizzia.wordquizzle.client;
+package com.dizzia.wordquizzle.legacy.client;
 
 import com.dizzia.wordquizzle.commons.exceptions.UserAlreadyTakenException;
 import com.dizzia.wordquizzle.RegisterInterface;

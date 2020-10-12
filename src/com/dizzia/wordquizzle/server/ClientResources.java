@@ -10,6 +10,7 @@ public class ClientResources {
     private String username;
     ByteBuffer buffer;
     InetSocketAddress address;
+    public int port;
 
 
 
@@ -30,5 +31,9 @@ public class ClientResources {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public int getUDP_port() {
+        return port;
     }
 }

@@ -41,23 +41,23 @@ public class ChallengeFrame extends JFrame implements ActionListener {
 
 
     public void setLayoutManager() {
-        //Setting layout manager of Container to null
         container.setLayout(null);
 
     }
 
 
     public void addActionEvent() {
-        challengeField.addActionListener(this);
+        challengeButton.addActionListener(this);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
         if(e.getSource() == challengeButton) {
-
             GUIClient.writeString("sfida " + challengeField.getText());
+            System.out.println(GUIClient.readInt());
             System.out.println(GUIClient.readString());
+
         }
 
 

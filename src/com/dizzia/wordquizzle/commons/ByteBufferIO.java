@@ -4,13 +4,15 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class ByteBufferIO {
-    public static int MAX_STRING_LENGTH = 128;
+    //TODO
+    public static int MAX_STRING_LENGTH = 256;
     static int INTEGER_BYTE_SIZE = 4;
 
     public static int readInt(SocketChannel channel) throws IOException {
-        ByteBuffer input = ByteBuffer.allocateDirect(4);
+        ByteBuffer input = ByteBuffer.allocate(4);
         input.clear();
         channel.read(input);
         input.flip();
@@ -26,7 +28,7 @@ public class ByteBufferIO {
     }
 
     public static String readString(SocketChannel channel) throws IOException {
-        ByteBuffer input = ByteBuffer.allocateDirect(MAX_STRING_LENGTH);
+        ByteBuffer input = ByteBuffer.allocate(MAX_STRING_LENGTH);
         input.clear();
         channel.read(input);
         input.flip();
@@ -35,9 +37,10 @@ public class ByteBufferIO {
 
 
     public static void writeString(SocketChannel channel, String message) throws IOException {
-        ByteBuffer output = ByteBuffer.allocateDirect(MAX_STRING_LENGTH);
+        ByteBuffer output = ByteBuffer.allocate(MAX_STRING_LENGTH);
         output.clear();
         byte[] bytes = message.getBytes();
+        System.out.println("+write+: " + message);
         output.put(bytes);
         output.flip();
         channel.write(output);

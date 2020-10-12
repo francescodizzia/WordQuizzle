@@ -26,6 +26,7 @@ public class ChallengeHandler implements Runnable {
     }
 
     public void run() {
+        System.out.println("---------------NUOVO SELECTOR----------");
         SocketChannel channel = (SocketChannel) userKey.channel();
         SocketChannel channel2 = (SocketChannel) sfidante.channel();
 
