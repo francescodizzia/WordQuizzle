@@ -7,6 +7,7 @@ import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
 import com.dizzia.wordquizzle.commons.StatusCode;
+import sun.plugin2.os.windows.Windows;
 
 
 public class GUIClient {
@@ -21,7 +22,7 @@ public class GUIClient {
         t.start();
     }
 
-    public static void login(String username, String password){
+    public static void login(String username, String password) {
         System.out.println(password);
 
         try {
@@ -52,16 +53,19 @@ public class GUIClient {
 
         loginFrame.setVisible(false);
         loginFrame.dispose();
+
+
     }
 
 
 
-    public static void main(String[] a) {
+    public static void main(String[] a) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         loginFrame.setTitle("WordQuizzle - Login");
         loginFrame.setVisible(true);
         loginFrame.setBounds(10, 10, 480, 360);
         loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         loginFrame.setLocationRelativeTo(null);
         loginFrame.setResizable(false);
+
     }
 }

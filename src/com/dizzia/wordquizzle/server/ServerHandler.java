@@ -94,7 +94,6 @@ public class ServerHandler implements Runnable {
                 resources.buffer.put(list.getBytes());
                 resources.buffer.flip();
                 key.interestOps(SelectionKey.OP_WRITE);
-                System.out.println("ciao");
                 break;
             case "SFIDA":
                 System.out.println("richiesta di sfida da " + CURRENT_USER + " [" + loggedUsers.get(CURRENT_USER) +"] a "
@@ -129,6 +128,16 @@ public class ServerHandler implements Runnable {
                 System.out.println(loggedUsers.keySet());
                 key.interestOps(SelectionKey.OP_READ);
                 break;
+            case "ZIZIZI":
+
+                key.interestOps(0);
+                ChallengeHandler h = new ChallengeHandler(key);
+                Thread t = new Thread(h);
+                t.start();
+                //key.interestOps(0);
+                //key.cancel();
+                break;
+
         }
     }
 

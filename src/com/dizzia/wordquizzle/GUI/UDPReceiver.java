@@ -8,6 +8,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class UDPReceiver implements Runnable {
     //private final static int PORT = 9999;
@@ -30,15 +31,27 @@ public class UDPReceiver implements Runnable {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
                 socket.receive(packet);
                 String string = new String(buf,0, buf.length);
-                System.out.println("Ho ricevuto: " + string);
-                JOptionPane.showMessageDialog(frame, string, "Ping" , JOptionPane.INFORMATION_MESSAGE);
                 Arrays.fill(buf,(byte) 0);
+                System.out.println(string);
+                int choice = JOptionPane.showConfirmDialog(frame, string, "Ping",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
-                try {
-                    ByteBufferIO.writeString(server, "GREEEVE ZIOOO");
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if(choice == JOptionPane.YES_OPTION){
+                    ByteBufferIO.writeString(server, "ZIZIZI");
+                }else{
+                    ByteBufferIO.writeString(server, "NONONO");
                 }
+
+                Scanner s = new Scanner(System.in);
+                while(true) {
+                String string2 = s.nextLine();
+
+                ByteBufferIO.writeString(server, string2);
+
+                int result_code = ByteBufferIO.readInt(server);
+                System.out.println(result_code);
+                }
+
 
             }
 
