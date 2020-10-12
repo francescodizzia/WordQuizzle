@@ -18,23 +18,24 @@ import java.util.Set;
 
 public class ChallengeHandler implements Runnable {
     SelectionKey userKey;
+    SelectionKey sfidante;
 
-    public ChallengeHandler(SelectionKey userKey) {
+    public ChallengeHandler(SelectionKey userKey, SelectionKey sfidante) {
         this.userKey = userKey;
+        this.sfidante = sfidante;
     }
 
     public void run() {
         SocketChannel channel = (SocketChannel) userKey.channel();
+        SocketChannel channel2 = (SocketChannel) sfidante.channel();
 
         try {
-            //Selector selector = Selector.open();
             Selector selector = Selector.open();
 
             channel.configureBlocking(false);
 
-            SelectionKey challengeKey = channel.register(selector, SelectionKey.OP_READ, userKey.attachment());
-
-            System.out.println("SECONDO: " + ((ClientResources)challengeKey.attachment()).getUsername());
+            channel.register(selector, SelectionKey.OP_WRITE, userKey.attachment());
+            channel2.register(selector, SelectionKey.OP_WRITE, sfidante.attachment());
 
             while(true){
                 selector.select();
@@ -67,10 +68,18 @@ public class ChallengeHandler implements Runnable {
 
 
                         key.interestOps(0);
-                        //key.interestOps(SelectionKey.OP_WRITE);
-                    } else if (key.isWritable()) {
+                    }
+                    else if (key.isWritable()) {
                         System.out.println("WRITABLE2");
-                        //key.interestOps(SelectionKey.OP_READ);
+                        SocketChannel client = (SocketChannel) key.channel();
+                        ClientResources resources = (ClientResources) key.attachment();
+                        resources.buffer.clear();
+                        resources.buffer.put(("Ciao bro " + resources.getUsername()).getBytes());
+                        resources.buffer.flip();
+
+                        client.write(resources.buffer);
+                        System.out.println("Scrivo2: " + resources.buffer);
+                        key.interestOps(0);
                     }
 
                 }

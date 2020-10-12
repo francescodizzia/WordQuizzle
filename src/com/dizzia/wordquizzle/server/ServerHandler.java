@@ -23,10 +23,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ServerHandler implements Runnable {
     private final Database database;
     private final ConcurrentHashMap<String, InetSocketAddress> loggedUsers;
+    private final ConcurrentHashMap<String, SelectionKey> keyMap;
 
     public ServerHandler(Database database) {
         loggedUsers = new ConcurrentHashMap<>();
         this.database = database;
+        keyMap = new ConcurrentHashMap<>();
     }
 
 
@@ -69,6 +71,7 @@ public class ServerHandler implements Runnable {
                     loggedUsers.put(args[1], resources.getAddress());
                     System.out.println(loggedUsers.keySet());
                     resources.setUsername(args[1]);
+                    keyMap.put(args[1], key);
                 }
                 resources.buffer.clear();
                 resources.buffer.putInt(login_result);
@@ -99,7 +102,7 @@ public class ServerHandler implements Runnable {
                 System.out.println("richiesta di sfida da " + CURRENT_USER + " [" + loggedUsers.get(CURRENT_USER) +"] a "
                                     + args[1] + " [" + loggedUsers.get(args[1]) + "]");
                 try {
-                    sendUDP(loggedUsers.get(args[1]), "Hai ricevuto una sfida da " + CURRENT_USER);
+                    sendUDP(loggedUsers.get(args[1]), "sfida " + CURRENT_USER);
                 } catch (SocketException e) {
                     e.printStackTrace();
                 }
@@ -131,11 +134,10 @@ public class ServerHandler implements Runnable {
             case "ZIZIZI":
 
                 key.interestOps(0);
-                ChallengeHandler h = new ChallengeHandler(key);
+                //ChallengeHandler h = new ChallengeHandler(key, keyMap.get(args[1]));
+                ChallengeHandler h = new ChallengeHandler(keyMap.get(CURRENT_USER), keyMap.get(args[1]));
                 Thread t = new Thread(h);
                 t.start();
-                //key.interestOps(0);
-                //key.cancel();
                 break;
 
         }
@@ -198,7 +200,7 @@ public class ServerHandler implements Runnable {
                         input.flip();
                         String line = StandardCharsets.UTF_8.decode(input).toString();
 
-                        this.commandParser(line, client, key);
+                        commandParser(line, client, key);
                         System.out.println("Ricevuto: " + line);
                     }
                     else if(key.isWritable()){

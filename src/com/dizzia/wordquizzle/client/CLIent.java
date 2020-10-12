@@ -86,18 +86,24 @@ public class CLIent {
             Scanner s = new Scanner(System.in);
             while (true) {
                 String string = s.nextLine();
+                String op = string.split(" ")[0];
 
                 if (string.equals("quit"))
                     break;
 
-
                 ByteBufferIO.writeString(server, string);
 
+
                 if (string.equals("friendlist")) {
-                    System.out.println(ByteBufferIO.readString(server));
+                    String a = ByteBufferIO.readString(server);
+                    System.out.println(a);
                 } else {
                     int result_code = ByteBufferIO.readInt(server);
                     System.out.println(result_code);
+                    if(op.equals("sfida")) {
+                        String a = ByteBufferIO.readString(server);
+                        System.out.println(a);
+                    }
                 }
             }
 

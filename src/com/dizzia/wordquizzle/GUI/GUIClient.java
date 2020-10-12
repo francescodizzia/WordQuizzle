@@ -7,11 +7,13 @@ import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
 import com.dizzia.wordquizzle.commons.StatusCode;
+import com.dizzia.wordquizzle.server.ChallengeHandler;
 import sun.plugin2.os.windows.Windows;
 
 
 public class GUIClient {
     static LoginFrame loginFrame = new LoginFrame();
+    static ChallengeFrame challengeFrame = new ChallengeFrame();
     static SocketChannel server;
 
     static int port = 1919;
@@ -21,6 +23,29 @@ public class GUIClient {
         Thread t = new Thread(receiver);
         t.start();
     }
+
+
+    public static void writeString(String message){
+        try {
+            ByteBufferIO.writeString(server, message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static String readString(){
+        String r = null;
+        try {
+           r = ByteBufferIO.readString(server);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return r;
+    }
+
+
 
     public static void login(String username, String password) {
         System.out.println(password);
@@ -54,6 +79,12 @@ public class GUIClient {
         loginFrame.setVisible(false);
         loginFrame.dispose();
 
+        challengeFrame.setTitle("WordQuizzle - Manda sfida");
+        challengeFrame.setVisible(true);
+        challengeFrame.setBounds(10, 10, 480, 360);
+        challengeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        challengeFrame.setLocationRelativeTo(null);
+        challengeFrame.setResizable(false);
 
     }
 

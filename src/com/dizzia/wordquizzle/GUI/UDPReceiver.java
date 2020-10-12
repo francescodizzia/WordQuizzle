@@ -37,20 +37,13 @@ public class UDPReceiver implements Runnable {
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
                 if(choice == JOptionPane.YES_OPTION){
-                    ByteBufferIO.writeString(server, "ZIZIZI");
+                    ByteBufferIO.writeString(server, "ZIZIZI " + string.split(" ")[1]);
                 }else{
                     ByteBufferIO.writeString(server, "NONONO");
                 }
 
-                Scanner s = new Scanner(System.in);
-                while(true) {
-                String string2 = s.nextLine();
-
-                ByteBufferIO.writeString(server, string2);
-
-                int result_code = ByteBufferIO.readInt(server);
+                String result_code = ByteBufferIO.readString(server);
                 System.out.println(result_code);
-                }
 
 
             }
