@@ -21,6 +21,7 @@
     "crash": [
       "dario"
     ],
+    "1": [],
     "victor": [
       "mangaka96"
     ],
@@ -30,6 +31,7 @@
       "volpescu",
       "crash"
     ],
+    "lmao": [],
     "volpescu": [
       "dario"
     ],
@@ -91,6 +93,11 @@
       "password": "4",
       "score": 0
     },
+    "1": {
+      "username": "1",
+      "password": "2",
+      "score": 0
+    },
     "victor": {
       "username": "victor",
       "password": "ciao",
@@ -99,6 +106,11 @@
     "dario": {
       "username": "dario",
       "password": "f",
+      "score": 0
+    },
+    "lmao": {
+      "username": "lmao",
+      "password": "asd",
       "score": 0
     },
     "volpescu": {

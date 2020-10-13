@@ -1,20 +1,12 @@
 package com.dizzia.wordquizzle.server;
 
-import com.dizzia.wordquizzle.commons.StatusCode;
-import com.sun.org.apache.bcel.internal.generic.Select;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
-
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
-import java.util.Set;
 
 public class ChallengeHandler implements Runnable {
     SelectionKey userKey;
@@ -47,8 +39,8 @@ public class ChallengeHandler implements Runnable {
                     keysIterator.remove();
                     System.out.println("Rimossa key " + key);
 
-                    if(!key.isValid())
-                        continue;
+//                    if(!key.isValid())
+//                        continue;
                     if (key.isReadable()) {
                         System.out.println("READABLE2");
                         ClientResources resources = (ClientResources) key.attachment();

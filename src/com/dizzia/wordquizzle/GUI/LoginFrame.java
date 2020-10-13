@@ -2,11 +2,14 @@ package com.dizzia.wordquizzle.gui;
 
 import com.dizzia.wordquizzle.RegisterInterface;
 import com.dizzia.wordquizzle.commons.StatusCode;
+import jdk.nashorn.internal.scripts.JO;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -87,8 +90,10 @@ public class LoginFrame extends JFrame implements ActionListener{
             try {
                 register_code = registra_utente(username, password);
             } catch (RemoteException | NotBoundException remoteException) {
+                
                 JOptionPane.showMessageDialog(this, "Errore: impossibile collegarsi al server",
                 "Errore di rete", JOptionPane.ERROR_MESSAGE);
+                
             }
 
             switch(register_code) {
@@ -111,10 +116,6 @@ public class LoginFrame extends JFrame implements ActionListener{
                             "risulta già registrato!", "Errore di registrazione" , JOptionPane.ERROR_MESSAGE);
                     break;
             }
-
-
-            //JOptionPane.showMessageDialog(this, "Invalid Username or Password");
-
 
         }
 

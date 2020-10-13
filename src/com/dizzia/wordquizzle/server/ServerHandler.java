@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.org.apache.xml.internal.utils.res.XResources_es;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.*;
@@ -17,16 +19,14 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerHandler implements Runnable {
     private final Database database;
     private final ConcurrentHashMap<String, InetSocketAddress> loggedUsers;
     private final ConcurrentHashMap<String, SelectionKey> keyMap;
+
 
 
     public ServerHandler(Database database) {
@@ -145,7 +145,6 @@ public class ServerHandler implements Runnable {
                 System.out.println("UZZIUH: " + args[1] + "[fine]");
                 System.out.println(args[1]);
 
-                System.out.println(keyMap.get("crash"));
                 ChallengeHandler h = new ChallengeHandler(keyMap.get(CURRENT_USER), keyMap.get(args[1]));
                 Thread t = new Thread(h);
                 t.start();
@@ -212,7 +211,6 @@ public class ServerHandler implements Runnable {
 
                         input.flip();
                         String line = StandardCharsets.UTF_8.decode(input).toString();
-                        //String line = new String(input.array(), StandardCharsets.UTF_8);
 
                         commandParser(line, client, key);
                         System.out.println("Ricevuto: " + line);

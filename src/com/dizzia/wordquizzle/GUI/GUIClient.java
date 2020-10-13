@@ -9,9 +9,6 @@ import java.net.SocketException;
 import java.nio.channels.SocketChannel;
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
 import com.dizzia.wordquizzle.commons.StatusCode;
-import com.dizzia.wordquizzle.server.ChallengeHandler;
-import sun.plugin2.os.windows.Windows;
-
 
 public class GUIClient {
     static LoginFrame loginFrame = new LoginFrame();
