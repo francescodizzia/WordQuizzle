@@ -53,6 +53,7 @@ public class ChallengeHandler implements Runnable {
 //                        continue;
                     if (key.isReadable()) {
                         System.out.println("READABLE2");
+                        SocketChannel client = (SocketChannel) key.channel();
                         ClientResources resources = (ClientResources) key.attachment();
                         String s = null;
                         String m = null;
@@ -60,7 +61,8 @@ public class ChallengeHandler implements Runnable {
                             s = resources.getUsername();
                             ByteBuffer input = resources.buffer;
                             input.clear();
-                            int read_byte = channel.read(input);
+//                            int read_byte = channel.read(input);
+                            int read_byte = client.read(input);
                             input.flip();
                             String line = StandardCharsets.UTF_8.decode(input).toString();
                             m = line;
@@ -78,11 +80,12 @@ public class ChallengeHandler implements Runnable {
                         ClientResources resources = (ClientResources) key.attachment();
 
                         if (resources.getTranslatedWords() >= N) {
+                            System.out.println("PLAYER " + resources.getUsername() + " HAI COMPLETATO LA SFIDA");
                             key.interestOps(0);
-                            client.register(oldSelector, SelectionKey.OP_READ);
+                            client.register(oldSelector, SelectionKey.OP_READ, key.attachment());
+                            oldSelector.wakeup();
                         }
                         else{
-
                             resources.buffer.clear();
                             resources.buffer.put(("Ciao bro " + resources.getUsername() + "\n" + chosenWords.get(resources.getTranslatedWords())).getBytes());
                             resources.buffer.flip();
@@ -98,54 +101,10 @@ public class ChallengeHandler implements Runnable {
             }
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-
-//        try {
-//            //Selector selector = Selector.open();
-//            Selector selector = Selector.open();
-//
-//            channel.configureBlocking(false);
-//
-//            SelectionKey challengeKey = channel.register(selector, SelectionKey.OP_READ, userKey.attachment());
-//
-//            System.out.println("SECONDO: " + ((ClientResources)challengeKey.attachment()).getUsername());
-//
-//            while(true){
-//                selector.select();
-//                Iterator<SelectionKey> keysIterator = selector.selectedKeys().iterator();
-//
-//                while (keysIterator.hasNext()) {
-//                    SelectionKey key = keysIterator.next();
-//                    keysIterator.remove();
-//                    System.out.println("Rimossa key " + key);
-//
-//                    if(!key.isValid())
-//                        continue;
-//                   if (key.isReadable()) {
-//                        System.out.println("READABLE2");
-//                        ClientResources res = (ClientResources) key.attachment();
-//                        String s = null;
-//                        if (res != null) {
-//                            s = res.getUsername();
-//                        }
-//
-//                        System.out.println("Ciao fratello " + s);
-//                        //key.interestOps(SelectionKey.OP_WRITE);
-//                    } else if (key.isWritable()) {
-//                        System.out.println("WRITABLE2");
-//                        //key.interestOps(SelectionKey.OP_READ);
-//                    }
-//
-//                }
-//            }
-//
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
             }
 
 }

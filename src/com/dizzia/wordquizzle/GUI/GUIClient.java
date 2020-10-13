@@ -7,6 +7,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.SocketChannel;
+import java.util.Scanner;
+
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
 import com.dizzia.wordquizzle.commons.StatusCode;
 
@@ -122,5 +124,40 @@ public class GUIClient {
         
 
 
+    }
+
+    public static void inizio_sfida() {
+        Scanner s = new Scanner(System.in);
+//        while(true){
+//            try {
+//                ByteBufferIO.writeString(server, s.nextLine());
+//                String result_code = ByteBufferIO.readString(server);
+//                System.out.println("Risposta: " + result_code);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
+
+        for(int i=0; i<5; i++){
+            try {
+                ByteBufferIO.writeString(server, s.nextLine());
+                if(i == 4)break;
+                String result_code = ByteBufferIO.readString(server);
+                System.out.println("Risposta: " + result_code);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        while(true) {
+            try {
+                ByteBufferIO.writeString(server, s.nextLine());
+                System.out.println(ByteBufferIO.readString(server));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

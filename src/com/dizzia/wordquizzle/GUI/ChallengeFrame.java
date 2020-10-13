@@ -57,7 +57,7 @@ public class ChallengeFrame extends JFrame implements ActionListener {
             GUIClient.writeString("sfida " + challengeField.getText());
             System.out.println(GUIClient.readInt());
             System.out.println(GUIClient.readString());
-
+            GUIClient.inizio_sfida();
         }
 
 

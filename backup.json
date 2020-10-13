@@ -6,7 +6,9 @@
     "domenico": [
       "dario"
     ],
-    "prova": [],
+    "prova": [
+      "dario"
+    ],
     "mottura": [],
     "fossa": [
       "mangaka96"
@@ -27,6 +29,7 @@
     ],
     "dario": [
       "domenico",
+      "prova",
       "mangaka96",
       "volpescu",
       "crash"

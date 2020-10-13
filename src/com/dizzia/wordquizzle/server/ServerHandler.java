@@ -147,7 +147,7 @@ public class ServerHandler implements Runnable {
                 key.interestOps(0);
                 System.out.println("UZZIUH: " + args[1] + "[fine]");
                 System.out.println(args[1]);
-
+                keyMap.get(args[1]).interestOps(0);
                 ChallengeHandler h = new ChallengeHandler(keyMap.get(CURRENT_USER), keyMap.get(args[1]), wqDictionary, selector);
                 Thread t = new Thread(h);
                 t.start();

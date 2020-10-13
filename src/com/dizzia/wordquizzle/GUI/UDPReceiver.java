@@ -51,6 +51,7 @@ public class UDPReceiver implements Runnable {
                     ByteBufferIO.writeString(server, "ZIZIZI " + challenger);
                     String result_code = ByteBufferIO.readString(server);
                     System.out.println(result_code);
+                    GUIClient.inizio_sfida();
                 }else{
                     ByteBufferIO.writeString(server, "NONONO");
                     int result = ByteBufferIO.readInt(server);
@@ -67,4 +68,6 @@ public class UDPReceiver implements Runnable {
         }
 
     }
+
+
 }
