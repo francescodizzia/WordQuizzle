@@ -1,4 +1,4 @@
-package com.dizzia.wordquizzle.gui;
+package com.dizzia.wordquizzle.client;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import com.dizzia.wordquizzle.commons.StatusCode;
 
 public class GUIClient {
     static LoginFrame loginFrame = new LoginFrame();
-    static ChallengeFrame challengeFrame = new ChallengeFrame();
+    static ChallengeSenderFrame challengeFrame = new ChallengeSenderFrame();
     static SocketChannel server;
     static DatagramSocket datagramSocket;
     static int udp_port = -1;
@@ -128,16 +128,7 @@ public class GUIClient {
 
     public static void inizio_sfida() {
         Scanner s = new Scanner(System.in);
-//        while(true){
-//            try {
-//                ByteBufferIO.writeString(server, s.nextLine());
-//                String result_code = ByteBufferIO.readString(server);
-//                System.out.println("Risposta: " + result_code);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//        }
+
 
         for(int i=0; i<5; i++){
             try {

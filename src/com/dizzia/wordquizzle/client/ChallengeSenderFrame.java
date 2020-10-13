@@ -1,19 +1,11 @@
-package com.dizzia.wordquizzle.gui;
-
-import com.dizzia.wordquizzle.RegisterInterface;
-import com.dizzia.wordquizzle.commons.ByteBufferIO;
-import com.dizzia.wordquizzle.commons.StatusCode;
+package com.dizzia.wordquizzle.client;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 
-public class ChallengeFrame extends JFrame implements ActionListener {
+public class ChallengeSenderFrame extends JFrame implements ActionListener {
     Container container = getContentPane();
 
     JTextField challengeField = new JTextField();
@@ -21,7 +13,7 @@ public class ChallengeFrame extends JFrame implements ActionListener {
 
 
 
-    public ChallengeFrame() {
+    public ChallengeSenderFrame() {
         setLayoutManager();
         setLocationAndSize();
         addComponentsToContainer();

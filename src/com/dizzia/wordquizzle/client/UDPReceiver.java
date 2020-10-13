@@ -1,4 +1,4 @@
-package com.dizzia.wordquizzle.gui;
+package com.dizzia.wordquizzle.client;
 
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
 

@@ -1,8 +1,17 @@
 package com.dizzia.wordquizzle.server;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import javax.swing.plaf.synth.SynthDesktopIconUI;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.*;
 
 public class WQDictionary {
@@ -53,15 +62,42 @@ public class WQDictionary {
         return randomWords;
     }
 
-    public static void main(String[] args){
-        WQDictionary d = new WQDictionary();
-        Vector<String> words = d.getDistinctWords(5);
-        System.out.println(words);
+    public static ArrayList<String> getTranslatedWords(String word){
+        ArrayList<String> words = new ArrayList<>();
 
-        for(String w: words){
-            System.out.println(TranslatorService.getTranslatedWord(w));
+        try {
+            URL u = new URL("https://api.mymemory.translated.net/get?q=" + URLEncoder.encode(word, "UTF-8") + "&langpair=it|en");
+            InputStreamReader reader = new InputStreamReader(u.openStream());
+
+//            JsonObject jsonObject = new Gson().fromJson(reader, JsonObject.class);
+//            JsonObject respondeData = jsonObject.get("responseData").getAsJsonObject();
+//            result = respondeData.get("translatedText").getAsString();
+
+            JsonObject jsonObject = new Gson().fromJson(reader, JsonObject.class);
+            JsonArray matches = jsonObject.getAsJsonArray("matches");
+
+            for(JsonElement element: matches)
+                words.add(element.getAsJsonObject().getAsJsonPrimitive("translation").getAsString().toLowerCase());
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
+        return words;
     }
+
+
+
+//    public static void main(String[] args){
+//        WQDictionary d = new WQDictionary();
+//        Vector<String> words = d.getDistinctWords(5);
+//        System.out.println(words);
+//
+//        for(String w: words){
+//            System.out.println(getTranslatedWord(w));
+//        }
+//    }
 
 
 }

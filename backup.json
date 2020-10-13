@@ -20,10 +20,16 @@
     ],
     "masella": [],
     "monitor": [],
+    "xxbimbopazzerelloxx": [
+      "gianni"
+    ],
     "crash": [
       "dario"
     ],
     "1": [],
+    "gianni": [
+      "xxbimbopazzerelloxx"
+    ],
     "victor": [
       "mangaka96"
     ],
@@ -91,6 +97,11 @@
       "password": "vanzina",
       "score": 0
     },
+    "xxbimbopazzerelloxx": {
+      "username": "xxbimbopazzerelloxx",
+      "password": "pippo42",
+      "score": 0
+    },
     "crash": {
       "username": "crash",
       "password": "4",
@@ -99,6 +110,11 @@
     "1": {
       "username": "1",
       "password": "2",
+      "score": 0
+    },
+    "gianni": {
+      "username": "gianni",
+      "password": "abcd",
       "score": 0
     },
     "victor": {

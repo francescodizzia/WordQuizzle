@@ -64,8 +64,8 @@ public class ChallengeHandler implements Runnable {
 //                            int read_byte = channel.read(input);
                             int read_byte = client.read(input);
                             input.flip();
-                            String line = StandardCharsets.UTF_8.decode(input).toString();
-                            m = line;
+                            m = StandardCharsets.UTF_8.decode(input).toString();
+//                            WQDictionary.getTranslatedWords(m).contains(m);
                         }
 
                         System.out.println("Ciao fratello " + s);
@@ -87,7 +87,8 @@ public class ChallengeHandler implements Runnable {
                         }
                         else{
                             resources.buffer.clear();
-                            resources.buffer.put(("Ciao bro " + resources.getUsername() + "\n" + chosenWords.get(resources.getTranslatedWords())).getBytes());
+//                            resources.buffer.put(("Ciao bro " + resources.getUsername() + "\n" + chosenWords.get(resources.getTranslatedWords())).getBytes());
+                            resources.buffer.put((chosenWords.get(resources.getTranslatedWords())).getBytes());
                             resources.buffer.flip();
 
                             client.write(resources.buffer);
