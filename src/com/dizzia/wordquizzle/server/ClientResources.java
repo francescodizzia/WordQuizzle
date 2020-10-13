@@ -11,6 +11,7 @@ public class ClientResources {
     ByteBuffer buffer;
     InetSocketAddress address;
     public int port;
+    int translatedWords = 0;
 
 
 
@@ -35,5 +36,13 @@ public class ClientResources {
 
     public int getUDP_port() {
         return port;
+    }
+
+    public int getTranslatedWords(){
+        return translatedWords;
+    }
+
+    public void incrementTranslatedWords(){
+        translatedWords++;
     }
 }

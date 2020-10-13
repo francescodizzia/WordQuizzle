@@ -26,6 +26,8 @@ public class ServerHandler implements Runnable {
     private final Database database;
     private final ConcurrentHashMap<String, InetSocketAddress> loggedUsers;
     private final ConcurrentHashMap<String, SelectionKey> keyMap;
+    WQDictionary wqDictionary;
+    Selector selector;
 
 
 
@@ -33,6 +35,7 @@ public class ServerHandler implements Runnable {
         loggedUsers = new ConcurrentHashMap<>();
         this.database = database;
         keyMap = new ConcurrentHashMap<>();
+        wqDictionary = new WQDictionary();
     }
 
 
@@ -145,7 +148,7 @@ public class ServerHandler implements Runnable {
                 System.out.println("UZZIUH: " + args[1] + "[fine]");
                 System.out.println(args[1]);
 
-                ChallengeHandler h = new ChallengeHandler(keyMap.get(CURRENT_USER), keyMap.get(args[1]));
+                ChallengeHandler h = new ChallengeHandler(keyMap.get(CURRENT_USER), keyMap.get(args[1]), wqDictionary, selector);
                 Thread t = new Thread(h);
                 t.start();
                 break;
@@ -160,7 +163,7 @@ public class ServerHandler implements Runnable {
         System.out.println("In ascolto sulla porta " + port);
 
         ServerSocketChannel serverChannel;
-        Selector selector;
+        //Selector selector;
         try {
             serverChannel = ServerSocketChannel.open();
             ServerSocket ss = serverChannel.socket();

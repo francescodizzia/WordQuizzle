@@ -6,15 +6,22 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Vector;
 
 public class ChallengeHandler implements Runnable {
-    SelectionKey userKey;
-    SelectionKey sfidante;
+    private SelectionKey userKey;
+    private SelectionKey sfidante;
+    private Vector<String> chosenWords;
+    Selector oldSelector;
+    int N = 5;
 
-    public ChallengeHandler(SelectionKey userKey, SelectionKey sfidante) {
+    public ChallengeHandler(SelectionKey userKey, SelectionKey sfidante, WQDictionary wqDictionary, Selector oldSelector) {
         this.userKey = userKey;
         this.sfidante = sfidante;
+        this.oldSelector = oldSelector;
+        chosenWords = wqDictionary.getDistinctWords(N);
     }
 
     public void run() {
@@ -29,6 +36,9 @@ public class ChallengeHandler implements Runnable {
 
             channel.register(selector, SelectionKey.OP_WRITE, userKey.attachment());
             channel2.register(selector, SelectionKey.OP_WRITE, sfidante.attachment());
+
+            String player1 = ((ClientResources) userKey.attachment()).getUsername();
+            String player2 = ((ClientResources) sfidante.attachment()).getUsername();
 
             while(true){
                 selector.select();
@@ -60,19 +70,28 @@ public class ChallengeHandler implements Runnable {
                         System.out.println("S2 ho letto: " + m);
 
 
-                        key.interestOps(0);
+                        key.interestOps(SelectionKey.OP_WRITE);
                     }
                     else if (key.isWritable()) {
                         System.out.println("WRITABLE2");
                         SocketChannel client = (SocketChannel) key.channel();
                         ClientResources resources = (ClientResources) key.attachment();
-                        resources.buffer.clear();
-                        resources.buffer.put(("Ciao bro " + resources.getUsername()).getBytes());
-                        resources.buffer.flip();
 
-                        client.write(resources.buffer);
-                        System.out.println("Scrivo2: " + resources.buffer);
-                        key.interestOps(0);
+                        if (resources.getTranslatedWords() >= N) {
+                            key.interestOps(0);
+                            client.register(oldSelector, SelectionKey.OP_READ);
+                        }
+                        else{
+
+                            resources.buffer.clear();
+                            resources.buffer.put(("Ciao bro " + resources.getUsername() + "\n" + chosenWords.get(resources.getTranslatedWords())).getBytes());
+                            resources.buffer.flip();
+
+                            client.write(resources.buffer);
+                            System.out.println("Scrivo2: " + resources.buffer);
+                            resources.incrementTranslatedWords();
+                            key.interestOps(SelectionKey.OP_READ);
+                    }
                     }
 
                 }
