@@ -1,12 +1,14 @@
 package com.dizzia.wordquizzle.server;
 
+import com.dizzia.wordquizzle.database.Database;
+
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -15,17 +17,18 @@ public class ChallengeHandler implements Runnable {
     private SelectionKey sfidante;
     private Vector<String> chosenWords;
     Selector oldSelector;
+    Database database;
     int N = 5;
 
-    public ChallengeHandler(SelectionKey userKey, SelectionKey sfidante, WQDictionary wqDictionary, Selector oldSelector) {
+    public ChallengeHandler(SelectionKey userKey, SelectionKey sfidante, WQDictionary wqDictionary, Selector oldSelector, Database database) {
         this.userKey = userKey;
         this.sfidante = sfidante;
         this.oldSelector = oldSelector;
         chosenWords = wqDictionary.getDistinctWords(N);
+        this.database = database;
     }
 
     public void run() {
-        System.out.println("---------------NUOVO SELECTOR----------");
         SocketChannel channel = (SocketChannel) userKey.channel();
         SocketChannel channel2 = (SocketChannel) sfidante.channel();
 
@@ -47,12 +50,8 @@ public class ChallengeHandler implements Runnable {
                 while (keysIterator.hasNext()) {
                     SelectionKey key = keysIterator.next();
                     keysIterator.remove();
-                    System.out.println("Rimossa key " + key);
 
-//                    if(!key.isValid())
-//                        continue;
                     if (key.isReadable()) {
-                        System.out.println("READABLE2");
                         SocketChannel client = (SocketChannel) key.channel();
                         ClientResources resources = (ClientResources) key.attachment();
                         String s = null;
@@ -61,38 +60,53 @@ public class ChallengeHandler implements Runnable {
                             s = resources.getUsername();
                             ByteBuffer input = resources.buffer;
                             input.clear();
-//                            int read_byte = channel.read(input);
                             int read_byte = client.read(input);
                             input.flip();
                             m = StandardCharsets.UTF_8.decode(input).toString();
-//                            WQDictionary.getTranslatedWords(m).contains(m);
+                            if(WQDictionary.getTranslatedWords(chosenWords.get(resources.getTranslatedWords()-1)).contains(m)) {
+                                System.out.println("[" + s + "] Traduzione della parola #" + (resources.getTranslatedWords()) + " CORRETTA (+2)");
+                                resources.score += 2;
+                                database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + resources.score);
+                                ServerHandler.serialize();
+                            }
+                            else {
+                                System.out.println("[" + s + "] Traduzione della parola #" + (resources.getTranslatedWords()) + " SBAGLIATA (-1)");
+                                resources.score--;
+                                database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + resources.score);
+                                ServerHandler.serialize();
+                            }
                         }
-
-                        System.out.println("Ciao fratello " + s);
-                        System.out.println("S2 ho letto: " + m);
 
 
                         key.interestOps(SelectionKey.OP_WRITE);
                     }
                     else if (key.isWritable()) {
-                        System.out.println("WRITABLE2");
+//                        System.out.println("WRITABLE2");
                         SocketChannel client = (SocketChannel) key.channel();
                         ClientResources resources = (ClientResources) key.attachment();
 
                         if (resources.getTranslatedWords() >= N) {
+                            resources.buffer.clear();
+                            resources.buffer.put("FINE".getBytes());
+                            resources.buffer.flip();
+                            client.write(resources.buffer);
+
                             System.out.println("PLAYER " + resources.getUsername() + " HAI COMPLETATO LA SFIDA");
+                            System.out.println("Punti totalizzati: " + resources.score);
+//                            database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + resources.score);
+//                            ServerHandler.serialize();
+
                             key.interestOps(0);
                             client.register(oldSelector, SelectionKey.OP_READ, key.attachment());
                             oldSelector.wakeup();
                         }
                         else{
                             resources.buffer.clear();
-//                            resources.buffer.put(("Ciao bro " + resources.getUsername() + "\n" + chosenWords.get(resources.getTranslatedWords())).getBytes());
                             resources.buffer.put((chosenWords.get(resources.getTranslatedWords())).getBytes());
                             resources.buffer.flip();
 
                             client.write(resources.buffer);
-                            System.out.println("Scrivo2: " + resources.buffer);
+
                             resources.incrementTranslatedWords();
                             key.interestOps(SelectionKey.OP_READ);
                     }
@@ -100,12 +114,14 @@ public class ChallengeHandler implements Runnable {
 
                 }
             }
+        }
 
+        catch (IOException e) {
+            System.out.println("GREVE ZIO SEI USCITO");
 
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            //e.printStackTrace();
+        }
 
-            }
+    }
 
 }

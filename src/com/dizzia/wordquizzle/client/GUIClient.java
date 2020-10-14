@@ -14,7 +14,7 @@ import com.dizzia.wordquizzle.commons.StatusCode;
 
 public class GUIClient {
     static LoginFrame loginFrame = new LoginFrame();
-    static ChallengeSenderFrame challengeFrame = new ChallengeSenderFrame();
+    static HubFrame hubFrame = new HubFrame();
     static SocketChannel server;
     static DatagramSocket datagramSocket;
     static int udp_port = -1;
@@ -92,12 +92,12 @@ public class GUIClient {
         loginFrame.setVisible(false);
         loginFrame.dispose();
 
-        challengeFrame.setTitle("[" + username + "] WordQuizzle - Invita");
-        challengeFrame.setVisible(true);
-        challengeFrame.setBounds(10, 10, 480, 360);
-        challengeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        challengeFrame.setLocationRelativeTo(null);
-        challengeFrame.setResizable(false);
+        hubFrame.setTitle("[" + username + "] WordQuizzle - Invita");
+        hubFrame.setVisible(true);
+        hubFrame.setBounds(10, 10, 450, 200);
+        hubFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        hubFrame.setLocationRelativeTo(null);
+        hubFrame.setResizable(false);
 
     }
 
@@ -111,8 +111,10 @@ public class GUIClient {
             udp_port = datagramSocket.getLocalPort();
         } catch (SocketException e) {
             e.printStackTrace();
-            System.exit(1);
+            System.exit(-1);
         }
+
+        UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 
 
         loginFrame.setTitle("WordQuizzle - Login");
@@ -121,34 +123,15 @@ public class GUIClient {
         loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         loginFrame.setLocationRelativeTo(null);
         loginFrame.setResizable(false);
-        
-
 
     }
 
     public static void inizio_sfida() {
+        hubFrame.setVisible(false);
         Scanner s = new Scanner(System.in);
 
+        ChallengeFrame f = new ChallengeFrame();
+        f.setVisible(true);
 
-        for(int i=0; i<5; i++){
-            try {
-                ByteBufferIO.writeString(server, s.nextLine());
-                if(i == 4)break;
-                String result_code = ByteBufferIO.readString(server);
-                System.out.println("Risposta: " + result_code);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
-
-        while(true) {
-            try {
-                ByteBufferIO.writeString(server, s.nextLine());
-                System.out.println(ByteBufferIO.readString(server));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }

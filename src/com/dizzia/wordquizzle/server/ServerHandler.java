@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerHandler implements Runnable {
-    private final Database database;
+    private static Database database;
     private final ConcurrentHashMap<String, InetSocketAddress> loggedUsers;
     private final ConcurrentHashMap<String, SelectionKey> keyMap;
     WQDictionary wqDictionary;
@@ -39,7 +39,7 @@ public class ServerHandler implements Runnable {
     }
 
 
-    public synchronized void serialize() throws IOException {
+    public static synchronized void serialize() throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String jsonString = gson.toJson(database);
         FileWriter file = new FileWriter("./backup.json");
@@ -78,7 +78,8 @@ public class ServerHandler implements Runnable {
             case "LOGIN":
                 int login_result = database.checkCredentials(args[1], args[2]);
                 if(login_result == StatusCode.OK) {
-                    loggedUsers.put(args[1], resources.getAddress());
+//                    loggedUsers.put(args[1], resources.getAddress());
+                    loggedUsers.put(args[1],(InetSocketAddress) client.socket().getLocalSocketAddress());
                     System.out.println(loggedUsers.keySet());
                     resources.setUsername(args[1]);
                     keyMap.put(args[1], key);
@@ -145,10 +146,10 @@ public class ServerHandler implements Runnable {
                 break;
             case "ZIZIZI":
                 key.interestOps(0);
-                System.out.println("UZZIUH: " + args[1] + "[fine]");
+
                 System.out.println(args[1]);
                 keyMap.get(args[1]).interestOps(0);
-                ChallengeHandler h = new ChallengeHandler(keyMap.get(CURRENT_USER), keyMap.get(args[1]), wqDictionary, selector);
+                ChallengeHandler h = new ChallengeHandler(keyMap.get(CURRENT_USER), keyMap.get(args[1]), wqDictionary, selector, database);
                 Thread t = new Thread(h);
                 t.start();
                 break;
@@ -205,7 +206,6 @@ public class ServerHandler implements Runnable {
                     else if(key.isReadable()){
                         ClientResources resources = (ClientResources) key.attachment();
                         String username = resources.getUsername();
-                        System.out.println("[" + username + "] isReadable");
                         SocketChannel client = (SocketChannel) key.channel();
 
                         ByteBuffer input = resources.buffer;
@@ -216,17 +216,16 @@ public class ServerHandler implements Runnable {
                         String line = StandardCharsets.UTF_8.decode(input).toString();
 
                         commandParser(line, client, key);
-                        System.out.println("Ricevuto: " + line);
+//                        System.out.println("Ricevuto: " + line);
                     }
                     else if(key.isWritable()){
                         ClientResources k = (ClientResources) key.attachment();
                         String username = k.getUsername();
-                        System.out.println("[" + username + "] isWriteable");
                         SocketChannel client = (SocketChannel) key.channel();
                         ByteBuffer output = k.buffer;
                         client.write(output);
 
-                        System.out.println("Mando come risposta: " + StatusCode.OK);
+//                        System.out.println("Mando come risposta: " + StatusCode.OK);
 
                         //if HA FINITO DI LEGGERE QUALCOSA SWITCHA A WRITE PER MANDARE LA RISPOSTA TODO
                         key.interestOps(SelectionKey.OP_READ);

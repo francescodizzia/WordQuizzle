@@ -9,22 +9,23 @@ import java.nio.channels.SocketChannel;
 public class ClientResources {
     private String username;
     ByteBuffer buffer;
-    InetSocketAddress address;
+    //InetSocketAddress address;
     public int port;
     int translatedWords = 0;
+    public int score = 0;
 
 
 
     public ClientResources(SocketChannel client) {
         buffer = ByteBuffer.allocate(ByteBufferIO.MAX_STRING_LENGTH);
         Socket socket = client.socket();
-        address = (InetSocketAddress) socket.getLocalSocketAddress();
+//        address = (InetSocketAddress) socket.getLocalSocketAddress();
     }
 
-
-    public InetSocketAddress getAddress(){
-        return address;
-    }
+//
+//    public InetSocketAddress getAddress(){
+//        return address;
+//    }
 
     public String getUsername() {
         return username;

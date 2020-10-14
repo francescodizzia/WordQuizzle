@@ -1,146 +1,18 @@
 {
   "userGraph": {
-    "a": [],
-    "sharkL": [],
-    "sgrodolox": [],
-    "domenico": [
-      "dario"
-    ],
-    "prova": [
-      "dario"
-    ],
-    "mottura": [],
-    "fossa": [
-      "mangaka96"
-    ],
-    "mangaka96": [
-      "victor",
-      "dario",
-      "fossa"
-    ],
-    "masella": [],
-    "monitor": [],
-    "xxbimbopazzerelloxx": [
-      "gianni"
-    ],
-    "crash": [
-      "dario"
-    ],
-    "1": [],
-    "gianni": [
-      "xxbimbopazzerelloxx"
-    ],
-    "victor": [
-      "mangaka96"
-    ],
-    "dario": [
-      "domenico",
-      "prova",
-      "mangaka96",
-      "volpescu",
-      "crash"
-    ],
-    "lmao": [],
-    "volpescu": [
-      "dario"
-    ],
-    "zeb89": []
+    "dario": [],
+    "crash": []
   },
   "userTable": {
-    "a": {
-      "username": "a",
-      "password": "b",
-      "score": 0
-    },
-    "sharkL": {
-      "username": "sharkl",
-      "password": "a",
-      "score": 0
-    },
-    "sgrodolox": {
-      "username": "sgrodolox",
-      "password": "a",
-      "score": 0
-    },
-    "domenico": {
-      "username": "domenico",
-      "password": "caverna",
-      "score": 0
-    },
-    "prova": {
-      "username": "prova",
-      "password": "test",
-      "score": 0
-    },
-    "mottura": {
-      "username": "mottura",
-      "password": "ageag",
-      "score": 0
-    },
-    "fossa": {
-      "username": "fossa",
-      "password": "in",
-      "score": 0
-    },
-    "mangaka96": {
-      "username": "mangaka96",
-      "password": "xd",
-      "score": 0
-    },
-    "masella": {
-      "username": "masella",
-      "password": "orso",
-      "score": 0
-    },
-    "monitor": {
-      "username": "monitor",
-      "password": "vanzina",
-      "score": 0
-    },
-    "xxbimbopazzerelloxx": {
-      "username": "xxbimbopazzerelloxx",
-      "password": "pippo42",
-      "score": 0
+    "dario": {
+      "username": "dario",
+      "password": "f",
+      "score": 2
     },
     "crash": {
       "username": "crash",
       "password": "4",
-      "score": 0
-    },
-    "1": {
-      "username": "1",
-      "password": "2",
-      "score": 0
-    },
-    "gianni": {
-      "username": "gianni",
-      "password": "abcd",
-      "score": 0
-    },
-    "victor": {
-      "username": "victor",
-      "password": "ciao",
-      "score": 0
-    },
-    "dario": {
-      "username": "dario",
-      "password": "f",
-      "score": 0
-    },
-    "lmao": {
-      "username": "lmao",
-      "password": "asd",
-      "score": 0
-    },
-    "volpescu": {
-      "username": "volpescu",
-      "password": "kek",
-      "score": 0
-    },
-    "zeb89": {
-      "username": "zeb89",
-      "password": "lezzo",
-      "score": 0
+      "score": 3
     }
   }
 }

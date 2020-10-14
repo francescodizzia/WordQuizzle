@@ -46,19 +46,14 @@ public class UDPReceiver implements Runnable {
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
                 if(choice == JOptionPane.YES_OPTION){
-                    //System.out.println(string.split(" ")[1].length());
                     String challenger = string.split(" ")[1];
                     ByteBufferIO.writeString(server, "ZIZIZI " + challenger);
-                    String result_code = ByteBufferIO.readString(server);
-                    System.out.println(result_code);
                     GUIClient.inizio_sfida();
                 }else{
                     ByteBufferIO.writeString(server, "NONONO");
                     int result = ByteBufferIO.readInt(server);
                     System.out.println(result);
                 }
-
-
 
 
             }

@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class ChallengeSenderFrame extends JFrame implements ActionListener {
+public class HubFrame extends JFrame implements ActionListener {
     Container container = getContentPane();
 
     JTextField challengeField = new JTextField();
@@ -13,7 +13,7 @@ public class ChallengeSenderFrame extends JFrame implements ActionListener {
 
 
 
-    public ChallengeSenderFrame() {
+    public HubFrame() {
         setLayoutManager();
         setLocationAndSize();
         addComponentsToContainer();
@@ -21,9 +21,8 @@ public class ChallengeSenderFrame extends JFrame implements ActionListener {
     }
 
     public void setLocationAndSize() {
-
-        challengeField.setBounds(150, 50, 250, 30);
-        challengeButton.setBounds(250, 200, 120, 50);
+        challengeField.setBounds(65, 30, 300, 30);
+        challengeButton.setBounds(140, 85, 150, 50);
     }
 
     public void addComponentsToContainer() {
@@ -48,7 +47,6 @@ public class ChallengeSenderFrame extends JFrame implements ActionListener {
         if(e.getSource() == challengeButton) {
             GUIClient.writeString("sfida " + challengeField.getText());
             System.out.println(GUIClient.readInt());
-            System.out.println(GUIClient.readString());
             GUIClient.inizio_sfida();
         }
 
