@@ -33,18 +33,6 @@ public class WQDictionary {
         }
     }
 
-//
-//    public Vector<String> getWords(int K){
-//        Random r = new Random();
-//        Vector<String> randomWords = new Vector<>();
-//        int random;
-//        for(int k=K; k > 0; k--) {
-//            random = r.nextInt(WORDS - 1) + 1;
-//            randomWords.add(dictionary.get(random));
-//        }
-//
-//        return randomWords;
-//    }
 
 
     public Vector<String> getDistinctWords(int N){
@@ -62,16 +50,14 @@ public class WQDictionary {
         return randomWords;
     }
 
+
+
     public static ArrayList<String> getTranslatedWords(String word){
         ArrayList<String> words = new ArrayList<>();
 
         try {
             URL u = new URL("https://api.mymemory.translated.net/get?q=" + URLEncoder.encode(word, "UTF-8") + "&langpair=it|en");
             InputStreamReader reader = new InputStreamReader(u.openStream());
-
-//            JsonObject jsonObject = new Gson().fromJson(reader, JsonObject.class);
-//            JsonObject respondeData = jsonObject.get("responseData").getAsJsonObject();
-//            result = respondeData.get("translatedText").getAsString();
 
             JsonObject jsonObject = new Gson().fromJson(reader, JsonObject.class);
             JsonArray matches = jsonObject.getAsJsonArray("matches");
@@ -87,17 +73,6 @@ public class WQDictionary {
         return words;
     }
 
-
-
-//    public static void main(String[] args){
-//        WQDictionary d = new WQDictionary();
-//        Vector<String> words = d.getDistinctWords(5);
-//        System.out.println(words);
-//
-//        for(String w: words){
-//            System.out.println(getTranslatedWord(w));
-//        }
-//    }
 
 
 }

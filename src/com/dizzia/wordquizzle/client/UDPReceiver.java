@@ -7,6 +7,7 @@ import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -42,17 +43,21 @@ public class UDPReceiver implements Runnable {
 
                 packet.setLength(buf.length);
                 System.out.println(string);
-                int choice = JOptionPane.showConfirmDialog(frame, string, "Ping",
+                String challenger = string.split(" ")[1];
+
+
+                int choice = JOptionPane.showConfirmDialog(frame, "Hai ricevuto una sfida da " + challenger +
+                                "\nAccetti l'invito?", "Notifica di sfida",
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
                 if(choice == JOptionPane.YES_OPTION){
-                    String challenger = string.split(" ")[1];
                     ByteBufferIO.writeString(server, "ZIZIZI " + challenger);
-                    GUIClient.inizio_sfida();
+                    String firstWord = ByteBufferIO.readString(server);
+                    GUIClient.inizio_sfida(firstWord);
                 }else{
-                    ByteBufferIO.writeString(server, "NONONO");
-                    int result = ByteBufferIO.readInt(server);
-                    System.out.println(result);
+                    ByteBufferIO.writeString(server, "NONONO " + challenger);
+//                    int result = ByteBufferIO.readInt(server);
+//                    System.out.println(result);
                 }
 
 

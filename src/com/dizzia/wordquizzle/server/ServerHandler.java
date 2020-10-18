@@ -1,14 +1,9 @@
 package com.dizzia.wordquizzle.server;
 
-import com.dizzia.wordquizzle.commons.ByteBufferIO;
 import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.database.Database;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.sun.org.apache.xml.internal.utils.res.XResources_es;
-
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.*;
@@ -17,10 +12,11 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
 
 public class ServerHandler implements Runnable {
     private static Database database;
@@ -33,7 +29,7 @@ public class ServerHandler implements Runnable {
 
     public ServerHandler(Database database) {
         loggedUsers = new ConcurrentHashMap<>();
-        this.database = database;
+        ServerHandler.database = database;
         keyMap = new ConcurrentHashMap<>();
         wqDictionary = new WQDictionary();
     }
@@ -78,7 +74,6 @@ public class ServerHandler implements Runnable {
             case "LOGIN":
                 int login_result = database.checkCredentials(args[1], args[2]);
                 if(login_result == StatusCode.OK) {
-//                    loggedUsers.put(args[1], resources.getAddress());
                     loggedUsers.put(args[1],(InetSocketAddress) client.socket().getLocalSocketAddress());
                     System.out.println(loggedUsers.keySet());
                     resources.setUsername(args[1]);
@@ -115,13 +110,12 @@ public class ServerHandler implements Runnable {
                                     + args[1] + " [" + loggedUsers.get(args[1]) + "]");
                 try {
                     ClientResources friend = (ClientResources) keyMap.get(args[1]).attachment();
+                    friend.challengeTime = System.nanoTime();
                     sendUDP(loggedUsers.get(args[1]), friend.getUDP_port(), "sfida " + CURRENT_USER);
                 } catch (SocketException e) {
                     e.printStackTrace();
                 }
-                resources.buffer.clear();
-                resources.buffer.putInt(StatusCode.OK);
-                resources.buffer.flip();
+
                 key.interestOps(SelectionKey.OP_WRITE);
                 break;
             case "PRINT":
@@ -145,13 +139,44 @@ public class ServerHandler implements Runnable {
                 key.interestOps(SelectionKey.OP_READ);
                 break;
             case "ZIZIZI":
-                key.interestOps(0);
-
                 System.out.println(args[1]);
-                keyMap.get(args[1]).interestOps(0);
-                ChallengeHandler h = new ChallengeHandler(keyMap.get(CURRENT_USER), keyMap.get(args[1]), wqDictionary, selector, database);
-                Thread t = new Thread(h);
-                t.start();
+                SelectionKey challengerKey = keyMap.get(args[1]);
+                ClientResources challengerResources =  (ClientResources) challengerKey.attachment();
+                int CHALLENGE_ACCEPT_MAX_TIME = 10;
+
+                long kappaci =  TimeUnit.SECONDS.convert(System.nanoTime() - resources.challengeTime,
+                        TimeUnit.NANOSECONDS);
+
+                System.out.println(kappaci);
+
+                if(kappaci < CHALLENGE_ACCEPT_MAX_TIME) {
+                    System.out.println("IN TEMPO");
+                    key.interestOps(0);
+                    challengerKey.interestOps(0);
+
+                    ChallengeHandler h = new ChallengeHandler(key, challengerKey, wqDictionary, selector, database);
+                    Thread t = new Thread(h);
+                    t.start();
+                }
+                else {
+                    System.out.println("TIMEOUT ");
+                    challengerResources.buffer.clear();
+                    challengerResources.buffer.put("TIMEOUT".getBytes());
+                    challengerResources.buffer.flip();
+                    resources.buffer.clear();
+                    resources.buffer.put("TIMEOUT".getBytes());
+                    resources.buffer.flip();
+                    key.interestOps(SelectionKey.OP_WRITE);
+                    challengerKey.interestOps(SelectionKey.OP_WRITE);
+                }
+                break;
+            case "NONONO":
+                SelectionKey challengerKey2 = keyMap.get(args[1]);
+                ClientResources challengerResource2 =  (ClientResources) challengerKey2.attachment();
+                challengerResource2.buffer.clear();
+                challengerResource2.buffer.put("REFUSED".getBytes());
+                challengerResource2.buffer.flip();
+                challengerKey2.interestOps(SelectionKey.OP_WRITE);
                 break;
 
         }
@@ -162,9 +187,8 @@ public class ServerHandler implements Runnable {
     public void run() {
         int port = 1919;
         System.out.println("In ascolto sulla porta " + port);
-
         ServerSocketChannel serverChannel;
-        //Selector selector;
+
         try {
             serverChannel = ServerSocketChannel.open();
             ServerSocket ss = serverChannel.socket();

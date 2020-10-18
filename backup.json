@@ -1,18 +1,30 @@
 {
   "userGraph": {
     "dario": [],
+    "Davide": [],
+    "Raffaele": [],
     "crash": []
   },
   "userTable": {
     "dario": {
       "username": "dario",
       "password": "f",
-      "score": 2
+      "score": -7
+    },
+    "Davide": {
+      "username": "davide",
+      "password": "semplice",
+      "score": 9
+    },
+    "Raffaele": {
+      "username": "raffaele",
+      "password": "tuamamma",
+      "score": 9
     },
     "crash": {
       "username": "crash",
       "password": "4",
-      "score": 3
+      "score": 135
     }
   }
 }

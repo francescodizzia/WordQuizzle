@@ -1,127 +1,190 @@
 package com.dizzia.wordquizzle.server;
 
+import com.dizzia.wordquizzle.commons.IO;
 import com.dizzia.wordquizzle.database.Database;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 public class ChallengeHandler implements Runnable {
-    private SelectionKey userKey;
-    private SelectionKey sfidante;
-    private Vector<String> chosenWords;
+    private final SelectionKey player1Key;
+    private final SelectionKey player2Key;
+    private final Vector<String> chosenWords;
     Selector oldSelector;
     Database database;
     int N = 5;
+    int TIME_LIMIT = 60 * 1;
+    int finished = 0;
 
-    public ChallengeHandler(SelectionKey userKey, SelectionKey sfidante, WQDictionary wqDictionary, Selector oldSelector, Database database) {
-        this.userKey = userKey;
-        this.sfidante = sfidante;
+
+    public ChallengeHandler(SelectionKey player1Key, SelectionKey player2Key, WQDictionary wqDictionary, Selector oldSelector, Database database) {
+        this.player1Key = player1Key;
+        this.player2Key = player2Key;
         this.oldSelector = oldSelector;
         chosenWords = wqDictionary.getDistinctWords(N);
         this.database = database;
     }
 
+
+    public void handleEndGame(SelectionKey key){
+        ClientResources P1_R = (ClientResources) player1Key.attachment();
+        ClientResources P2_R = (ClientResources) player2Key.attachment();
+
+        SocketChannel socket1 = (SocketChannel) player1Key.channel();
+        SocketChannel socket2 = (SocketChannel) player2Key.channel();
+
+        finished++;
+
+        if(finished == 2){
+            int winner;
+
+            if(P1_R.score > P2_R.score)
+                winner = 1;
+            else if(P1_R.score < P2_R.score)
+                winner = 2;
+            else
+                winner = 0;
+
+
+
+            try {
+                IO.writeString(socket1, P1_R.buffer, "FIN " + winner + " " + P1_R.correct_answers +
+                        " " + P1_R.wrong_answers + " " + (N - P1_R.translatedWords));
+
+                IO.writeString(socket2, P2_R.buffer, "FIN " + winner + " " + P2_R.correct_answers +
+                        " " + P2_R.wrong_answers + " " + (N - P2_R.translatedWords));
+
+                player1Key.interestOps(0);
+                player2Key.interestOps(0);
+                socket1.register(oldSelector, SelectionKey.OP_READ, player1Key.attachment());
+                socket2.register(oldSelector, SelectionKey.OP_READ, player2Key.attachment());
+                oldSelector.wakeup();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+            key.interestOps(0);
+        }
+
+
+
+    }
+
+
+
+    private void handleRead(SelectionKey key) throws IOException {
+        SocketChannel client = (SocketChannel) key.channel();
+        ClientResources resources = (ClientResources) key.attachment();
+        String s = null;
+        String m = null;
+        if (resources != null) {
+            s = resources.getUsername();
+            IO.read(client, resources.buffer);
+
+            m = StandardCharsets.UTF_8.decode(resources.buffer).toString();
+            if(WQDictionary.getTranslatedWords(chosenWords.get(resources.translatedWords-1)).contains(m)) {
+                System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " CORRETTA (+2)");
+                resources.score += 2;
+                resources.correct_answers++;
+                database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + resources.score);
+                ServerHandler.serialize();
+            }
+            else {
+                System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " SBAGLIATA (-1)");
+                resources.score--;
+                resources.wrong_answers++;
+                database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + resources.score);
+                ServerHandler.serialize();
+            }
+        }
+
+        key.interestOps(SelectionKey.OP_WRITE);
+    }
+
+
+
+
+
+    private void handleWrite(SelectionKey key) throws IOException {
+        SocketChannel client = (SocketChannel) key.channel();
+        ClientResources resources = (ClientResources) key.attachment();
+
+        if (resources.translatedWords >= N) {
+            IO.writeString(client, resources.buffer, "FINE");
+
+//            System.out.println("PLAYER " + resources.getUsername() + " HAI COMPLETATO LA SFIDA");
+//            System.out.println("Punti totalizzati: " + resources.score);
+
+            handleEndGame(key);
+
+//            key.interestOps(0);
+//            client.register(oldSelector, SelectionKey.OP_READ, key.attachment());
+//            oldSelector.wakeup();
+        }
+        else{
+            IO.writeString(client, resources.buffer, chosenWords.get(resources.translatedWords));
+            resources.translatedWords++;
+            key.interestOps(SelectionKey.OP_READ);
+        }
+    }
+
+
+
+
     public void run() {
-        SocketChannel channel = (SocketChannel) userKey.channel();
-        SocketChannel channel2 = (SocketChannel) sfidante.channel();
+        SocketChannel player1 = (SocketChannel) player1Key.channel();
+        SocketChannel player2 = (SocketChannel) player2Key.channel();
+        long startTime = System.nanoTime();
 
         try {
             Selector selector = Selector.open();
+            player1.register(selector, SelectionKey.OP_WRITE, player1Key.attachment());
+            player2.register(selector, SelectionKey.OP_WRITE, player2Key.attachment());
 
-            channel.configureBlocking(false);
 
-            channel.register(selector, SelectionKey.OP_WRITE, userKey.attachment());
-            channel2.register(selector, SelectionKey.OP_WRITE, sfidante.attachment());
+            while(!Thread.interrupted()){
+                int S = selector.select(200);
+                long actualTime = System.nanoTime();
+                long elapsedTime = TimeUnit.SECONDS.convert(actualTime - startTime, TimeUnit.NANOSECONDS);
+//                System.out.println(elapsedTime);
 
-            String player1 = ((ClientResources) userKey.attachment()).getUsername();
-            String player2 = ((ClientResources) sfidante.attachment()).getUsername();
+                if(elapsedTime >= TIME_LIMIT){
+                    System.out.println("Sono passati " + TIME_LIMIT + " secondi, addiooo");
+                    break;
+                }
 
-            while(true){
-                selector.select();
+                if(finished == 2)
+                    break;
+
+
                 Iterator<SelectionKey> keysIterator = selector.selectedKeys().iterator();
 
                 while (keysIterator.hasNext()) {
                     SelectionKey key = keysIterator.next();
                     keysIterator.remove();
 
-                    if (key.isReadable()) {
-                        SocketChannel client = (SocketChannel) key.channel();
-                        ClientResources resources = (ClientResources) key.attachment();
-                        String s = null;
-                        String m = null;
-                        if (resources != null) {
-                            s = resources.getUsername();
-                            ByteBuffer input = resources.buffer;
-                            input.clear();
-                            int read_byte = client.read(input);
-                            input.flip();
-                            m = StandardCharsets.UTF_8.decode(input).toString();
-                            if(WQDictionary.getTranslatedWords(chosenWords.get(resources.getTranslatedWords()-1)).contains(m)) {
-                                System.out.println("[" + s + "] Traduzione della parola #" + (resources.getTranslatedWords()) + " CORRETTA (+2)");
-                                resources.score += 2;
-                                database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + resources.score);
-                                ServerHandler.serialize();
-                            }
-                            else {
-                                System.out.println("[" + s + "] Traduzione della parola #" + (resources.getTranslatedWords()) + " SBAGLIATA (-1)");
-                                resources.score--;
-                                database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + resources.score);
-                                ServerHandler.serialize();
-                            }
-                        }
-
-
-                        key.interestOps(SelectionKey.OP_WRITE);
-                    }
-                    else if (key.isWritable()) {
-//                        System.out.println("WRITABLE2");
-                        SocketChannel client = (SocketChannel) key.channel();
-                        ClientResources resources = (ClientResources) key.attachment();
-
-                        if (resources.getTranslatedWords() >= N) {
-                            resources.buffer.clear();
-                            resources.buffer.put("FINE".getBytes());
-                            resources.buffer.flip();
-                            client.write(resources.buffer);
-
-                            System.out.println("PLAYER " + resources.getUsername() + " HAI COMPLETATO LA SFIDA");
-                            System.out.println("Punti totalizzati: " + resources.score);
-//                            database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + resources.score);
-//                            ServerHandler.serialize();
-
-                            key.interestOps(0);
-                            client.register(oldSelector, SelectionKey.OP_READ, key.attachment());
-                            oldSelector.wakeup();
-                        }
-                        else{
-                            resources.buffer.clear();
-                            resources.buffer.put((chosenWords.get(resources.getTranslatedWords())).getBytes());
-                            resources.buffer.flip();
-
-                            client.write(resources.buffer);
-
-                            resources.incrementTranslatedWords();
-                            key.interestOps(SelectionKey.OP_READ);
-                    }
-                    }
+                    if (key.isReadable())
+                        handleRead(key);
+                    else if (key.isWritable())
+                        handleWrite(key);
 
                 }
             }
         }
 
         catch (IOException e) {
-            System.out.println("GREVE ZIO SEI USCITO");
+            System.out.println("GREVE ZIO SEI USCITO (1)");
 
-            //e.printStackTrace();
         }
 
+        System.out.println("GREVE ZIO HAI FINITO (2)");
     }
 
 }

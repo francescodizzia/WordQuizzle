@@ -1,9 +1,12 @@
 package com.dizzia.wordquizzle.client;
 
+import com.dizzia.wordquizzle.commons.StatusCode;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.SocketException;
 
 public class HubFrame extends JFrame implements ActionListener {
     Container container = getContentPane();
@@ -46,8 +49,22 @@ public class HubFrame extends JFrame implements ActionListener {
 
         if(e.getSource() == challengeButton) {
             GUIClient.writeString("sfida " + challengeField.getText());
-            System.out.println(GUIClient.readInt());
-            GUIClient.inizio_sfida();
+
+            String response = GUIClient.readString();
+            System.out.println(response);
+
+            if(response.compareTo("TIMEOUT") == 0)
+                JOptionPane.showMessageDialog(this, "Tempo scaduto, l'utente non ha risposto!",
+                        "Errore", JOptionPane.ERROR_MESSAGE);
+            else if(response.compareTo("REFUSED") == 0)
+                JOptionPane.showMessageDialog(this, "L'utente ha rifiutato la sfida...",
+                        "Errore", JOptionPane.ERROR_MESSAGE);
+            else
+                GUIClient.inizio_sfida(response);
+
+
+
+
         }
 
 

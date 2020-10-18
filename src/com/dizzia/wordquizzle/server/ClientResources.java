@@ -4,15 +4,22 @@ import com.dizzia.wordquizzle.commons.ByteBufferIO;
 
 import java.net.*;
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 public class ClientResources {
     private String username;
     ByteBuffer buffer;
-    //InetSocketAddress address;
+
     public int port;
     int translatedWords = 0;
+    int correct_answers = 0;
+    int wrong_answers = 0;
     public int score = 0;
+    long challengeTime = 0L;
+    boolean endGame = false;
+
+    SelectionKey challenged;
 
 
 
@@ -38,12 +45,12 @@ public class ClientResources {
     public int getUDP_port() {
         return port;
     }
-
-    public int getTranslatedWords(){
-        return translatedWords;
-    }
-
-    public void incrementTranslatedWords(){
-        translatedWords++;
-    }
+//
+//    public int getTranslatedWords(){
+//        return translatedWords;
+//    }
+//
+//    public void incrementTranslatedWords(){
+//        translatedWords++;
+//    }
 }

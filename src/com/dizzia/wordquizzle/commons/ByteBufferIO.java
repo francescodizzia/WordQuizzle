@@ -27,6 +27,16 @@ public class ByteBufferIO {
         channel.write(output);
     }
 
+
+    public static String readString2(SocketChannel channel) throws IOException {
+        ByteBuffer input = ByteBuffer.allocate(MAX_STRING_LENGTH);
+        input.clear();
+        channel.socket().setSoTimeout(5000);
+        channel.read(input);
+        input.flip();
+        return StandardCharsets.UTF_8.decode(input).toString();
+    }
+
     public static String readString(SocketChannel channel) throws IOException {
         ByteBuffer input = ByteBuffer.allocate(MAX_STRING_LENGTH);
         input.clear();

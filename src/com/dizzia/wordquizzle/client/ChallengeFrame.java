@@ -14,9 +14,12 @@ public class ChallengeFrame extends JFrame implements ActionListener {
     JButton send = new JButton("INVIA");
     JLabel wordLabel = new JLabel("null");
 
+    String firstWord;
 
 
-    public ChallengeFrame() {
+
+    public ChallengeFrame(String firstWord) {
+        this.firstWord = firstWord;
         setLayoutManager();
         setLocationAndSize();
         addComponentsToContainer();
@@ -31,7 +34,6 @@ public class ChallengeFrame extends JFrame implements ActionListener {
         send.setBounds(150, 200, 120, 50);
 
 
-        String firstWord = GUIClient.readString();
         wordLabel.setText(firstWord);
         System.out.println(firstWord);
 
@@ -41,6 +43,7 @@ public class ChallengeFrame extends JFrame implements ActionListener {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
+
 
     }
 
@@ -68,7 +71,15 @@ public class ChallengeFrame extends JFrame implements ActionListener {
             GUIClient.writeString(myWord.getText().toLowerCase());
             String k = GUIClient.readString();
             System.out.println(k);
-            wordLabel.setText(k);
+
+            if(k.compareTo("FINE") == 0){
+                this.setVisible(false);
+                WaitingFrame waitingFrame = new WaitingFrame();
+                this.dispose();
+                GUIClient.waitEnd();
+            }
+            else
+                wordLabel.setText(k);
         }
 
 

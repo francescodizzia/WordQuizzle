@@ -2,14 +2,12 @@ package com.dizzia.wordquizzle.client;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.net.SocketException;
+import java.net.*;
 import java.nio.channels.SocketChannel;
 import java.util.Scanner;
 
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
+import com.dizzia.wordquizzle.commons.IO;
 import com.dizzia.wordquizzle.commons.StatusCode;
 
 public class GUIClient {
@@ -47,6 +45,7 @@ public class GUIClient {
 
         return r;
     }
+
 
     public static int readInt(){
         int r=0;
@@ -114,8 +113,6 @@ public class GUIClient {
             System.exit(-1);
         }
 
-        UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-
 
         loginFrame.setTitle("WordQuizzle - Login");
         loginFrame.setVisible(true);
@@ -126,12 +123,32 @@ public class GUIClient {
 
     }
 
-    public static void inizio_sfida() {
+    public static void inizio_sfida(String firstWord) {
         hubFrame.setVisible(false);
-        Scanner s = new Scanner(System.in);
+        ChallengeFrame f = new ChallengeFrame(firstWord);
 
-        ChallengeFrame f = new ChallengeFrame();
-        f.setVisible(true);
+    }
+
+    public static void waitEnd() {
+        try {
+            String result = ByteBufferIO.readString(server);
+            String[] results = result.split(" ");
+
+            if(results[0].compareTo("FIN") == 0) {
+                int winner = Integer.parseInt(results[1]);
+                int correct_answers = Integer.parseInt(results[2]);
+                int wrong_answers = Integer.parseInt(results[3]);
+
+                System.out.println(result);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+
 
     }
 }
