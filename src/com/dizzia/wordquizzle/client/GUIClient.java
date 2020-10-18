@@ -129,7 +129,7 @@ public class GUIClient {
 
     }
 
-    public static void waitEnd() {
+    public static void waitEnd(JFrame frame) {
         try {
             String result = ByteBufferIO.readString(server);
             String[] results = result.split(" ");
@@ -138,6 +138,9 @@ public class GUIClient {
                 int winner = Integer.parseInt(results[1]);
                 int correct_answers = Integer.parseInt(results[2]);
                 int wrong_answers = Integer.parseInt(results[3]);
+
+                frame.dispose();
+                ReportFrame reportFrame = new ReportFrame(winner, correct_answers, wrong_answers);
 
                 System.out.println(result);
             }

@@ -34,12 +34,10 @@ public class UDPReceiver implements Runnable {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
                 datagramSocket.receive(packet);
 
-                //String string = new String(buf,0, buf.length, StandardCharsets.UTF_8);
                 String string = new String(buf, 0, packet.getLength());
-                //String string = "sfida crash";
-                if(string.compareToIgnoreCase("sfida crash") == 0){
+                if(string.compareToIgnoreCase("sfida crash") == 0)
                     System.out.println("MATCHMATCH");
-                }
+
 
                 packet.setLength(buf.length);
                 System.out.println(string);
@@ -56,8 +54,6 @@ public class UDPReceiver implements Runnable {
                     GUIClient.inizio_sfida(firstWord);
                 }else{
                     ByteBufferIO.writeString(server, "NONONO " + challenger);
-//                    int result = ByteBufferIO.readInt(server);
-//                    System.out.println(result);
                 }
 
 

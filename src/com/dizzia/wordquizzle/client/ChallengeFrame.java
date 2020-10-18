@@ -33,7 +33,6 @@ public class ChallengeFrame extends JFrame implements ActionListener {
         myWord.setBounds(100, 100, 250, 30);
         send.setBounds(150, 200, 120, 50);
 
-
         wordLabel.setText(firstWord);
         System.out.println(firstWord);
 
@@ -71,12 +70,13 @@ public class ChallengeFrame extends JFrame implements ActionListener {
             GUIClient.writeString(myWord.getText().toLowerCase());
             String k = GUIClient.readString();
             System.out.println(k);
+            myWord.setText("");
 
             if(k.compareTo("FINE") == 0){
                 this.setVisible(false);
                 WaitingFrame waitingFrame = new WaitingFrame();
                 this.dispose();
-                GUIClient.waitEnd();
+                GUIClient.waitEnd(waitingFrame);
             }
             else
                 wordLabel.setText(k);

@@ -9,6 +9,7 @@ import java.nio.channels.SocketChannel;
 
 public class ClientResources {
     private String username;
+    SelectionKey challenged;
     ByteBuffer buffer;
 
     public int port;
@@ -17,22 +18,14 @@ public class ClientResources {
     int wrong_answers = 0;
     public int score = 0;
     long challengeTime = 0L;
-    boolean endGame = false;
-
-    SelectionKey challenged;
+    int isWinner = 0;
 
 
 
     public ClientResources(SocketChannel client) {
         buffer = ByteBuffer.allocate(ByteBufferIO.MAX_STRING_LENGTH);
         Socket socket = client.socket();
-//        address = (InetSocketAddress) socket.getLocalSocketAddress();
     }
-
-//
-//    public InetSocketAddress getAddress(){
-//        return address;
-//    }
 
     public String getUsername() {
         return username;
@@ -45,12 +38,5 @@ public class ClientResources {
     public int getUDP_port() {
         return port;
     }
-//
-//    public int getTranslatedWords(){
-//        return translatedWords;
-//    }
-//
-//    public void incrementTranslatedWords(){
-//        translatedWords++;
-//    }
+
 }
