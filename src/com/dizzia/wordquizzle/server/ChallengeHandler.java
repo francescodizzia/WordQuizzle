@@ -161,7 +161,7 @@ public class ChallengeHandler implements Runnable {
         ClientResources resources = (ClientResources) key.attachment();
 
         if (resources.translatedWords >= N) {
-            IO.writeString(client, resources.buffer, "FINE");
+//            IO.writeString(client, resources.buffer, "FINE");
             handleEndGame(key);
         }
         else{

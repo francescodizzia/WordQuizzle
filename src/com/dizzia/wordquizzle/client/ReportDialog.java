@@ -3,12 +3,12 @@ package com.dizzia.wordquizzle.client;
 import javax.swing.*;
 import java.awt.*;
 
-public class ReportFrame extends JFrame {
+public class ReportDialog extends JDialog {
     Container container = getContentPane();
     JLabel wordLabel = new JLabel();
 
 
-    public ReportFrame(int isWinner, int corrected_answers, int wrong_answers){
+    public ReportDialog(int isWinner, int corrected_answers, int wrong_answers){
         container.setLayout(null);
 
         wordLabel.setFont(new Font("Serif", Font.PLAIN, 18));
@@ -26,12 +26,13 @@ public class ReportFrame extends JFrame {
         wordLabel.setText(wordLabel.getText() + "\nHai risposto correttamente a " + corrected_answers + " e ne sbagliate " + wrong_answers);
 
         this.setTitle("WordQuizzle - Fine sfida");
-        this.setVisible(true);
-        this.setBounds(10, 10, 480, 480);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setBounds(10, 10, 600, 150);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
         container.add(wordLabel);
+
+        this.setModal(true);
+        this.setVisible(true);
     }
 
 }

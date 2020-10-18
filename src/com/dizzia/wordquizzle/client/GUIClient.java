@@ -9,6 +9,7 @@ import java.util.Scanner;
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
 import com.dizzia.wordquizzle.commons.IO;
 import com.dizzia.wordquizzle.commons.StatusCode;
+import jdk.nashorn.internal.scripts.JD;
 
 public class GUIClient {
     static LoginFrame loginFrame = new LoginFrame();
@@ -129,28 +130,29 @@ public class GUIClient {
 
     }
 
-    public static void waitEnd(JFrame frame) {
-        try {
-            String result = ByteBufferIO.readString(server);
-            String[] results = result.split(" ");
+    public static void waitEnd(JDialog dialog) {
+        (new Thread(() -> {
 
-            if(results[0].compareTo("FIN") == 0) {
-                int winner = Integer.parseInt(results[1]);
-                int correct_answers = Integer.parseInt(results[2]);
-                int wrong_answers = Integer.parseInt(results[3]);
+            try {
+                String result = ByteBufferIO.readString(server);
+                String[] results = result.split(" ");
 
-                frame.dispose();
-                ReportFrame reportFrame = new ReportFrame(winner, correct_answers, wrong_answers);
+                if(results[0].compareTo("FIN") == 0) {
+                    int winner = Integer.parseInt(results[1]);
+                    int correct_answers = Integer.parseInt(results[2]);
+                    int wrong_answers = Integer.parseInt(results[3]);
 
-                System.out.println(result);
+                    dialog.dispose();
+
+                    System.out.println(result);
+                    ReportDialog reportDialog = new ReportDialog(winner, correct_answers, wrong_answers);
+                    HubFrame hubFrame = new HubFrame();
+                    hubFrame.setVisible(true);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-
-
+        })).start();
 
 
     }

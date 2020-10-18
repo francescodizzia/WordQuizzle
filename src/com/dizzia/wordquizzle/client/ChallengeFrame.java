@@ -1,5 +1,6 @@
 package com.dizzia.wordquizzle.client;
 
+import com.dizzia.wordquizzle.commons.WQSettings;
 import com.dizzia.wordquizzle.server.ChallengeHandler;
 
 import javax.swing.*;
@@ -15,6 +16,8 @@ public class ChallengeFrame extends JFrame implements ActionListener {
     JLabel wordLabel = new JLabel("null");
 
     String firstWord;
+
+    int clicked = 0;
 
 
 
@@ -68,18 +71,20 @@ public class ChallengeFrame extends JFrame implements ActionListener {
 
         if(e.getSource() == send) {
             GUIClient.writeString(myWord.getText().toLowerCase());
-            String k = GUIClient.readString();
-            System.out.println(k);
             myWord.setText("");
+            clicked++;
 
-            if(k.compareTo("FINE") == 0){
+            if(clicked == WQSettings.N_WORDS){
                 this.setVisible(false);
-                WaitingFrame waitingFrame = new WaitingFrame();
+                WaitingDialog waitingDialog = new WaitingDialog();
                 this.dispose();
-                GUIClient.waitEnd(waitingFrame);
+                GUIClient.waitEnd(waitingDialog);
             }
-            else
+            else {
+                String k = GUIClient.readString();
+                System.out.println(k);
                 wordLabel.setText(k);
+            }
         }
 
 

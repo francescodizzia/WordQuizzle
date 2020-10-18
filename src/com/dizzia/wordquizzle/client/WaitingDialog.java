@@ -3,12 +3,12 @@ package com.dizzia.wordquizzle.client;
 import javax.swing.*;
 import java.awt.*;
 
-public class WaitingFrame extends JFrame {
+public class WaitingDialog extends JDialog {
     Container container = getContentPane();
     JLabel wordLabel = new JLabel();
 
 
-    public WaitingFrame() {
+    public WaitingDialog() {
         container.setLayout(null);
 
         wordLabel.setFont(new Font("Serif", Font.PLAIN, 18));
@@ -16,12 +16,12 @@ public class WaitingFrame extends JFrame {
         wordLabel.setText("In attesa che l'avversario concluda la partita...");
 
         this.setTitle("WordQuizzle - Attesa");
-        this.setVisible(true);
         this.setBounds(10, 10, 480, 120);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
         container.add(wordLabel);
+        this.setVisible(true);
     }
 
 
