@@ -49,7 +49,11 @@ public class ServerHandler implements Runnable {
 
 
     private void sendUDP(InetSocketAddress address, int port, String message) throws SocketException {
-        DatagramSocket datagramSocket = new DatagramSocket();
+
+//        DatagramSocket datagramSocket = new DatagramSocket();
+
+        //TMP!!!!
+        DatagramSocket datagramSocket = new DatagramSocket(1919);
         byte[] buffer;
 
         buffer = message.getBytes(StandardCharsets.UTF_8);
@@ -118,14 +122,6 @@ public class ServerHandler implements Runnable {
                     e.printStackTrace();
                 }
 
-                key.interestOps(SelectionKey.OP_WRITE);
-                break;
-            case "PRINT":
-                System.out.println("Online users: \t" + loggedUsers.keySet());
-                resources.buffer.clear();
-                resources.buffer.putInt(StatusCode.OK);
-                resources.buffer.flip();
-                database.updateScore(CURRENT_USER, 999);
                 key.interestOps(SelectionKey.OP_WRITE);
                 break;
             case "SCORE":

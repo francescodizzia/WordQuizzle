@@ -7,16 +7,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Vector;
 
 public class HubFrame extends JFrame implements ActionListener {
     JButton addButton = new JButton();
     JButton friendlistButton = new JButton();
     JButton challengeButton = new JButton();
 
-    DefaultListModel<String> listModel = new DefaultListModel<String>();
+    DefaultListModel<String> listModel = new DefaultListModel<>();
     JList<String> list = new JList<>(listModel);
 
     JTextField textField = new JTextField();

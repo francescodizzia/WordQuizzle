@@ -1,8 +1,6 @@
 package com.dizzia.wordquizzle;
 
 public interface WQInterface {
-    public final int TCP_PORT = 6868;
-
 
     public void login(String nickUtente, String password);
     public void logout(String nickUtente);

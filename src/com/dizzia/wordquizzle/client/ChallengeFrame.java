@@ -22,11 +22,23 @@ public class ChallengeFrame extends JFrame implements ActionListener {
 
 
     public ChallengeFrame(String firstWord) {
+        ImageIcon icon = new ImageIcon("./italy.jpg");
+        JLabel label = new JLabel();
+        label.setBounds(130, 90, 150, 100);
+        label.setIcon(icon);
+        container.add(label);
+
+        ImageIcon icon2 = new ImageIcon("./uk.jpg");
+        JLabel label2 = new JLabel();
+        label2.setBounds(500, 90, 150, 100);
+        label2.setIcon(icon2);
+        container.add(label2);
+
         this.firstWord = firstWord;
         container.setLayout(null);
 
-        wordLabel.setFont(new Font("Serif", Font.BOLD, 30));
-        wordLabel.setBounds(180,1, 150, 150);
+        wordLabel.setFont(new Font("Serif", Font.BOLD, 16));
+        wordLabel.setBounds(165,280, 150, 30);
         wordLabel.setText(firstWord);
         container.add(wordLabel);
 
@@ -34,10 +46,10 @@ public class ChallengeFrame extends JFrame implements ActionListener {
         timerLabel.setBounds(30,100, 150, 150);
         container.add(timerLabel);
 
-        myWord.setBounds(100, 100, 250, 30);
+        myWord.setBounds(500, 277, 144, 26);
         container.add(myWord);
 
-        send.setBounds(150, 200, 120, 50);
+        send.setBounds(315, 340, 130, 70);
         send.addActionListener(this);
         container.add(send);
 
@@ -45,11 +57,10 @@ public class ChallengeFrame extends JFrame implements ActionListener {
 
         this.setTitle("WordQuizzle - Sfida");
         this.setVisible(true);
-        this.setBounds(10, 10, 480, 360);
+        this.setBounds(10, 10, 800, 500);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
-
     }
 
 

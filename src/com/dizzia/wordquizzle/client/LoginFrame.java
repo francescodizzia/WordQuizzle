@@ -2,6 +2,7 @@ package com.dizzia.wordquizzle.client;
 
 import com.dizzia.wordquizzle.RegisterInterface;
 import com.dizzia.wordquizzle.commons.StatusCode;
+import com.dizzia.wordquizzle.commons.WQSettings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -89,6 +90,7 @@ public class LoginFrame extends JFrame implements ActionListener{
                 
                 JOptionPane.showMessageDialog(this, "Errore: impossibile collegarsi al server",
                 "Errore di rete", JOptionPane.ERROR_MESSAGE);
+                remoteException.printStackTrace();
                 
             }
 
@@ -132,8 +134,8 @@ public class LoginFrame extends JFrame implements ActionListener{
     }
 
     public static int registra_utente(String nickUtente, String password) throws RemoteException, NotBoundException {
-        registry = LocateRegistry.getRegistry(RegisterInterface.REG_PORT);
-        stub = (RegisterInterface) registry.lookup("WordQuizzle_" + RegisterInterface.MATRICOLA);
+        registry = LocateRegistry.getRegistry(WQSettings.RMI_IP, RegisterInterface.REG_PORT);
+        stub = (RegisterInterface) registry.lookup(WQSettings.RMI_ADDRESS);
         return stub.registerUser(nickUtente, password);
     }
 

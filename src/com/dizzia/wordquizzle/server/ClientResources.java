@@ -9,17 +9,17 @@ import java.nio.channels.SocketChannel;
 
 public class ClientResources {
     private String username;
-    SelectionKey challenged;
     ByteBuffer buffer;
-
     public int port;
+    public int score = 0;
+
+
+    SelectionKey challenged = null;
     int translatedWords = 0;
     int correct_answers = 0;
     int wrong_answers = 0;
-    public int score = 0;
-    long challengeTime = 0L;
+    long challengeTime = 0;
     int isWinner = 0;
-
 
 
     public ClientResources(SocketChannel client) {
@@ -39,4 +39,12 @@ public class ClientResources {
         return port;
     }
 
+    public void reset(){
+        challenged = null;
+        translatedWords = 0;
+        correct_answers = 0;
+        wrong_answers = 0;
+        challengeTime = 0;
+        isWinner = 0;
+    }
 }

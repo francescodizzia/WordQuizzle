@@ -48,7 +48,6 @@ public class ChallengeHandler implements Runnable {
                 int S = selector.select(200);
                 long actualTime = System.nanoTime();
                 long elapsedTime = TimeUnit.SECONDS.convert(actualTime - startTime, TimeUnit.NANOSECONDS);
-//                System.out.println(elapsedTime);
 
                 if(elapsedTime >= WQSettings.CHALLENGE_TIMEOUT){
                     System.out.println("Sono passati " + WQSettings.CHALLENGE_TIMEOUT + " secondi, addiooo");
@@ -69,7 +68,6 @@ public class ChallengeHandler implements Runnable {
                         handleRead(key);
                     else if (key.isWritable())
                         handleWrite(key);
-
                 }
             }
         }
@@ -110,6 +108,10 @@ public class ChallengeHandler implements Runnable {
 
                 player1Key.interestOps(0);
                 player2Key.interestOps(0);
+
+                P1_R.reset();
+                P2_R.reset();
+
                 socketP1.register(oldSelector, SelectionKey.OP_READ, player1Key.attachment());
                 socketP2.register(oldSelector, SelectionKey.OP_READ, player2Key.attachment());
                 oldSelector.wakeup();
@@ -160,10 +162,8 @@ public class ChallengeHandler implements Runnable {
         SocketChannel client = (SocketChannel) key.channel();
         ClientResources resources = (ClientResources) key.attachment();
 
-        if (resources.translatedWords >= N) {
-//            IO.writeString(client, resources.buffer, "FINE");
+        if (resources.translatedWords >= N)
             handleEndGame(key);
-        }
         else{
             IO.writeString(client, resources.buffer, chosenWords.get(resources.translatedWords));
             resources.translatedWords++;

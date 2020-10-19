@@ -1,5 +1,6 @@
 package com.dizzia.wordquizzle.server;
 
+import com.dizzia.wordquizzle.commons.WQSettings;
 import com.dizzia.wordquizzle.commons.exceptions.UserAlreadyTakenException;
 import com.dizzia.wordquizzle.RegisterInterface;
 import com.dizzia.wordquizzle.commons.StatusCode;
@@ -31,7 +32,7 @@ public class WQServer implements RegisterInterface {
             return StatusCode.USER_ALREADY_REGISTERED;
         }
         try {
-            server.serialize();
+            ServerHandler.serialize();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -57,12 +58,21 @@ public class WQServer implements RegisterInterface {
         }
 
 
+        System.setProperty("java.security.policy", "security.policy");
+        System.setProperty("java.rmi.server.hostname", WQSettings.RMI_IP);
+
+        if (System.getSecurityManager() == null) {
+            System.setSecurityManager(new SecurityManager());
+        }
+
+
         try {
             WQServer obj = new WQServer();
             RegisterInterface stub = (RegisterInterface) UnicastRemoteObject.exportObject(obj, STUB_PORT);
 
             Registry registry = LocateRegistry.createRegistry(REG_PORT);
-            registry.rebind("WordQuizzle_" + MATRICOLA, stub);
+            registry.rebind(WQSettings.RMI_ADDRESS, stub);
+            //registry.rebind("WordQuizzle_" + MATRICOLA, stub);
 
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -72,7 +82,8 @@ public class WQServer implements RegisterInterface {
         Thread thread = new Thread(server);
         thread.start();
 
-        //System.setProperty("java.rmi.server.hostname","95.248.187.159");
+
+//        System.setProperty("java.rmi.server.hostname","79.42.92.249");
 
 
 

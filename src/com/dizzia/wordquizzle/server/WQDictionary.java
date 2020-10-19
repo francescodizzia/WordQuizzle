@@ -5,7 +5,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import javax.swing.plaf.synth.SynthDesktopIconUI;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
