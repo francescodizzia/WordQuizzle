@@ -1,19 +1,19 @@
 package com.dizzia.wordquizzle.client;
 
+import com.dizzia.wordquizzle.commons.ByteBufferIO;
+import com.dizzia.wordquizzle.commons.StatusCode;
+
 import javax.swing.*;
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.SocketException;
 import java.nio.channels.SocketChannel;
-import java.util.Scanner;
 
-import com.dizzia.wordquizzle.commons.ByteBufferIO;
-import com.dizzia.wordquizzle.commons.IO;
-import com.dizzia.wordquizzle.commons.StatusCode;
-import jdk.nashorn.internal.scripts.JD;
-
-public class GUIClient {
+public class WQClient {
     static LoginFrame loginFrame = new LoginFrame();
-    static HubFrame hubFrame = new HubFrame();
+    static HubFrame hubFrame;
     static SocketChannel server;
     static DatagramSocket datagramSocket;
     static int udp_port = -1;
@@ -92,18 +92,20 @@ public class GUIClient {
         loginFrame.setVisible(false);
         loginFrame.dispose();
 
-        hubFrame.setTitle("[" + username + "] WordQuizzle - Invita");
-        hubFrame.setVisible(true);
-        hubFrame.setBounds(10, 10, 450, 200);
-        hubFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        hubFrame.setLocationRelativeTo(null);
-        hubFrame.setResizable(false);
+        hubFrame = new HubFrame(username);
+
 
     }
 
 
+    public static int aggiungi_amico(String nickAmico){
+        writeString("ADD_FRIEND " + nickAmico);
+        return readInt();
+    }
 
-    public static void main(String[] a) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+
+
+    public static void main(String[] a) {
 
         try {
             datagramSocket = new DatagramSocket();
@@ -146,7 +148,6 @@ public class GUIClient {
 
                     System.out.println(result);
                     ReportDialog reportDialog = new ReportDialog(winner, correct_answers, wrong_answers);
-                    HubFrame hubFrame = new HubFrame();
                     hubFrame.setVisible(true);
                 }
             } catch (IOException e) {
@@ -155,5 +156,12 @@ public class GUIClient {
         })).start();
 
 
+    }
+
+    public static String lista_amici() {
+        WQClient.writeString("friendlist");
+        String jsonFriendlist = WQClient.readString();
+        System.out.println(jsonFriendlist);
+        return jsonFriendlist;
     }
 }

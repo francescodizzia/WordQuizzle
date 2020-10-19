@@ -2,19 +2,15 @@ package com.dizzia.wordquizzle.client;
 
 import com.dizzia.wordquizzle.RegisterInterface;
 import com.dizzia.wordquizzle.commons.StatusCode;
-import jdk.nashorn.internal.scripts.JO;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.Arrays;
 
 public class LoginFrame extends JFrame implements ActionListener{
     Container container=getContentPane();
@@ -120,7 +116,7 @@ public class LoginFrame extends JFrame implements ActionListener{
         }
 
         if(e.getSource() == loginButton){
-            GUIClient.login(userTextField.getText(), String.valueOf(passwordField.getPassword()));
+            WQClient.login(userTextField.getText(), String.valueOf(passwordField.getPassword()));
         }
 
         if (e.getSource() == showPassword) {

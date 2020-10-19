@@ -3,15 +3,10 @@ package com.dizzia.wordquizzle.client;
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
 
 import javax.swing.*;
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Scanner;
 
 public class UDPReceiver implements Runnable {
     JFrame frame;
@@ -51,7 +46,7 @@ public class UDPReceiver implements Runnable {
                 if(choice == JOptionPane.YES_OPTION){
                     ByteBufferIO.writeString(server, "ZIZIZI " + challenger);
                     String firstWord = ByteBufferIO.readString(server);
-                    GUIClient.inizio_sfida(firstWord);
+                    WQClient.inizio_sfida(firstWord);
                 }else{
                     ByteBufferIO.writeString(server, "NONONO " + challenger);
                 }

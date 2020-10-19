@@ -1,7 +1,6 @@
 package com.dizzia.wordquizzle.client;
 
 import com.dizzia.wordquizzle.commons.WQSettings;
-import com.dizzia.wordquizzle.server.ChallengeHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +13,7 @@ public class ChallengeFrame extends JFrame implements ActionListener {
     JTextField myWord = new JTextField();
     JButton send = new JButton("INVIA");
     JLabel wordLabel = new JLabel("null");
+    TimerLabel timerLabel = new TimerLabel(this);
 
     String firstWord;
 
@@ -23,20 +23,24 @@ public class ChallengeFrame extends JFrame implements ActionListener {
 
     public ChallengeFrame(String firstWord) {
         this.firstWord = firstWord;
-        setLayoutManager();
-        setLocationAndSize();
-        addComponentsToContainer();
-        addActionEvent();
-    }
-
-    public void setLocationAndSize() {
+        container.setLayout(null);
 
         wordLabel.setFont(new Font("Serif", Font.BOLD, 30));
         wordLabel.setBounds(180,1, 150, 150);
-        myWord.setBounds(100, 100, 250, 30);
-        send.setBounds(150, 200, 120, 50);
-
         wordLabel.setText(firstWord);
+        container.add(wordLabel);
+
+        timerLabel.setFont(new Font("Serif", Font.BOLD, 16));
+        timerLabel.setBounds(30,100, 150, 150);
+        container.add(timerLabel);
+
+        myWord.setBounds(100, 100, 250, 30);
+        container.add(myWord);
+
+        send.setBounds(150, 200, 120, 50);
+        send.addActionListener(this);
+        container.add(send);
+
         System.out.println(firstWord);
 
         this.setTitle("WordQuizzle - Sfida");
@@ -46,31 +50,15 @@ public class ChallengeFrame extends JFrame implements ActionListener {
         this.setLocationRelativeTo(null);
         this.setResizable(false);
 
-
-    }
-
-    public void addComponentsToContainer() {
-        container.add(myWord);
-        container.add(send);
-        container.add(wordLabel);
     }
 
 
-    public void setLayoutManager() {
-        container.setLayout(null);
-
-    }
-
-
-    public void addActionEvent() {
-        send.addActionListener(this);
-    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
         if(e.getSource() == send) {
-            GUIClient.writeString(myWord.getText().toLowerCase());
+            WQClient.writeString(myWord.getText().toLowerCase());
             myWord.setText("");
             clicked++;
 
@@ -78,10 +66,10 @@ public class ChallengeFrame extends JFrame implements ActionListener {
                 this.setVisible(false);
                 WaitingDialog waitingDialog = new WaitingDialog();
                 this.dispose();
-                GUIClient.waitEnd(waitingDialog);
+                WQClient.waitEnd(waitingDialog);
             }
             else {
-                String k = GUIClient.readString();
+                String k = WQClient.readString();
                 System.out.println(k);
                 wordLabel.setText(k);
             }

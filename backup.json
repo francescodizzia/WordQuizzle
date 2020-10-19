@@ -1,15 +1,38 @@
 {
   "userGraph": {
-    "dario": [],
+    "dario": [
+      "victor",
+      "zeb89",
+      "crash"
+    ],
+    "victor": [
+      "dario",
+      "zeb89",
+      "crash"
+    ],
     "Davide": [],
     "Raffaele": [],
-    "crash": []
+    "zeb89": [
+      "victor",
+      "dario",
+      "crash"
+    ],
+    "crash": [
+      "dario",
+      "victor",
+      "zeb89"
+    ]
   },
   "userTable": {
     "dario": {
       "username": "dario",
       "password": "f",
-      "score": -79
+      "score": -50
+    },
+    "victor": {
+      "username": "victor",
+      "password": "88",
+      "score": 6
     },
     "Davide": {
       "username": "davide",
@@ -21,10 +44,15 @@
       "password": "tuamamma",
       "score": 9
     },
+    "zeb89": {
+      "username": "zeb89",
+      "password": "fiero",
+      "score": -15
+    },
     "crash": {
       "username": "crash",
       "password": "4",
-      "score": -33
+      "score": -10
     }
   }
 }

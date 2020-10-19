@@ -1,56 +1,109 @@
 package com.dizzia.wordquizzle.client;
 
-import com.dizzia.wordquizzle.commons.StatusCode;
+
+import com.google.gson.Gson;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Vector;
 
 public class HubFrame extends JFrame implements ActionListener {
-    Container container = getContentPane();
+    JButton addButton = new JButton();
+    JButton friendlistButton = new JButton();
+    JButton challengeButton = new JButton();
 
-    JTextField challengeField = new JTextField();
-    JButton challengeButton = new JButton("SFIDA");
+    DefaultListModel<String> listModel = new DefaultListModel<String>();
+    JList<String> list = new JList<>(listModel);
 
+    JTextField textField = new JTextField();
+    String username;
 
-
-    public HubFrame() {
-        setLayoutManager();
-        setLocationAndSize();
-        addComponentsToContainer();
-        addActionEvent();
-    }
-
-    public void setLocationAndSize() {
-        challengeField.setBounds(65, 30, 300, 30);
-        challengeButton.setBounds(140, 85, 150, 50);
-    }
-
-    public void addComponentsToContainer() {
-        container.add(challengeField);
-        container.add(challengeButton);
-    }
+    Gson gson = new Gson();
 
 
-    public void setLayoutManager() {
-        container.setLayout(null);
+    public HubFrame(String username){
+        this.username = username;
 
-    }
+        Container container = getContentPane();
+
+        JLabel lblNewLabel = new JLabel();
+        lblNewLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblNewLabel.setAlignmentX(CENTER_ALIGNMENT);
+        lblNewLabel.setBounds(10, 10, 422, 37);
+        lblNewLabel.setText(username);
+        container.add(lblNewLabel);
+
+        JButton btnNewButton = new JButton();
+        btnNewButton.setBounds(10, 341, 422, 53);
+        btnNewButton.setText("Logout");
+        container.add(btnNewButton);
+
+        friendlistButton.setText("Aggiorna lista amici");
+        friendlistButton.setBounds(10, 282, 422, 53);
+        container.add(friendlistButton);
+        friendlistButton.addActionListener(this);
+
+        JButton btnMostraClassifica = new JButton();
+        btnMostraClassifica.setText("Mostra classifica");
+        btnMostraClassifica.setBounds(10, 223, 422, 53);
+        container.add(btnMostraClassifica);
+
+        JButton btnMostraPunteggio = new JButton();
+        btnMostraPunteggio.setText("Mostra punteggio");
+        btnMostraPunteggio.setBounds(10, 164, 422, 53);
+        container.add(btnMostraPunteggio);
 
 
-    public void addActionEvent() {
+        challengeButton.setText("Gioca!");
+        challengeButton.setBounds(10, 105, 422, 53);
         challengeButton.addActionListener(this);
+        container.add(challengeButton);
+
+        list.setBounds(438, 42, 334, 352);
+        container.add(list);
+
+        JLabel lblNewLabel_1 = new JLabel();
+        lblNewLabel_1.setAlignmentX(CENTER_ALIGNMENT);
+        lblNewLabel_1.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblNewLabel_1.setBounds(10, 53, 422, 46);
+        lblNewLabel_1.setText("(+350)");
+        container.add(lblNewLabel_1);
+
+        textField.setBounds(438, 10, 275, 26);
+        container.add(textField);
+
+        addButton.setBounds(719, 10, 53, 26);
+        addButton.setText("+");
+        addButton.addActionListener(this);
+        container.add(addButton);
+
+
+        updateFriendList(WQClient.lista_amici());
+
+
+        this.setTitle("[" + username + "] WordQuizzle - Hub di gioco");
+        this.setSize(800, 453);
+        this.setLayout(null);
+        this.setBackground(null);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLocationRelativeTo(null);
+        this.setResizable(false);
+        this.setVisible(true);
+
     }
+
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
         if(e.getSource() == challengeButton) {
-            GUIClient.writeString("sfida " + challengeField.getText());
+            WQClient.writeString("sfida " + list.getSelectedValue());
 
-            String response = GUIClient.readString();
+            String response = WQClient.readString();
             System.out.println(response);
 
             if(response.compareTo("TIMEOUT") == 0)
@@ -60,18 +113,30 @@ public class HubFrame extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "L'utente ha rifiutato la sfida...",
                         "Errore", JOptionPane.ERROR_MESSAGE);
             else
-                GUIClient.inizio_sfida(response);
+                WQClient.inizio_sfida(response);
+        }
+        else if(e.getSource() == friendlistButton){
+            updateFriendList(WQClient.lista_amici());
 
-
-
-
+        }
+        else if(e.getSource() == addButton){
+            WQClient.aggiungi_amico(textField.getText());
+            updateFriendList(WQClient.lista_amici());
         }
 
 
     }
 
+    private void updateFriendList(String jsonFriendlist) {
+        String[] friends = gson.fromJson(jsonFriendlist, String[].class);
+
+        listModel.clear();
+
+        for(String friend: friends){
+            listModel.addElement(friend);
+        }
+        System.out.println(Arrays.toString(friends));
+    }
+
+
 }
-
-
-
-
