@@ -2,6 +2,7 @@ package com.dizzia.wordquizzle.client;
 
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
 import com.dizzia.wordquizzle.commons.StatusCode;
+import com.dizzia.wordquizzle.commons.WQSettings;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,12 +21,6 @@ public class WQClient {
     static int udp_port = -1;
 
     static int port = 1919;
-
-    public static void hub(){
-        UDPReceiver receiver = new UDPReceiver(loginFrame, server, datagramSocket);
-        Thread t = new Thread(receiver);
-        t.start();
-    }
 
 
     public static void writeString(String message){
@@ -65,7 +60,7 @@ public class WQClient {
         System.out.println(password);
 
         try {
-            SocketAddress address = new InetSocketAddress("slazard.it", port);
+            SocketAddress address = new InetSocketAddress(WQSettings.RMI_IP, port);
             server = SocketChannel.open(address);
 
 
@@ -75,25 +70,28 @@ public class WQClient {
             switch(login_result){
                 case StatusCode.OK:
                     System.out.println("Login effettuato con successo!");
-                    hub();
+                    UDPReceiver receiver = new UDPReceiver(loginFrame, server, datagramSocket);
+                    Thread t = new Thread(receiver);
+                    t.start();
+                    loginFrame.dispose();
+                    hubFrame = new HubFrame(username);
                     break;
                 case StatusCode.USER_NOT_FOUND:
                     System.out.println("Utente non trovato");
+                    JOptionPane.showMessageDialog(loginFrame, "Utente non trovato!",
+                            "Errore di login", JOptionPane.ERROR_MESSAGE);
                     break;
                 case StatusCode.WRONG_PASSWORD:
                     System.out.println("Password sbagliata");
+                    JOptionPane.showMessageDialog(loginFrame, "Password non corretta!",
+                            "Errore di login", JOptionPane.ERROR_MESSAGE);
                     break;
             }
 
-
         } catch (IOException e) {
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(loginFrame, "Impossibile connettersi al server!",
+                    "Errore di login", JOptionPane.ERROR_MESSAGE);
         }
-
-        loginFrame.setVisible(false);
-        loginFrame.dispose();
-
-        hubFrame = new HubFrame(username);
 
 
     }
@@ -107,7 +105,6 @@ public class WQClient {
 
 
     public static void main(String[] a) {
-//        System.setProperty("java.rmi.server.hostname","192.168.1.36");
 
         try {
             datagramSocket = new DatagramSocket();
@@ -118,42 +115,14 @@ public class WQClient {
             System.exit(-1);
         }
 
-
-//        UIManager.put( "control", new Color( 128, 128, 128) );
-//        UIManager.put( "info", new Color(128,128,128) );
-        UIManager.put( "control", new Color( 81, 86, 88) );
-        UIManager.put( "info", new Color(81,86,88) );
-        UIManager.put( "nimbusBase", new Color( 18, 30, 49) );
-        UIManager.put( "nimbusAlertYellow", new Color( 248, 187, 0) );
-        UIManager.put( "nimbusDisabledText", new Color( 128, 128, 128) );
-        UIManager.put( "nimbusFocus", new Color(115,164,209) );
-        UIManager.put( "nimbusGreen", new Color(176,179,50) );
-        UIManager.put( "nimbusInfoBlue", new Color( 66, 139, 221) );
-        UIManager.put( "nimbusLightBackground", new Color( 18, 30, 49) );
-        UIManager.put( "nimbusOrange", new Color(191,98,4) );
-        UIManager.put( "nimbusRed", new Color(169,46,34) );
-        UIManager.put( "nimbusSelectedText", new Color( 255, 255, 255) );
-        UIManager.put( "nimbusSelectionBackground", new Color( 104, 93, 156) );
-        UIManager.put( "text", new Color( 230, 230, 230) );
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+            WQSettings.applyCustomTheme();
+        } catch (ClassNotFoundException | UnsupportedLookAndFeelException | InstantiationException | IllegalAccessException e) {
+            System.out.println(e);
         }
 
 
         loginFrame = new LoginFrame();
-        loginFrame.setTitle("WordQuizzle - Login");
-        loginFrame.setVisible(true);
-        loginFrame.setBounds(10, 10, 480, 360);
-        loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        loginFrame.setLocationRelativeTo(null);
-        loginFrame.setResizable(false);
 
     }
 

@@ -1,6 +1,7 @@
 package com.dizzia.wordquizzle.client;
 
 
+import com.dizzia.wordquizzle.commons.ByteBufferIO;
 import com.google.gson.Gson;
 
 import javax.swing.*;
@@ -13,6 +14,7 @@ public class HubFrame extends JFrame implements ActionListener {
     JButton addButton = new JButton();
     JButton friendlistButton = new JButton();
     JButton challengeButton = new JButton();
+    JButton logoutButton;
 
     DefaultListModel<String> listModel = new DefaultListModel<>();
     JList<String> list = new JList<>(listModel);
@@ -35,10 +37,11 @@ public class HubFrame extends JFrame implements ActionListener {
         lblNewLabel.setText(username);
         container.add(lblNewLabel);
 
-        JButton btnNewButton = new JButton();
-        btnNewButton.setBounds(10, 341, 422, 53);
-        btnNewButton.setText("Logout");
-        container.add(btnNewButton);
+        logoutButton = new JButton();
+        logoutButton.setBounds(10, 341, 422, 53);
+        logoutButton.setText("Logout");
+        container.add(logoutButton);
+        logoutButton.addActionListener(this);
 
         friendlistButton.setText("Aggiorna lista amici");
         friendlistButton.setBounds(10, 282, 422, 53);
@@ -99,31 +102,43 @@ public class HubFrame extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         if(e.getSource() == challengeButton) {
-            WQClient.writeString("sfida " + list.getSelectedValue());
+            if (list.getSelectedValue() != null) {
+                WQClient.writeString("sfida " + list.getSelectedValue());
+                String response = WQClient.readString();
+                System.out.println(response);
 
-            String response = WQClient.readString();
-            System.out.println(response);
-
-            if(response.compareTo("TIMEOUT") == 0)
-                JOptionPane.showMessageDialog(this, "Tempo scaduto, l'utente non ha risposto!",
-                        "Errore", JOptionPane.ERROR_MESSAGE);
-            else if(response.compareTo("REFUSED") == 0)
-                JOptionPane.showMessageDialog(this, "L'utente ha rifiutato la sfida...",
-                        "Errore", JOptionPane.ERROR_MESSAGE);
+                if (response.compareTo("TIMEOUT") == 0)
+                    JOptionPane.showMessageDialog(this, "Tempo scaduto, l'utente non ha risposto!",
+                            "Errore", JOptionPane.ERROR_MESSAGE);
+                else if (response.compareTo("REFUSED") == 0)
+                    JOptionPane.showMessageDialog(this, "L'utente ha rifiutato la sfida...",
+                            "Errore", JOptionPane.ERROR_MESSAGE);
+                else
+                    WQClient.inizio_sfida(response);
+            }
             else
-                WQClient.inizio_sfida(response);
+                JOptionPane.showMessageDialog(this, "Seleziona un amico da sfidare!\n" +
+                                "Nel caso tu non abbia amici, aggiungili attraverso la barra e il pulsante in alto a destra!",
+                        "Errore", JOptionPane.ERROR_MESSAGE);
         }
-        else if(e.getSource() == friendlistButton){
+        else if (e.getSource() == friendlistButton) {
             updateFriendList(WQClient.lista_amici());
 
-        }
-        else if(e.getSource() == addButton){
+        } else if (e.getSource() == addButton) {
             WQClient.aggiungi_amico(textField.getText());
             updateFriendList(WQClient.lista_amici());
+        } else if (e.getSource() == logoutButton) {
+            int choice = JOptionPane.showConfirmDialog(this,
+                    "Sei davvero sicuro di voler effettuare il logout?", "Conferma di logout",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+            if (choice == JOptionPane.YES_OPTION) {
+                this.dispose();
+                WQClient.loginFrame = new LoginFrame();
+            }
         }
-
-
     }
+
 
     private void updateFriendList(String jsonFriendlist) {
         String[] friends = gson.fromJson(jsonFriendlist, String[].class);

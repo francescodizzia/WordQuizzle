@@ -25,14 +25,11 @@ public class UDPReceiver implements Runnable {
         try {
             System.out.println("Sono nel thread UDPReceiver");
 
-            while(true){
+            while(!Thread.interrupted()){
                 DatagramPacket packet = new DatagramPacket(buf, buf.length);
                 datagramSocket.receive(packet);
 
                 String string = new String(buf, 0, packet.getLength());
-                if(string.compareToIgnoreCase("sfida crash") == 0)
-                    System.out.println("MATCHMATCH");
-
 
                 packet.setLength(buf.length);
                 System.out.println(string);

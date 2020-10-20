@@ -9,26 +9,23 @@ import java.awt.event.ActionListener;
 
 public class ChallengeFrame extends JFrame implements ActionListener {
     Container container = getContentPane();
-
     JTextField myWord = new JTextField();
     JButton send = new JButton("INVIA");
     JLabel wordLabel = new JLabel("null");
     TimerLabel timerLabel = new TimerLabel(this);
-
     String firstWord;
-
     int clicked = 0;
 
 
 
     public ChallengeFrame(String firstWord) {
-        ImageIcon icon = new ImageIcon("./italy.jpg");
+        ImageIcon icon = new ImageIcon("./resources/it.jpg");
         JLabel label = new JLabel();
         label.setBounds(130, 90, 150, 100);
         label.setIcon(icon);
         container.add(label);
 
-        ImageIcon icon2 = new ImageIcon("./uk.jpg");
+        ImageIcon icon2 = new ImageIcon("./resources/uk.jpg");
         JLabel label2 = new JLabel();
         label2.setBounds(500, 90, 150, 100);
         label2.setIcon(icon2);
@@ -39,7 +36,7 @@ public class ChallengeFrame extends JFrame implements ActionListener {
 
         wordLabel.setFont(new Font("Serif", Font.BOLD, 16));
         wordLabel.setBounds(165,280, 150, 30);
-        wordLabel.setText(firstWord);
+        wordLabel.setText(firstWord.toUpperCase());
         container.add(wordLabel);
 
         timerLabel.setFont(new Font("Serif", Font.BOLD, 16));
@@ -69,20 +66,21 @@ public class ChallengeFrame extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         if(e.getSource() == send) {
-            WQClient.writeString(myWord.getText().toLowerCase());
-            myWord.setText("");
-            clicked++;
+            if (myWord.getText() != null && myWord.getText().compareTo("") != 0) {
+                WQClient.writeString(myWord.getText().toLowerCase());
+                myWord.setText("");
+                clicked++;
 
-            if(clicked == WQSettings.N_WORDS){
-                this.setVisible(false);
-                WaitingDialog waitingDialog = new WaitingDialog();
-                this.dispose();
-                WQClient.waitEnd(waitingDialog);
-            }
-            else {
-                String k = WQClient.readString();
-                System.out.println(k);
-                wordLabel.setText(k);
+                if (clicked == WQSettings.N_WORDS) {
+                    this.setVisible(false);
+                    WaitingDialog waitingDialog = new WaitingDialog();
+                    this.dispose();
+                    WQClient.waitEnd(waitingDialog);
+                } else {
+                    String k = WQClient.readString();
+                    System.out.println(k);
+                    wordLabel.setText(k.toUpperCase());
+                }
             }
         }
 

@@ -32,6 +32,14 @@ public class LoginFrame extends JFrame implements ActionListener{
         setLocationAndSize();
         addComponentsToContainer();
         addActionEvent();
+
+
+        this.setTitle("WordQuizzle - Login");
+        this.setVisible(true);
+        this.setBounds(10, 10, 480, 360);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLocationRelativeTo(null);
+        this.setResizable(false);
     }
 
     public void setLocationAndSize()
@@ -101,7 +109,7 @@ public class LoginFrame extends JFrame implements ActionListener{
                             "Registrazione effettuata", JOptionPane.OK_CANCEL_OPTION);
 
                     if(result == JOptionPane.OK_OPTION){
-                        ;
+                        WQClient.login(userTextField.getText(), String.valueOf(passwordField.getPassword()));
                     }
 
                     break;

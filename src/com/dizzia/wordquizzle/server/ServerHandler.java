@@ -50,10 +50,10 @@ public class ServerHandler implements Runnable {
 
     private void sendUDP(InetSocketAddress address, int port, String message) throws SocketException {
 
-//        DatagramSocket datagramSocket = new DatagramSocket();
+        DatagramSocket datagramSocket = new DatagramSocket();
 
         //TMP!!!!
-        DatagramSocket datagramSocket = new DatagramSocket(1919);
+//        DatagramSocket datagramSocket = new DatagramSocket(1919);
         byte[] buffer;
 
         buffer = message.getBytes(StandardCharsets.UTF_8);
