@@ -8,13 +8,17 @@ import java.awt.*;
 
 public interface WQSettings {
     int N_WORDS = 5;
-    int CHALLENGE_TIMEOUT = 60;
+    int CHALLENGE_TIMEOUT = 60 * 1000;
+    int CHALLENGE_REQUEST_TIMEOUT = 5 * 1000;
+
     int RIGHT_ANSWER_POINTS = 2;
     int WRONG_ANSWER_POINTS = -1;
     int WINNER_EXTRA_POINTS = 3;
     //String RMI_IP = "79.42.92.249";
     String RMI_IP = "localhost";
     String RMI_ADDRESS = "rmi://" + RMI_IP + "/WordQuizzle_" + RegisterInterface.MATRICOLA;
+
+
 
     static void applyCustomTheme() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
         UIManager.put( "control", new Color( 81, 86, 88) );

@@ -64,7 +64,6 @@ public class ChallengeFrame extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
         if(e.getSource() == send) {
             if (myWord.getText() != null && myWord.getText().compareTo("") != 0) {
                 WQClient.writeString(myWord.getText().toLowerCase());
@@ -84,9 +83,7 @@ public class ChallengeFrame extends JFrame implements ActionListener {
             }
         }
 
-
     }
-
 
 }
 

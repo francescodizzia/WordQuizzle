@@ -8,12 +8,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.channels.SocketChannel;
 
-public class UDPReceiver implements Runnable {
+public class UDPListener implements Runnable {
     JFrame frame;
     SocketChannel server;
     DatagramSocket datagramSocket;
 
-    public UDPReceiver(JFrame frame, SocketChannel server, DatagramSocket datagramSocket){
+    public UDPListener(JFrame frame, SocketChannel server, DatagramSocket datagramSocket){
         this.frame = frame;
         this.server = server;
         this.datagramSocket = datagramSocket;
@@ -42,8 +42,12 @@ public class UDPReceiver implements Runnable {
 
                 if(choice == JOptionPane.YES_OPTION){
                     ByteBufferIO.writeString(server, "ZIZIZI " + challenger);
-                    String firstWord = ByteBufferIO.readString(server);
-                    WQClient.inizio_sfida(firstWord);
+                    String response = ByteBufferIO.readString(server);
+                    if (response.compareTo("TIMEOUT") == 0)
+                        JOptionPane.showMessageDialog(frame, "Tempo scaduto per l'accettazione della richiesta!",
+                                "Errore", JOptionPane.ERROR_MESSAGE);
+                    else
+                        WQClient.inizio_sfida(response);
                 }else{
                     ByteBufferIO.writeString(server, "NONONO " + challenger);
                 }

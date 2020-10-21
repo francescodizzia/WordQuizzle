@@ -36,7 +36,7 @@ public class ChallengeHandler implements Runnable {
     public void run() {
         SocketChannel player1 = (SocketChannel) player1Key.channel();
         SocketChannel player2 = (SocketChannel) player2Key.channel();
-        long startTime = System.nanoTime();
+        long startTime = System.currentTimeMillis();
 
         try {
             Selector selector = Selector.open();
@@ -45,9 +45,8 @@ public class ChallengeHandler implements Runnable {
 
 
             while(!Thread.interrupted()){
-                int S = selector.select(200);
-                long actualTime = System.nanoTime();
-                long elapsedTime = TimeUnit.SECONDS.convert(actualTime - startTime, TimeUnit.NANOSECONDS);
+                selector.select(200);
+                long elapsedTime = System.currentTimeMillis() - startTime;
 
                 if(elapsedTime >= WQSettings.CHALLENGE_TIMEOUT){
                     System.out.println("Sono passati " + WQSettings.CHALLENGE_TIMEOUT + " secondi, addiooo");

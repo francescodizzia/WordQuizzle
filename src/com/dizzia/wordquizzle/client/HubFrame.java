@@ -2,12 +2,22 @@ package com.dizzia.wordquizzle.client;
 
 
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
+import com.dizzia.wordquizzle.commons.WQSettings;
+import com.dizzia.wordquizzle.server.WQServer;
 import com.google.gson.Gson;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class HubFrame extends JFrame implements ActionListener {
@@ -85,7 +95,6 @@ public class HubFrame extends JFrame implements ActionListener {
 
         updateFriendList(WQClient.lista_amici());
 
-
         this.setTitle("[" + username + "] WordQuizzle - Hub di gioco");
         this.setSize(800, 453);
         this.setLayout(null);
@@ -94,37 +103,59 @@ public class HubFrame extends JFrame implements ActionListener {
         this.setLocationRelativeTo(null);
         this.setResizable(false);
         this.setVisible(true);
-
     }
 
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
         if(e.getSource() == challengeButton) {
             if (list.getSelectedValue() != null) {
                 WQClient.writeString("sfida " + list.getSelectedValue());
-                String response = WQClient.readString();
-                System.out.println(response);
 
-                if (response.compareTo("TIMEOUT") == 0)
+
+//                String response = WQClient.readString();
+//                System.out.println(response);
+                String response = "";
+
+                try {
+                    ByteBuffer input = ByteBuffer.allocate(256);
+                    input.clear();
+                    WQClient.server.socket().setSoTimeout(WQSettings.CHALLENGE_REQUEST_TIMEOUT);
+
+                    InputStream inStream = WQClient.server.socket().getInputStream();
+                    ReadableByteChannel wrappedChannel = Channels.newChannel(inStream);
+                    wrappedChannel.read(input);
+//                    WQClient.server.read(input);
+                    input.flip();
+
+                    response = StandardCharsets.UTF_8.decode(input).toString();
+
+
+//                if (response.compareTo("TIMEOUT") == 0)
+//                    JOptionPane.showMessageDialog(this, "Tempo scaduto, l'utente non ha risposto!",
+//                            "Errore", JOptionPane.ERROR_MESSAGE);
+//                else
+                    if (response.compareTo("REFUSED") == 0)
+                        JOptionPane.showMessageDialog(this, "L'utente ha rifiutato la sfida...",
+                                "Errore", JOptionPane.ERROR_MESSAGE);
+                    else
+                        WQClient.inizio_sfida(response);
+
+                } catch (IOException ex) {
                     JOptionPane.showMessageDialog(this, "Tempo scaduto, l'utente non ha risposto!",
                             "Errore", JOptionPane.ERROR_MESSAGE);
-                else if (response.compareTo("REFUSED") == 0)
-                    JOptionPane.showMessageDialog(this, "L'utente ha rifiutato la sfida...",
-                            "Errore", JOptionPane.ERROR_MESSAGE);
-                else
-                    WQClient.inizio_sfida(response);
+                }
+
+
             }
             else
                 JOptionPane.showMessageDialog(this, "Seleziona un amico da sfidare!\n" +
                                 "Nel caso tu non abbia amici, aggiungili attraverso la barra e il pulsante in alto a destra!",
                         "Errore", JOptionPane.ERROR_MESSAGE);
         }
-        else if (e.getSource() == friendlistButton) {
+        else if (e.getSource() == friendlistButton)
             updateFriendList(WQClient.lista_amici());
-
-        } else if (e.getSource() == addButton) {
+        else if (e.getSource() == addButton) {
             WQClient.aggiungi_amico(textField.getText());
             updateFriendList(WQClient.lista_amici());
         } else if (e.getSource() == logoutButton) {
@@ -133,10 +164,17 @@ public class HubFrame extends JFrame implements ActionListener {
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
             if (choice == JOptionPane.YES_OPTION) {
-                this.dispose();
-                WQClient.loginFrame = new LoginFrame();
+                try {
+                    WQClient.server.close();
+                    this.dispose();
+                    WQClient.loginFrame = new LoginFrame();
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+
             }
         }
+
     }
 
 

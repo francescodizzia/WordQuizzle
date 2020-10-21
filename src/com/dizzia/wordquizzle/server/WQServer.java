@@ -18,7 +18,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 
 public class WQServer implements RegisterInterface {
-    static ServerHandler server;
+    public static ServerHandler server;
     static Database db;
 
 
@@ -51,20 +51,19 @@ public class WQServer implements RegisterInterface {
 
 
     public static void main(String[] args) throws IOException {
+
+//        if (System.getSecurityManager() == null) {
+//            System.setSecurityManager(new SecurityManager());
+//        }
+
+        System.setProperty("java.security.policy", "security.policy");
+        System.setProperty("java.rmi.server.hostname", WQSettings.RMI_IP);
+
         try{
             deserialize();
         } catch (IOException e){
             db = new Database();
         }
-
-
-        System.setProperty("java.security.policy", "security.policy");
-        System.setProperty("java.rmi.server.hostname", WQSettings.RMI_IP);
-
-        if (System.getSecurityManager() == null) {
-            System.setSecurityManager(new SecurityManager());
-        }
-
 
         try {
             WQServer obj = new WQServer();
@@ -72,7 +71,6 @@ public class WQServer implements RegisterInterface {
 
             Registry registry = LocateRegistry.createRegistry(REG_PORT);
             registry.rebind(WQSettings.RMI_ADDRESS, stub);
-            //registry.rebind("WordQuizzle_" + MATRICOLA, stub);
 
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -81,11 +79,6 @@ public class WQServer implements RegisterInterface {
         server = new ServerHandler(db);
         Thread thread = new Thread(server);
         thread.start();
-
-
-//        System.setProperty("java.rmi.server.hostname","79.42.92.249");
-
-
 
     }
 

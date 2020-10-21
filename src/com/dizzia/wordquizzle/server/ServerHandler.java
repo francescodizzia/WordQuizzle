@@ -1,9 +1,11 @@
 package com.dizzia.wordquizzle.server;
 
 import com.dizzia.wordquizzle.commons.StatusCode;
+import com.dizzia.wordquizzle.commons.WQSettings;
 import com.dizzia.wordquizzle.database.Database;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.*;
@@ -17,7 +19,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
 
 public class ServerHandler implements Runnable {
@@ -49,11 +50,9 @@ public class ServerHandler implements Runnable {
 
 
     private void sendUDP(InetSocketAddress address, int port, String message) throws SocketException {
-
         DatagramSocket datagramSocket = new DatagramSocket();
 
-        //TMP!!!!
-//        DatagramSocket datagramSocket = new DatagramSocket(1919);
+
         byte[] buffer;
 
         buffer = message.getBytes(StandardCharsets.UTF_8);
@@ -66,21 +65,19 @@ public class ServerHandler implements Runnable {
         }
     }
 
-
     private void commandParser(String command, SocketChannel client, SelectionKey key) {
         String[] args = command.split(" ");
         ClientResources resources = (ClientResources) key.attachment();
         String CURRENT_USER = resources.getUsername();
         String COMMAND_NAME = args[0].toUpperCase();
-        ByteBuffer buffer = resources.buffer;
 
         System.out.println(Arrays.toString(args));
 
         switch (COMMAND_NAME) {
             case "LOGIN":
                 int login_result = database.checkCredentials(args[1], args[2]);
-                if(login_result == StatusCode.OK) {
-                    loggedUsers.put(args[1],(InetSocketAddress) client.socket().getLocalSocketAddress());
+                if (login_result == StatusCode.OK) {
+                    loggedUsers.put(args[1], (InetSocketAddress) client.socket().getLocalSocketAddress());
                     System.out.println(loggedUsers.keySet());
                     resources.setUsername(args[1]);
                     keyMap.put(args[1], key);
@@ -112,14 +109,17 @@ public class ServerHandler implements Runnable {
                 key.interestOps(SelectionKey.OP_WRITE);
                 break;
             case "SFIDA":
-                System.out.println("richiesta di sfida da " + CURRENT_USER + " [" + loggedUsers.get(CURRENT_USER) +"] a "
-                                    + args[1] + " [" + loggedUsers.get(args[1]) + "]");
-                try {
-                    ClientResources friend = (ClientResources) keyMap.get(args[1]).attachment();
-                    friend.challengeTime = System.nanoTime();
-                    sendUDP(loggedUsers.get(args[1]), friend.getUDP_port(), "sfida " + CURRENT_USER);
-                } catch (SocketException e) {
-                    e.printStackTrace();
+                if (loggedUsers.containsKey(args[1])){
+                    System.out.println("richiesta di sfida da " + CURRENT_USER + " [" + loggedUsers.get(CURRENT_USER) + "] a "
+                                + args[1] + " [" + loggedUsers.get(args[1]) + "]");
+                    try {
+                        ClientResources friend = (ClientResources) keyMap.get(args[1]).attachment();
+//                        friend.challengeTime = System.nanoTime();
+                        friend.challengeTime = System.currentTimeMillis();
+                        sendUDP(loggedUsers.get(args[1]), friend.getUDP_port(), "sfida " + CURRENT_USER);
+                    } catch (SocketException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 key.interestOps(SelectionKey.OP_WRITE);
@@ -140,14 +140,10 @@ public class ServerHandler implements Runnable {
                 System.out.println(args[1]);
                 SelectionKey challengerKey = keyMap.get(args[1]);
                 ClientResources challengerResources =  (ClientResources) challengerKey.attachment();
-                int CHALLENGE_ACCEPT_MAX_TIME = 10;
 
-                long kappaci =  TimeUnit.SECONDS.convert(System.nanoTime() - resources.challengeTime,
-                        TimeUnit.NANOSECONDS);
+                long elapsedTime = System.currentTimeMillis() - resources.challengeTime;
 
-                System.out.println(kappaci);
-
-                if(kappaci < CHALLENGE_ACCEPT_MAX_TIME) {
+                if(elapsedTime < WQSettings.CHALLENGE_REQUEST_TIMEOUT) {
                     System.out.println("IN TEMPO");
                     key.interestOps(0);
                     challengerKey.interestOps(0);
@@ -158,14 +154,15 @@ public class ServerHandler implements Runnable {
                 }
                 else {
                     System.out.println("TIMEOUT ");
-                    challengerResources.buffer.clear();
-                    challengerResources.buffer.put("TIMEOUT".getBytes());
-                    challengerResources.buffer.flip();
+//                    challengerResources.buffer.clear();
+//                    challengerResources.buffer.put("TIMEOUT".getBytes());
+//                    challengerResources.buffer.flip();
                     resources.buffer.clear();
                     resources.buffer.put("TIMEOUT".getBytes());
+                    resources.challengeTime = 0;
                     resources.buffer.flip();
                     key.interestOps(SelectionKey.OP_WRITE);
-                    challengerKey.interestOps(SelectionKey.OP_WRITE);
+//                    challengerKey.interestOps(SelectionKey.OP_WRITE);
                 }
                 break;
             case "NONONO":
@@ -227,53 +224,57 @@ public class ServerHandler implements Runnable {
                     }
                     else if(key.isReadable()){
                         ClientResources resources = (ClientResources) key.attachment();
-                        String username = resources.getUsername();
                         SocketChannel client = (SocketChannel) key.channel();
 
                         ByteBuffer input = resources.buffer;
                         input.clear();
                         int read_byte = client.read(input);
-
                         input.flip();
-                        String line = StandardCharsets.UTF_8.decode(input).toString();
 
-                        commandParser(line, client, key);
-//                        System.out.println("Ricevuto: " + line);
+                        if(read_byte == -1) {
+                            handleDisconnect(key);
+                        }else {
+                            String line = StandardCharsets.UTF_8.decode(input).toString();
+                            commandParser(line, client, key);
+                        }
                     }
                     else if(key.isWritable()){
                         ClientResources k = (ClientResources) key.attachment();
-                        String username = k.getUsername();
                         SocketChannel client = (SocketChannel) key.channel();
                         ByteBuffer output = k.buffer;
                         client.write(output);
 
-//                        System.out.println("Mando come risposta: " + StatusCode.OK);
-
-                        //if HA FINITO DI LEGGERE QUALCOSA SWITCHA A WRITE PER MANDARE LA RISPOSTA TODO
                         key.interestOps(SelectionKey.OP_READ);
                     }
                 } catch (IOException ex) {
-                    key.cancel();
-                    try {
-                        key.channel().close();
-                        ClientResources resources = (ClientResources) key.attachment();
-
-                        String username = resources.getUsername();
-                        if(username != null) {
-                            System.out.println("ADDIO " + username);
-                            loggedUsers.remove(username);
-                            System.out.println(loggedUsers.keySet());
-                        }
-
-                    } catch (IOException cex) {
-                        cex.printStackTrace();
-                    }
+                    handleDisconnect(key);
                 }
             }
 
 
         }
     }
+
+
+    private void handleDisconnect(SelectionKey key){
+        key.cancel();
+        try {
+            key.channel().close();
+            ClientResources resources = (ClientResources) key.attachment();
+
+            String username = resources.getUsername();
+            if(username != null) {
+                System.out.println("ADDIO " + username);
+                loggedUsers.remove(username);
+                System.out.println(loggedUsers.keySet());
+            }
+
+        } catch (IOException cex) {
+            cex.printStackTrace();
+        }
+    }
+
+
 
 }
 

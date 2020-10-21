@@ -5,7 +5,6 @@ import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.commons.WQSettings;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -19,7 +18,6 @@ public class WQClient {
     static SocketChannel server;
     static DatagramSocket datagramSocket;
     static int udp_port = -1;
-
     static int port = 1919;
 
 
@@ -70,7 +68,7 @@ public class WQClient {
             switch(login_result){
                 case StatusCode.OK:
                     System.out.println("Login effettuato con successo!");
-                    UDPReceiver receiver = new UDPReceiver(loginFrame, server, datagramSocket);
+                    UDPListener receiver = new UDPListener(loginFrame, server, datagramSocket);
                     Thread t = new Thread(receiver);
                     t.start();
                     loginFrame.dispose();
@@ -128,7 +126,7 @@ public class WQClient {
 
     public static void inizio_sfida(String firstWord) {
         hubFrame.setVisible(false);
-        ChallengeFrame f = new ChallengeFrame(firstWord);
+        new ChallengeFrame(firstWord);
     }
 
     public static void waitEnd(JDialog dialog) {
@@ -146,7 +144,7 @@ public class WQClient {
                     dialog.dispose();
 
                     System.out.println(result);
-                    ReportDialog reportDialog = new ReportDialog(winner, correct_answers, wrong_answers);
+                    new ReportDialog(winner, correct_answers, wrong_answers);
                     hubFrame.setVisible(true);
                 }
             } catch (IOException e) {
