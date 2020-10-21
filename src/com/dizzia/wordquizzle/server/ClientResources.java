@@ -11,7 +11,7 @@ public class ClientResources {
     private String username;
     ByteBuffer buffer;
     public int port;
-    public int score = 0;
+    public int challengeScore = 0;
 
 
     SelectionKey challenged = null;

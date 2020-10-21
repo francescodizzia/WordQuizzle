@@ -21,9 +21,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class HubFrame extends JFrame implements ActionListener {
+    JLabel scoreLabel = new JLabel();
     JButton addButton = new JButton();
     JButton friendlistButton = new JButton();
     JButton challengeButton = new JButton();
+    JButton updateScoreButton = new JButton();
     JButton logoutButton;
 
     DefaultListModel<String> listModel = new DefaultListModel<>();
@@ -63,10 +65,10 @@ public class HubFrame extends JFrame implements ActionListener {
         btnMostraClassifica.setBounds(10, 223, 422, 53);
         container.add(btnMostraClassifica);
 
-        JButton btnMostraPunteggio = new JButton();
-        btnMostraPunteggio.setText("Mostra punteggio");
-        btnMostraPunteggio.setBounds(10, 164, 422, 53);
-        container.add(btnMostraPunteggio);
+        updateScoreButton.setText("Aggiorna punteggio");
+        updateScoreButton.setBounds(10, 164, 422, 53);
+        container.add(updateScoreButton);
+        updateScoreButton.addActionListener(this);
 
 
         challengeButton.setText("Gioca!");
@@ -77,12 +79,13 @@ public class HubFrame extends JFrame implements ActionListener {
         list.setBounds(438, 42, 334, 352);
         container.add(list);
 
-        JLabel lblNewLabel_1 = new JLabel();
-        lblNewLabel_1.setAlignmentX(CENTER_ALIGNMENT);
-        lblNewLabel_1.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblNewLabel_1.setBounds(10, 53, 422, 46);
-        lblNewLabel_1.setText("(+350)");
-        container.add(lblNewLabel_1);
+        int score = getScore();
+
+        scoreLabel.setAlignmentX(CENTER_ALIGNMENT);
+        scoreLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        scoreLabel.setBounds(10, 53, 422, 46);
+        scoreLabel.setText(String.valueOf(score));
+        container.add(scoreLabel);
 
         textField.setBounds(438, 10, 275, 26);
         container.add(textField);
@@ -158,7 +161,12 @@ public class HubFrame extends JFrame implements ActionListener {
         else if (e.getSource() == addButton) {
             WQClient.aggiungi_amico(textField.getText());
             updateFriendList(WQClient.lista_amici());
-        } else if (e.getSource() == logoutButton) {
+        }
+        else if(e.getSource() == updateScoreButton){
+            int score = getScore();
+            scoreLabel.setText(String.valueOf(score));
+        }
+        else if (e.getSource() == logoutButton) {
             int choice = JOptionPane.showConfirmDialog(this,
                     "Sei davvero sicuro di voler effettuare il logout?", "Conferma di logout",
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -187,6 +195,11 @@ public class HubFrame extends JFrame implements ActionListener {
             listModel.addElement(friend);
         }
         System.out.println(Arrays.toString(friends));
+    }
+
+    private int getScore(){
+        WQClient.writeString("score");
+        return WQClient.readInt();
     }
 
 

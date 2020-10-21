@@ -1,9 +1,10 @@
 package com.dizzia.wordquizzle.client;
 
+import com.dizzia.wordquizzle.commons.WQSettings;
 import javax.swing.*;
 
 public class TimerLabel extends JLabel {
-    public int remainingTime = 80;
+    public int remainingTime = WQSettings.CHALLENGE_TIMEOUT/1000;
     Timer timer;
 
     public TimerLabel(JFrame frame) {
@@ -23,7 +24,7 @@ public class TimerLabel extends JLabel {
         int minutes = remainingTime / 60;
         int seconds = remainingTime % 60;
 
-        return (minutes + ":" + seconds);
+        return minutes + ":" + seconds;
     }
 
     @Override

@@ -5,14 +5,12 @@ import com.dizzia.wordquizzle.commons.WQSettings;
 import com.dizzia.wordquizzle.database.Database;
 
 import java.io.IOException;
-import java.lang.ref.PhantomReference;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Vector;
-import java.util.concurrent.TimeUnit;
 
 public class ChallengeHandler implements Runnable {
     private final SelectionKey player1Key;
@@ -79,7 +77,7 @@ public class ChallengeHandler implements Runnable {
 
 
 
-    public void handleEndGame(SelectionKey key){
+    public void handleEndGame(SelectionKey key) throws IOException {
         ClientResources P1_R = (ClientResources) player1Key.attachment();
         ClientResources P2_R = (ClientResources) player2Key.attachment();
 
@@ -89,13 +87,19 @@ public class ChallengeHandler implements Runnable {
         finished++;
 
         if(finished == 2) {
-            if (P1_R.score > P2_R.score) {
+            if (P1_R.challengeScore > P2_R.challengeScore) {
                 P1_R.isWinner = 1;
                 P2_R.isWinner = -1;
+                P1_R.challengeScore += WQSettings.WINNER_EXTRA_POINTS;
+                database.updateScore(P1_R.getUsername(), database.getScore(P1_R.getUsername()) + WQSettings.WINNER_EXTRA_POINTS);
+                ServerHandler.serialize();
             }
-            else if (P1_R.score < P2_R.score) {
+            else if (P1_R.challengeScore < P2_R.challengeScore) {
                 P1_R.isWinner = -1;
                 P2_R.isWinner = 1;
+                P2_R.challengeScore += WQSettings.WINNER_EXTRA_POINTS;
+                database.updateScore(P2_R.getUsername(), database.getScore(P2_R.getUsername()) + WQSettings.WINNER_EXTRA_POINTS);
+                ServerHandler.serialize();
             }
 
             try {
@@ -136,16 +140,16 @@ public class ChallengeHandler implements Runnable {
             m = StandardCharsets.UTF_8.decode(resources.buffer).toString();
             if(WQDictionary.getTranslatedWords(chosenWords.get(resources.translatedWords-1)).contains(m)) {
                 System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " CORRETTA (+2)");
-                resources.score += WQSettings.RIGHT_ANSWER_POINTS;
+                resources.challengeScore += WQSettings.RIGHT_ANSWER_POINTS;
                 resources.correct_answers++;
-                database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + resources.score);
+                database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + WQSettings.RIGHT_ANSWER_POINTS);
                 ServerHandler.serialize();
             }
             else {
                 System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " SBAGLIATA (-1)");
-                resources.score += WQSettings.WRONG_ANSWER_POINTS;
+                resources.challengeScore += WQSettings.WRONG_ANSWER_POINTS;
                 resources.wrong_answers++;
-                database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + resources.score);
+                database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + WQSettings.WRONG_ANSWER_POINTS);
                 ServerHandler.serialize();
             }
         }

@@ -8,7 +8,7 @@ import java.awt.*;
 
 public interface WQSettings {
     int N_WORDS = 5;
-    int CHALLENGE_TIMEOUT = 60 * 1000;
+    int CHALLENGE_TIMEOUT = 90 * 1000;
     int CHALLENGE_REQUEST_TIMEOUT = 5 * 1000;
 
     int RIGHT_ANSWER_POINTS = 2;
