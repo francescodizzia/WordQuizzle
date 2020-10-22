@@ -25,9 +25,8 @@ public class ServerHandler implements Runnable {
     private static Database database;
     private final ConcurrentHashMap<String, InetSocketAddress> loggedUsers;
     private final ConcurrentHashMap<String, SelectionKey> keyMap;
-    WQDictionary wqDictionary;
-    Selector selector;
-
+    private final WQDictionary wqDictionary;
+    private Selector selector;
 
 
     public ServerHandler(Database database) {
@@ -51,11 +50,8 @@ public class ServerHandler implements Runnable {
 
     private void sendUDP(InetSocketAddress address, int port, String message) throws SocketException {
         DatagramSocket datagramSocket = new DatagramSocket();
+        byte[] buffer = message.getBytes(StandardCharsets.UTF_8);
 
-
-        byte[] buffer;
-
-        buffer = message.getBytes(StandardCharsets.UTF_8);
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address.getAddress(), port);
         System.out.println(port);
         try {
@@ -76,12 +72,18 @@ public class ServerHandler implements Runnable {
         switch (COMMAND_NAME) {
             case "LOGIN":
                 int login_result = database.checkCredentials(args[1], args[2]);
+
                 if (login_result == StatusCode.OK) {
-                    loggedUsers.put(args[1], (InetSocketAddress) client.socket().getLocalSocketAddress());
-                    System.out.println(loggedUsers.keySet());
-                    resources.setUsername(args[1]);
-                    keyMap.put(args[1], key);
-                    resources.port = Integer.parseInt(args[3]);
+                    if(!loggedUsers.containsKey(args[1])) {
+                        //TODO
+                        loggedUsers.put(args[1], (InetSocketAddress) client.socket().getLocalSocketAddress());
+                        System.out.println(loggedUsers.keySet());
+                        resources.setUsername(args[1]);
+                        keyMap.put(args[1], key);
+                        resources.port = Integer.parseInt(args[3]);
+                    }else{
+                        login_result = StatusCode.USER_ALREADY_LOGGED;
+                    }
                 }
                 resources.buffer.clear();
                 resources.buffer.putInt(login_result);
@@ -108,13 +110,19 @@ public class ServerHandler implements Runnable {
                 resources.buffer.flip();
                 key.interestOps(SelectionKey.OP_WRITE);
                 break;
+            case "LEADERBOARD":
+                String leaderboard = database.getLeaderboard(CURRENT_USER);
+                resources.buffer.clear();
+                resources.buffer.put(leaderboard.getBytes());
+                resources.buffer.flip();
+                key.interestOps(SelectionKey.OP_WRITE);
+                break;
             case "SFIDA":
                 if (loggedUsers.containsKey(args[1])){
                     System.out.println("richiesta di sfida da " + CURRENT_USER + " [" + loggedUsers.get(CURRENT_USER) + "] a "
                                 + args[1] + " [" + loggedUsers.get(args[1]) + "]");
                     try {
                         ClientResources friend = (ClientResources) keyMap.get(args[1]).attachment();
-//                        friend.challengeTime = System.nanoTime();
                         friend.challengeTime = System.currentTimeMillis();
                         sendUDP(loggedUsers.get(args[1]), friend.getUDP_port(), "sfida " + CURRENT_USER);
                     } catch (SocketException e) {
@@ -139,7 +147,7 @@ public class ServerHandler implements Runnable {
             case "ZIZIZI":
                 System.out.println(args[1]);
                 SelectionKey challengerKey = keyMap.get(args[1]);
-                ClientResources challengerResources =  (ClientResources) challengerKey.attachment();
+//                ClientResources challengerResources =  (ClientResources) challengerKey.attachment();
 
                 long elapsedTime = System.currentTimeMillis() - resources.challengeTime;
 
@@ -173,13 +181,13 @@ public class ServerHandler implements Runnable {
                 challengerResource2.buffer.flip();
                 challengerKey2.interestOps(SelectionKey.OP_WRITE);
                 break;
-
         }
     }
 
 
 
     public void run() {
+        //TODO
         int port = 1919;
         System.out.println("In ascolto sulla porta " + port);
         ServerSocketChannel serverChannel;
@@ -218,7 +226,7 @@ public class ServerHandler implements Runnable {
                         System.out.println("Accepted connection from " + client);
                         client.configureBlocking(false);
                         SelectionKey key2 = client.register(selector, SelectionKey.OP_READ);
-                        ClientResources resources = new ClientResources(client);
+                        ClientResources resources = new ClientResources();
                         System.out.println(client.getLocalAddress().toString());
                         key2.attach(resources);
                     }

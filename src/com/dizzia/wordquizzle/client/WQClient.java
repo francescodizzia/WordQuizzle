@@ -11,6 +11,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class WQClient {
     static LoginFrame loginFrame;
@@ -19,6 +21,8 @@ public class WQClient {
     static DatagramSocket datagramSocket;
     static int udp_port = -1;
     static int port = 1919;
+
+    static boolean endgame = false;
 
 
     public static void writeString(String message){
@@ -84,6 +88,11 @@ public class WQClient {
                     JOptionPane.showMessageDialog(loginFrame, "Password non corretta!",
                             "Errore di login", JOptionPane.ERROR_MESSAGE);
                     break;
+                case StatusCode.USER_ALREADY_LOGGED:
+                    System.out.println("L'utente risulta già connesso");
+                    JOptionPane.showMessageDialog(loginFrame, "L'utente inserito risulta già connesso!",
+                            "Errore di login", JOptionPane.ERROR_MESSAGE);
+                    break;
             }
 
         } catch (IOException e) {
@@ -129,7 +138,10 @@ public class WQClient {
         new ChallengeFrame(firstWord);
     }
 
+
     public static void waitEnd(JDialog dialog) {
+        endgame = true;
+
         (new Thread(() -> {
 
             try {
@@ -161,4 +173,14 @@ public class WQClient {
         System.out.println(jsonFriendlist);
         return jsonFriendlist;
     }
+
+
+    public static String classifica() {
+        WQClient.writeString("leaderboard");
+        String jsonLeaderboard = WQClient.readString();
+        System.out.println(jsonLeaderboard);
+        return jsonLeaderboard;
+    }
+
+
 }

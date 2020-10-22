@@ -50,12 +50,7 @@ public class WQServer implements RegisterInterface {
 
 
 
-    public static void main(String[] args) throws IOException {
-
-//        if (System.getSecurityManager() == null) {
-//            System.setSecurityManager(new SecurityManager());
-//        }
-
+    public static void main(String[] args) {
         System.setProperty("java.security.policy", "security.policy");
         System.setProperty("java.rmi.server.hostname", WQSettings.RMI_IP);
 

@@ -22,9 +22,9 @@ public class ClientResources {
     int isWinner = 0;
 
 
-    public ClientResources(SocketChannel client) {
+    public ClientResources() {
         buffer = ByteBuffer.allocate(ByteBufferIO.MAX_STRING_LENGTH);
-        Socket socket = client.socket();
+//        Socket socket = client.socket();
     }
 
     public String getUsername() {
@@ -45,6 +45,7 @@ public class ClientResources {
         correct_answers = 0;
         wrong_answers = 0;
         challengeTime = 0;
+        challengeScore = 0;
         isWinner = 0;
     }
 }

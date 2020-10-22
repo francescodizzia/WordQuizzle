@@ -4,7 +4,7 @@ import com.dizzia.wordquizzle.commons.WQSettings;
 import javax.swing.*;
 
 public class TimerLabel extends JLabel {
-    public int remainingTime = WQSettings.CHALLENGE_TIMEOUT/1000;
+    public int remainingTime = WQSettings.CHALLENGE_TIMEOUT / 1000;
     Timer timer;
 
     public TimerLabel(JFrame frame) {
@@ -15,6 +15,11 @@ public class TimerLabel extends JLabel {
             if(remainingTime == 0){
                 timer.stop();
                 frame.dispose();
+                //TODO SHIT
+                if(!WQClient.endgame){
+                    WaitingDialog waitingDialog = new WaitingDialog();
+                    WQClient.waitEnd(waitingDialog);
+                }
             }
         });
         timer.start();

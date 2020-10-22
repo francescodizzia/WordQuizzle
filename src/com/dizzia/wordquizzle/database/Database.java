@@ -3,10 +3,9 @@ package com.dizzia.wordquizzle.database;
 import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.commons.exceptions.UserAlreadyTakenException;
 import com.google.gson.Gson;
+import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -21,10 +20,6 @@ public class Database {
             userGraph = new ConcurrentHashMap<>();
             userTable = new ConcurrentHashMap<>();
         }
-
-//        public ConcurrentHashMap<String, User> getUserTable(){
-//            return userTable;
-//        }
 
 
         public int checkCredentials(String username, String password){
@@ -57,25 +52,38 @@ public class Database {
                 throw new IllegalArgumentException();
           }
 
-//            userGraph.get(usernameA).add(userTable.get(usernameB));
-//            userGraph.get(usernameB).add(userTable.get(usernameA))
-
           userGraph.get(usernameA).add(usernameB);
           userGraph.get(usernameB).add(usernameA);
         }
 
 
+        public String getLeaderboard(String username){
+            List<String> friendlist = new ArrayList<>(userGraph.get(username));
+            List<Pair<String, Integer>> board = new ArrayList<>();
+
+            for(String friend: friendlist)
+                board.add(new Pair<>(friend, getScore(friend)));
+
+
+            board.sort((o1, o2) -> {
+                if (o1.getValue() > o2.getValue())
+                    return -1;
+                else if (o1.getValue() < o2.getValue())
+                    return 1;
+                return 0;
+            });
+
+            Gson gson = new Gson();
+            return gson.toJson(board);
+        }
+
 
         public String getFriendList(String username){
-            //return new ArrayList<>(userGraph.get(username)).toString();
-            List<String> list = new ArrayList<String>(userGraph.get(username));
+            List<String> list = new ArrayList<>(userGraph.get(username));
             Gson gson = new Gson();
             return gson.toJson(list);
         }
 
-        public boolean isFriendWith(String usernameA, String usernameB) {
-            return userGraph.get(usernameA).contains(usernameB);
-        }
 
         public int getScore(String username){
             return userTable.get(username).getScore();
@@ -85,42 +93,6 @@ public class Database {
             userTable.get(username).updateScore(newScore);
         }
 
-/*
-        public void removeVertex(T v) {
-            if (!this.adjacencyList.containsKey(v)) {
-                throw new IllegalArgumentException("Vertex doesn't exist.");
-            }
-
-            this.adjacencyList.remove(v);
-
-            for (T u: this.getAllVertices()) {
-                this.adjacencyList.get(u).remove(v);
-            }
-        }
-
-
-
-        public void removeEdge(T v, T u) {
-            if (!this.adjacencyList.containsKey(v) || !this.adjacencyList.containsKey(u)) {
-                throw new IllegalArgumentException();
-            }
-
-            this.adjacencyList.get(v).remove(u);
-            this.adjacencyList.get(u).remove(v);
-        }
-
-        public boolean isAdjacent(T v, T u) {
-            return this.adjacencyList.get(v).contains(u);
-        }
-
-        public Iterable<T> getNeighbors(T v) {
-            return this.adjacencyList.get(v);
-        }
-
-        public Iterable<T> getAllVertices() {
-            return this.adjacencyList.keySet();
-        }
- */
 
     }
 

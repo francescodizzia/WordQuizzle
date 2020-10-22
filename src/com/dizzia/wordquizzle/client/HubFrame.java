@@ -26,6 +26,7 @@ public class HubFrame extends JFrame implements ActionListener {
     JButton friendlistButton = new JButton();
     JButton challengeButton = new JButton();
     JButton updateScoreButton = new JButton();
+    JButton leaderscoreButton = new JButton();
     JButton logoutButton;
 
     DefaultListModel<String> listModel = new DefaultListModel<>();
@@ -60,10 +61,10 @@ public class HubFrame extends JFrame implements ActionListener {
         container.add(friendlistButton);
         friendlistButton.addActionListener(this);
 
-        JButton btnMostraClassifica = new JButton();
-        btnMostraClassifica.setText("Mostra classifica");
-        btnMostraClassifica.setBounds(10, 223, 422, 53);
-        container.add(btnMostraClassifica);
+        leaderscoreButton.setText("Mostra classifica");
+        leaderscoreButton.setBounds(10, 223, 422, 53);
+        container.add(leaderscoreButton);
+        leaderscoreButton.addActionListener(this);
 
         updateScoreButton.setText("Aggiorna punteggio");
         updateScoreButton.setBounds(10, 164, 422, 53);
@@ -83,7 +84,7 @@ public class HubFrame extends JFrame implements ActionListener {
 
         scoreLabel.setAlignmentX(CENTER_ALIGNMENT);
         scoreLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        scoreLabel.setBounds(10, 53, 422, 46);
+        scoreLabel.setBounds(10, 53, 422, 100);
         scoreLabel.setText(String.valueOf(score));
         container.add(scoreLabel);
 
@@ -166,6 +167,9 @@ public class HubFrame extends JFrame implements ActionListener {
             int score = getScore();
             scoreLabel.setText(String.valueOf(score));
         }
+        else if(e.getSource() == leaderscoreButton){
+            System.out.println(WQClient.classifica());
+        }
         else if (e.getSource() == logoutButton) {
             int choice = JOptionPane.showConfirmDialog(this,
                     "Sei davvero sicuro di voler effettuare il logout?", "Conferma di logout",
@@ -196,6 +200,8 @@ public class HubFrame extends JFrame implements ActionListener {
         }
         System.out.println(Arrays.toString(friends));
     }
+
+
 
     private int getScore(){
         WQClient.writeString("score");

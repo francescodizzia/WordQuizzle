@@ -18,16 +18,17 @@ public class ChallengeHandler implements Runnable {
     private final Vector<String> chosenWords;
     Selector oldSelector;
     Database database;
-    int N = WQSettings.N_WORDS;
+
     int finished = 0;
+    int N = WQSettings.N_WORDS;
 
 
     public ChallengeHandler(SelectionKey player1Key, SelectionKey player2Key, WQDictionary wqDictionary, Selector oldSelector, Database database) {
+        this.database = database;
         this.player1Key = player1Key;
         this.player2Key = player2Key;
         this.oldSelector = oldSelector;
         chosenWords = wqDictionary.getDistinctWords(N);
-        this.database = database;
     }
 
 
@@ -44,9 +45,10 @@ public class ChallengeHandler implements Runnable {
 
             while(!Thread.interrupted()){
                 selector.select(200);
-                long elapsedTime = System.currentTimeMillis() - startTime;
 
+                long elapsedTime = System.currentTimeMillis() - startTime;
                 if(elapsedTime >= WQSettings.CHALLENGE_TIMEOUT){
+                    handleTimeout();
                     System.out.println("Sono passati " + WQSettings.CHALLENGE_TIMEOUT + " secondi, addiooo");
                     break;
                 }
@@ -69,58 +71,73 @@ public class ChallengeHandler implements Runnable {
             }
         }
         catch (IOException e) {
-            System.out.println("TIMEOUT");
+            System.out.println("FINE1");
+            //handleDisconnect()
         }
 
-        System.out.println("FINE DELLA SFIDA");
+        System.out.println("FINE DELLA SFIDA2");
+    }
+
+    private void handleTimeout() {
+        System.out.println("Effettivo timeout");
+        try {
+            handleEndSupreme();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
-
-    public void handleEndGame(SelectionKey key) throws IOException {
+    public void handleEndSupreme() throws IOException {
         ClientResources P1_R = (ClientResources) player1Key.attachment();
         ClientResources P2_R = (ClientResources) player2Key.attachment();
 
         SocketChannel socketP1 = (SocketChannel) player1Key.channel();
         SocketChannel socketP2 = (SocketChannel) player2Key.channel();
 
+        System.out.println(P1_R.getUsername() + " (P1) score: " + P1_R.challengeScore + "    (P2) score: " + P2_R.challengeScore);
+
+        if (P1_R.challengeScore > P2_R.challengeScore) {
+            P1_R.isWinner = 1;
+            P2_R.isWinner = -1;
+            P1_R.challengeScore += WQSettings.WINNER_EXTRA_POINTS;
+            database.updateScore(P1_R.getUsername(), database.getScore(P1_R.getUsername()) + WQSettings.WINNER_EXTRA_POINTS);
+            ServerHandler.serialize();
+        }
+        else if (P1_R.challengeScore < P2_R.challengeScore) {
+            P1_R.isWinner = -1;
+            P2_R.isWinner = 1;
+            P2_R.challengeScore += WQSettings.WINNER_EXTRA_POINTS;
+            database.updateScore(P2_R.getUsername(), database.getScore(P2_R.getUsername()) + WQSettings.WINNER_EXTRA_POINTS);
+            ServerHandler.serialize();
+        }
+
+        try {
+            IO.writeString(socketP1, P1_R.buffer, "FIN " + P1_R.isWinner + " " + P1_R.correct_answers +
+                    " " + P1_R.wrong_answers + " " + (N - P1_R.translatedWords));
+
+            IO.writeString(socketP2, P2_R.buffer, "FIN " + P2_R.isWinner + " " + P2_R.correct_answers +
+                    " " + P2_R.wrong_answers + " " + (N - P2_R.translatedWords));
+
+            player1Key.interestOps(0);
+            player2Key.interestOps(0);
+
+            P1_R.reset();
+            P2_R.reset();
+
+            socketP1.register(oldSelector, SelectionKey.OP_READ, player1Key.attachment());
+            socketP2.register(oldSelector, SelectionKey.OP_READ, player2Key.attachment());
+            oldSelector.wakeup();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void handleEndGame(SelectionKey key) throws IOException {
         finished++;
 
         if(finished == 2) {
-            if (P1_R.challengeScore > P2_R.challengeScore) {
-                P1_R.isWinner = 1;
-                P2_R.isWinner = -1;
-                P1_R.challengeScore += WQSettings.WINNER_EXTRA_POINTS;
-                database.updateScore(P1_R.getUsername(), database.getScore(P1_R.getUsername()) + WQSettings.WINNER_EXTRA_POINTS);
-                ServerHandler.serialize();
-            }
-            else if (P1_R.challengeScore < P2_R.challengeScore) {
-                P1_R.isWinner = -1;
-                P2_R.isWinner = 1;
-                P2_R.challengeScore += WQSettings.WINNER_EXTRA_POINTS;
-                database.updateScore(P2_R.getUsername(), database.getScore(P2_R.getUsername()) + WQSettings.WINNER_EXTRA_POINTS);
-                ServerHandler.serialize();
-            }
-
-            try {
-                IO.writeString(socketP1, P1_R.buffer, "FIN " + P1_R.isWinner + " " + P1_R.correct_answers +
-                        " " + P1_R.wrong_answers + " " + (N - P1_R.translatedWords));
-
-                IO.writeString(socketP2, P2_R.buffer, "FIN " + P2_R.isWinner + " " + P2_R.correct_answers +
-                        " " + P2_R.wrong_answers + " " + (N - P2_R.translatedWords));
-
-                player1Key.interestOps(0);
-                player2Key.interestOps(0);
-
-                P1_R.reset();
-                P2_R.reset();
-
-                socketP1.register(oldSelector, SelectionKey.OP_READ, player1Key.attachment());
-                socketP2.register(oldSelector, SelectionKey.OP_READ, player2Key.attachment());
-                oldSelector.wakeup();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+           handleEndSupreme();
         }
         else
             key.interestOps(0);
@@ -131,13 +148,12 @@ public class ChallengeHandler implements Runnable {
     private void handleRead(SelectionKey key) throws IOException {
         SocketChannel client = (SocketChannel) key.channel();
         ClientResources resources = (ClientResources) key.attachment();
-        String s = null;
-        String m = null;
+
         if (resources != null) {
-            s = resources.getUsername();
+           String s = resources.getUsername();
             IO.read(client, resources.buffer);
 
-            m = StandardCharsets.UTF_8.decode(resources.buffer).toString();
+            String m = StandardCharsets.UTF_8.decode(resources.buffer).toString();
             if(WQDictionary.getTranslatedWords(chosenWords.get(resources.translatedWords-1)).contains(m)) {
                 System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " CORRETTA (+2)");
                 resources.challengeScore += WQSettings.RIGHT_ANSWER_POINTS;

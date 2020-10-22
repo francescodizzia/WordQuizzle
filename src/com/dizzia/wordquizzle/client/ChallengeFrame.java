@@ -77,6 +77,21 @@ public class ChallengeFrame extends JFrame implements ActionListener {
                     WQClient.waitEnd(waitingDialog);
                 } else {
                     String k = WQClient.readString();
+                    String[] results = k.split(" ");
+                    if(results[0].compareTo("FIN") == 0){
+                        this.setVisible(false);
+                        WaitingDialog waitingDialog = new WaitingDialog();
+                        this.dispose();
+                        int winner = Integer.parseInt(results[1]);
+                        int correct_answers = Integer.parseInt(results[2]);
+                        int wrong_answers = Integer.parseInt(results[3]);
+
+                        waitingDialog.dispose();
+
+                        new ReportDialog(winner, correct_answers, wrong_answers);
+                        WQClient.hubFrame.setVisible(true);
+                    }
+
                     System.out.println(k);
                     wordLabel.setText(k.toUpperCase());
                 }
