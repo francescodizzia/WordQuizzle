@@ -31,24 +31,5 @@ public class User {
         this.score = score;
     }
 
-
-/*
-    @Override
-    public boolean equals(Object o){
-        if(o instanceof User){
-            return username.equalsIgnoreCase(((User)o).username);
-        } else{
-            return false;
-        }
-    }
-
-
-
-    @Override
-    public int hashCode(){
-            return username.hashCode();
-    }
-*/
-
     }
 

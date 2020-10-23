@@ -1,9 +1,7 @@
 package com.dizzia.wordquizzle.database;
 
 import com.dizzia.wordquizzle.commons.StatusCode;
-import com.dizzia.wordquizzle.commons.exceptions.UserAlreadyTakenException;
 import com.google.gson.Gson;
-import javafx.util.Pair;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,6 +13,7 @@ public class Database {
 
         //Tabella contenente le info di tutti gli utenti
         private final ConcurrentHashMap<String, User> userTable;
+
 
         public Database() {
             userGraph = new ConcurrentHashMap<>();
@@ -35,52 +34,56 @@ public class Database {
         }
 
 
-        public void newUser(String username, String password) throws UserAlreadyTakenException {
+        public int newUser(String username, String password) {
             User user = new User(username, password);
             userTable.put(username, user);
 
-            if (userGraph.containsKey(username)) {
-                throw new UserAlreadyTakenException();
-            }
+            if (userGraph.containsKey(username))
+                return StatusCode.USER_ALREADY_REGISTERED;
 
             userGraph.put(username, new HashSet<>());
+            return StatusCode.OK;
         }
 
 
-        public void makeFriends(String usernameA, String usernameB) {
+        public int makeFriends(String usernameA, String usernameB) {
           if(!userGraph.containsKey(usernameA) || !userGraph.containsKey(usernameB)) {
-                throw new IllegalArgumentException();
+                return StatusCode.USER_NOT_FOUND;
           }
 
           userGraph.get(usernameA).add(usernameB);
           userGraph.get(usernameB).add(usernameA);
+          return StatusCode.OK;
         }
 
 
         public String getLeaderboard(String username){
             List<String> friendlist = new ArrayList<>(userGraph.get(username));
-            List<Pair<String, Integer>> board = new ArrayList<>();
+            List<LeaderboardPair> board = new ArrayList<>();
+            Gson gson = new Gson();
+
+            board.add(new LeaderboardPair(username, getScore(username)));
 
             for(String friend: friendlist)
-                board.add(new Pair<>(friend, getScore(friend)));
+                board.add(new LeaderboardPair(friend, getScore(friend)));
 
 
             board.sort((o1, o2) -> {
-                if (o1.getValue() > o2.getValue())
+                if (o1.getScore() > o2.getScore())
                     return -1;
-                else if (o1.getValue() < o2.getValue())
+                else if (o1.getScore() < o2.getScore())
                     return 1;
                 return 0;
             });
 
-            Gson gson = new Gson();
             return gson.toJson(board);
         }
 
 
         public String getFriendList(String username){
-            List<String> list = new ArrayList<>(userGraph.get(username));
             Gson gson = new Gson();
+
+            List<String> list = new ArrayList<>(userGraph.get(username));
             return gson.toJson(list);
         }
 

@@ -53,8 +53,8 @@ public class ChallengeHandler implements Runnable {
                     break;
                 }
 
-                if(finished == 2)
-                    break;
+//                if(finished == 2)
+//                    break;
 
 
                 Iterator<SelectionKey> keysIterator = selector.selectedKeys().iterator();
@@ -71,24 +71,27 @@ public class ChallengeHandler implements Runnable {
             }
         }
         catch (IOException e) {
-            System.out.println("FINE1");
-            //handleDisconnect()
+            handleDisconnect();
         }
 
         System.out.println("FINE DELLA SFIDA2");
     }
 
+    private void handleDisconnect() {
+        System.out.println("Un giocatore si è disconnesso, termino la partita.");
+    }
+
     private void handleTimeout() {
         System.out.println("Effettivo timeout");
         try {
-            handleEndSupreme();
+            handleEndReport();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
 
-    public void handleEndSupreme() throws IOException {
+    public void handleEndReport() throws IOException {
         ClientResources P1_R = (ClientResources) player1Key.attachment();
         ClientResources P2_R = (ClientResources) player2Key.attachment();
 
@@ -114,10 +117,10 @@ public class ChallengeHandler implements Runnable {
 
         try {
             IO.writeString(socketP1, P1_R.buffer, "FIN " + P1_R.isWinner + " " + P1_R.correct_answers +
-                    " " + P1_R.wrong_answers + " " + (N - P1_R.translatedWords));
+                    " " + P1_R.wrong_answers + " " + P2_R.challengeScore);
 
             IO.writeString(socketP2, P2_R.buffer, "FIN " + P2_R.isWinner + " " + P2_R.correct_answers +
-                    " " + P2_R.wrong_answers + " " + (N - P2_R.translatedWords));
+                    " " + P2_R.wrong_answers + " " + P1_R.challengeScore);
 
             player1Key.interestOps(0);
             player2Key.interestOps(0);
@@ -136,9 +139,8 @@ public class ChallengeHandler implements Runnable {
     public void handleEndGame(SelectionKey key) throws IOException {
         finished++;
 
-        if(finished == 2) {
-           handleEndSupreme();
-        }
+        if(finished == 2)
+           handleEndReport();
         else
             key.interestOps(0);
     }
@@ -159,15 +161,15 @@ public class ChallengeHandler implements Runnable {
                 resources.challengeScore += WQSettings.RIGHT_ANSWER_POINTS;
                 resources.correct_answers++;
                 database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + WQSettings.RIGHT_ANSWER_POINTS);
-                ServerHandler.serialize();
             }
             else {
                 System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " SBAGLIATA (-1)");
                 resources.challengeScore += WQSettings.WRONG_ANSWER_POINTS;
                 resources.wrong_answers++;
                 database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + WQSettings.WRONG_ANSWER_POINTS);
-                ServerHandler.serialize();
             }
+
+            ServerHandler.serialize();
         }
 
         key.interestOps(SelectionKey.OP_WRITE);

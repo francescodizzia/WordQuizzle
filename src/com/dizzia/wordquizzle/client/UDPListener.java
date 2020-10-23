@@ -41,7 +41,7 @@ public class UDPListener implements Runnable {
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
                 if(choice == JOptionPane.YES_OPTION){
-                    ByteBufferIO.writeString(server, "ZIZIZI " + challenger);
+                    ByteBufferIO.writeString(server, "ACCEPT " + challenger);
                     String response = ByteBufferIO.readString(server);
                     if (response.compareTo("TIMEOUT") == 0)
                         JOptionPane.showMessageDialog(frame, "Tempo scaduto per l'accettazione della richiesta!",
@@ -49,7 +49,7 @@ public class UDPListener implements Runnable {
                     else
                         WQClient.inizio_sfida(response);
                 }else{
-                    ByteBufferIO.writeString(server, "NONONO " + challenger);
+                    ByteBufferIO.writeString(server, "REFUSE " + challenger);
                 }
 
 

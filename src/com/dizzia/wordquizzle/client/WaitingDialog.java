@@ -17,7 +17,6 @@ public class WaitingDialog extends JDialog {
 
         this.setTitle("WordQuizzle - Attesa");
         this.setBounds(10, 10, 480, 120);
-//        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
         container.add(wordLabel);

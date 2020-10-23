@@ -11,8 +11,6 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class WQClient {
     static LoginFrame loginFrame;
@@ -152,12 +150,14 @@ public class WQClient {
                     int winner = Integer.parseInt(results[1]);
                     int correct_answers = Integer.parseInt(results[2]);
                     int wrong_answers = Integer.parseInt(results[3]);
+                    int opponentScore = Integer.parseInt(results[4]);
 
                     dialog.dispose();
 
                     System.out.println(result);
-                    new ReportDialog(winner, correct_answers, wrong_answers);
+                    new ReportDialog(winner, correct_answers, wrong_answers, opponentScore);
                     hubFrame.setVisible(true);
+                    endgame = false;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -177,9 +177,7 @@ public class WQClient {
 
     public static String classifica() {
         WQClient.writeString("leaderboard");
-        String jsonLeaderboard = WQClient.readString();
-        System.out.println(jsonLeaderboard);
-        return jsonLeaderboard;
+        return WQClient.readString();
     }
 
 

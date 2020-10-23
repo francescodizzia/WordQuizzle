@@ -11,6 +11,7 @@
       "crash"
     ],
     "Davide": [],
+    "aqwqwewqweqwqewqewq": [],
     "Raffaele": [],
     "zeb89": [
       "victor",
@@ -19,15 +20,16 @@
     ],
     "crash": [
       "dario",
-      "victor",
-      "zeb89"
+      "zeb89",
+	  "Davide",
+	  "Raffaele"
     ]
   },
   "userTable": {
     "dario": {
       "username": "dario",
       "password": "f",
-      "score": 30
+      "score": 78
     },
     "victor": {
       "username": "victor",
@@ -38,6 +40,11 @@
       "username": "davide",
       "password": "semplice",
       "score": 9
+    },
+    "aqwqwewqweqwqewqewq": {
+      "username": "aqwqwewqweqwqewqewq",
+      "password": "a",
+      "score": 0
     },
     "Raffaele": {
       "username": "raffaele",
@@ -52,7 +59,7 @@
     "crash": {
       "username": "crash",
       "password": "4",
-      "score": 23
+      "score": 51
     }
   }
 }

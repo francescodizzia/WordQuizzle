@@ -15,7 +15,7 @@ public class TimerLabel extends JLabel {
             if(remainingTime == 0){
                 timer.stop();
                 frame.dispose();
-                //TODO SHIT
+
                 if(!WQClient.endgame){
                     WaitingDialog waitingDialog = new WaitingDialog();
                     WQClient.waitEnd(waitingDialog);

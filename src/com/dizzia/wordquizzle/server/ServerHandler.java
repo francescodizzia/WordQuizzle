@@ -92,9 +92,9 @@ public class ServerHandler implements Runnable {
                 key.interestOps(SelectionKey.OP_WRITE);
                 break;
             case "ADD_FRIEND":
-                database.makeFriends(CURRENT_USER, args[1]);
+                int result = database.makeFriends(CURRENT_USER, args[1]);
                 resources.buffer.clear();
-                resources.buffer.putInt(StatusCode.OK);
+                resources.buffer.putInt(result);
                 resources.buffer.flip();
                 key.interestOps(SelectionKey.OP_WRITE);
                 try {
@@ -117,14 +117,14 @@ public class ServerHandler implements Runnable {
                 resources.buffer.flip();
                 key.interestOps(SelectionKey.OP_WRITE);
                 break;
-            case "SFIDA":
+            case "CHALLENGE":
                 if (loggedUsers.containsKey(args[1])){
                     System.out.println("richiesta di sfida da " + CURRENT_USER + " [" + loggedUsers.get(CURRENT_USER) + "] a "
                                 + args[1] + " [" + loggedUsers.get(args[1]) + "]");
                     try {
                         ClientResources friend = (ClientResources) keyMap.get(args[1]).attachment();
                         friend.challengeTime = System.currentTimeMillis();
-                        sendUDP(loggedUsers.get(args[1]), friend.getUDP_port(), "sfida " + CURRENT_USER);
+                        sendUDP(loggedUsers.get(args[1]), friend.getUDP_port(), "challenge " + CURRENT_USER);
                     } catch (SocketException e) {
                         e.printStackTrace();
                     }
@@ -144,10 +144,9 @@ public class ServerHandler implements Runnable {
                 System.out.println(loggedUsers.keySet());
                 key.interestOps(SelectionKey.OP_READ);
                 break;
-            case "ZIZIZI":
+            case "ACCEPT":
                 System.out.println(args[1]);
                 SelectionKey challengerKey = keyMap.get(args[1]);
-//                ClientResources challengerResources =  (ClientResources) challengerKey.attachment();
 
                 long elapsedTime = System.currentTimeMillis() - resources.challengeTime;
 
@@ -173,7 +172,7 @@ public class ServerHandler implements Runnable {
 //                    challengerKey.interestOps(SelectionKey.OP_WRITE);
                 }
                 break;
-            case "NONONO":
+            case "REFUSE":
                 SelectionKey challengerKey2 = keyMap.get(args[1]);
                 ClientResources challengerResource2 =  (ClientResources) challengerKey2.attachment();
                 challengerResource2.buffer.clear();

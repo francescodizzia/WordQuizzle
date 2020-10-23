@@ -2,10 +2,8 @@ package com.dizzia.wordquizzle.server;
 
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
 
-import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 
 public class ClientResources {
     private String username;
@@ -24,7 +22,6 @@ public class ClientResources {
 
     public ClientResources() {
         buffer = ByteBuffer.allocate(ByteBufferIO.MAX_STRING_LENGTH);
-//        Socket socket = client.socket();
     }
 
     public String getUsername() {

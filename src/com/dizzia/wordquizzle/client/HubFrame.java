@@ -1,9 +1,9 @@
 package com.dizzia.wordquizzle.client;
 
 
-import com.dizzia.wordquizzle.commons.ByteBufferIO;
+import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.commons.WQSettings;
-import com.dizzia.wordquizzle.server.WQServer;
+import com.dizzia.wordquizzle.database.LeaderboardPair;
 import com.google.gson.Gson;
 
 import javax.swing.*;
@@ -12,8 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -21,12 +19,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class HubFrame extends JFrame implements ActionListener {
+    JLabel lblNewLabel = new JLabel();
     JLabel scoreLabel = new JLabel();
+
     JButton addButton = new JButton();
     JButton friendlistButton = new JButton();
     JButton challengeButton = new JButton();
     JButton updateScoreButton = new JButton();
     JButton leaderscoreButton = new JButton();
+
     JButton logoutButton;
 
     DefaultListModel<String> listModel = new DefaultListModel<>();
@@ -42,13 +43,6 @@ public class HubFrame extends JFrame implements ActionListener {
         this.username = username;
 
         Container container = getContentPane();
-
-        JLabel lblNewLabel = new JLabel();
-        lblNewLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblNewLabel.setAlignmentX(CENTER_ALIGNMENT);
-        lblNewLabel.setBounds(10, 10, 422, 37);
-        lblNewLabel.setText(username);
-        container.add(lblNewLabel);
 
         logoutButton = new JButton();
         logoutButton.setBounds(10, 341, 422, 53);
@@ -80,12 +74,19 @@ public class HubFrame extends JFrame implements ActionListener {
         list.setBounds(438, 42, 334, 352);
         container.add(list);
 
-        int score = getScore();
 
-        scoreLabel.setAlignmentX(CENTER_ALIGNMENT);
-        scoreLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        scoreLabel.setBounds(10, 53, 422, 100);
-        scoreLabel.setText(String.valueOf(score));
+        lblNewLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        lblNewLabel.setBounds(10, 20, 422, 37);
+        lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        lblNewLabel.setText(username.toUpperCase());
+        container.add(lblNewLabel);
+
+
+        int score = getScore();
+        scoreLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        scoreLabel.setBounds(10, 53, 422, 37);
+        scoreLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        scoreLabel.setText("Punteggio: " + score);
         container.add(scoreLabel);
 
         textField.setBounds(438, 10, 275, 26);
@@ -114,12 +115,7 @@ public class HubFrame extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == challengeButton) {
             if (list.getSelectedValue() != null) {
-                WQClient.writeString("sfida " + list.getSelectedValue());
-
-
-//                String response = WQClient.readString();
-//                System.out.println(response);
-                String response = "";
+                WQClient.writeString("challenge " + list.getSelectedValue());
 
                 try {
                     ByteBuffer input = ByteBuffer.allocate(256);
@@ -129,16 +125,11 @@ public class HubFrame extends JFrame implements ActionListener {
                     InputStream inStream = WQClient.server.socket().getInputStream();
                     ReadableByteChannel wrappedChannel = Channels.newChannel(inStream);
                     wrappedChannel.read(input);
-//                    WQClient.server.read(input);
+
                     input.flip();
+                    String response = StandardCharsets.UTF_8.decode(input).toString();
 
-                    response = StandardCharsets.UTF_8.decode(input).toString();
 
-
-//                if (response.compareTo("TIMEOUT") == 0)
-//                    JOptionPane.showMessageDialog(this, "Tempo scaduto, l'utente non ha risposto!",
-//                            "Errore", JOptionPane.ERROR_MESSAGE);
-//                else
                     if (response.compareTo("REFUSED") == 0)
                         JOptionPane.showMessageDialog(this, "L'utente ha rifiutato la sfida...",
                                 "Errore", JOptionPane.ERROR_MESSAGE);
@@ -160,22 +151,36 @@ public class HubFrame extends JFrame implements ActionListener {
         else if (e.getSource() == friendlistButton)
             updateFriendList(WQClient.lista_amici());
         else if (e.getSource() == addButton) {
-            WQClient.aggiungi_amico(textField.getText());
-            updateFriendList(WQClient.lista_amici());
+            int result = WQClient.aggiungi_amico(textField.getText());
+            if(result == StatusCode.OK)
+                updateFriendList(WQClient.lista_amici());
+            else
+                JOptionPane.showMessageDialog(this, "Utente non trovato!",
+                        "Errore", JOptionPane.ERROR_MESSAGE);
         }
         else if(e.getSource() == updateScoreButton){
             int score = getScore();
-            scoreLabel.setText(String.valueOf(score));
+            scoreLabel.setText("Punteggio: " + score);
         }
         else if(e.getSource() == leaderscoreButton){
-            System.out.println(WQClient.classifica());
+            String leaderboard = WQClient.classifica();
+            LeaderboardPair[] friends = gson.fromJson(leaderboard, LeaderboardPair[].class);
+
+            StringBuilder result = new StringBuilder();
+            int i = 0;
+            //TODO
+            for(LeaderboardPair friend: friends)
+                result.append("[").append(++i).append("#] ").append(friend.getUsername()).append(" (").append(friend.getScore()).append(")\n");
+
+            JOptionPane.showMessageDialog(this, result,
+                    "Classifica", JOptionPane.INFORMATION_MESSAGE);
         }
         else if (e.getSource() == logoutButton) {
             int choice = JOptionPane.showConfirmDialog(this,
                     "Sei davvero sicuro di voler effettuare il logout?", "Conferma di logout",
                     JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
-            if (choice == JOptionPane.YES_OPTION) {
+            if (choice == JOptionPane.YES_OPTION)
                 try {
                     WQClient.server.close();
                     this.dispose();
@@ -183,8 +188,6 @@ public class HubFrame extends JFrame implements ActionListener {
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
-
-            }
         }
 
     }
@@ -195,9 +198,9 @@ public class HubFrame extends JFrame implements ActionListener {
 
         listModel.clear();
 
-        for(String friend: friends){
+        for(String friend: friends)
             listModel.addElement(friend);
-        }
+
         System.out.println(Arrays.toString(friends));
     }
 

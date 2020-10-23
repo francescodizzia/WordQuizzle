@@ -12,6 +12,7 @@ public class ChallengeFrame extends JFrame implements ActionListener {
     JTextField myWord = new JTextField();
     JButton send = new JButton("INVIA");
     JLabel wordLabel = new JLabel("null");
+    JLabel wordCounter = new JLabel();
     TimerLabel timerLabel = new TimerLabel(this);
     String firstWord;
     int clicked = 0;
@@ -34,10 +35,16 @@ public class ChallengeFrame extends JFrame implements ActionListener {
         this.firstWord = firstWord;
         container.setLayout(null);
 
+        wordCounter.setFont(new Font("Serif", Font.BOLD, 24));
+        wordCounter.setBounds(700,15, 100, 50);
+        wordCounter.setText("1/" + WQSettings.N_WORDS);
+        container.add(wordCounter);
+
         wordLabel.setFont(new Font("Serif", Font.BOLD, 16));
         wordLabel.setBounds(165,280, 150, 30);
         wordLabel.setText(firstWord.toUpperCase());
         container.add(wordLabel);
+
 
         timerLabel.setFont(new Font("Serif", Font.BOLD, 16));
         timerLabel.setBounds(30,100, 150, 150);
@@ -77,6 +84,7 @@ public class ChallengeFrame extends JFrame implements ActionListener {
                     WQClient.waitEnd(waitingDialog);
                 } else {
                     String k = WQClient.readString();
+
                     String[] results = k.split(" ");
                     if(results[0].compareTo("FIN") == 0){
                         this.setVisible(false);
@@ -85,14 +93,16 @@ public class ChallengeFrame extends JFrame implements ActionListener {
                         int winner = Integer.parseInt(results[1]);
                         int correct_answers = Integer.parseInt(results[2]);
                         int wrong_answers = Integer.parseInt(results[3]);
+                        int opponentScore = Integer.parseInt(results[4]);
 
                         waitingDialog.dispose();
 
-                        new ReportDialog(winner, correct_answers, wrong_answers);
+                        new ReportDialog(winner, correct_answers, wrong_answers, opponentScore);
                         WQClient.hubFrame.setVisible(true);
                     }
 
                     System.out.println(k);
+                    wordCounter.setText((clicked+1) + "/" + WQSettings.N_WORDS);
                     wordLabel.setText(k.toUpperCase());
                 }
             }

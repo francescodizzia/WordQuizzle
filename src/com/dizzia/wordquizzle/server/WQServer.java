@@ -1,7 +1,6 @@
 package com.dizzia.wordquizzle.server;
 
 import com.dizzia.wordquizzle.commons.WQSettings;
-import com.dizzia.wordquizzle.commons.exceptions.UserAlreadyTakenException;
 import com.dizzia.wordquizzle.RegisterInterface;
 import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.database.Database;
@@ -26,18 +25,17 @@ public class WQServer implements RegisterInterface {
         if(password == null || password.equals(""))
             return StatusCode.EMPTY_PASSWORD;
 
-        try {
-            db.newUser(nickUtente, password);
-        } catch (UserAlreadyTakenException e) {
-            return StatusCode.USER_ALREADY_REGISTERED;
-        }
-        try {
-            ServerHandler.serialize();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        int result = db.newUser(nickUtente, password);
 
-        return StatusCode.OK;
+        if(result == StatusCode.OK)
+            try {
+                ServerHandler.serialize();
+            } catch (IOException e) {
+                e.printStackTrace();
+                return StatusCode.GENERIC_ERROR;
+            }
+
+        return result;
     }
 
     private static void deserialize() throws IOException {
