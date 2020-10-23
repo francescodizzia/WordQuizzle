@@ -5,34 +5,30 @@ import com.dizzia.wordquizzle.commons.WQSettings;
 import com.dizzia.wordquizzle.database.Database;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentHashMap;
 
-public class ChallengeHandler implements Runnable {
+public class ChallengeHandler_original implements Runnable {
     private final SelectionKey player1Key;
     private final SelectionKey player2Key;
     private final Vector<String> chosenWords;
-    private final ConcurrentHashMap<String, InetSocketAddress> loggedUsers;
-    private final Selector oldSelector;
-    private final Database database;
+    Selector oldSelector;
+    Database database;
 
     int finished = 0;
     int N = WQSettings.N_WORDS;
 
 
-    public ChallengeHandler(SelectionKey player1Key, SelectionKey player2Key) {
-        database = ServerHandler.database;
-        loggedUsers = ServerHandler.loggedUsers;
+    public ChallengeHandler_original(SelectionKey player1Key, SelectionKey player2Key, WQDictionary wqDictionary, Selector oldSelector, Database database) {
+        this.database = database;
         this.player1Key = player1Key;
         this.player2Key = player2Key;
-        oldSelector = ServerHandler.selector;
-        chosenWords = ServerHandler.wqDictionary.getDistinctWords(N);
+        this.oldSelector = oldSelector;
+        chosenWords = wqDictionary.getDistinctWords(N);
     }
 
 
@@ -41,74 +37,48 @@ public class ChallengeHandler implements Runnable {
         SocketChannel player2 = (SocketChannel) player2Key.channel();
         long startTime = System.currentTimeMillis();
 
-
-        Selector selector;
         try {
-            selector = Selector.open();
+            Selector selector = Selector.open();
             player1.register(selector, SelectionKey.OP_WRITE, player1Key.attachment());
             player2.register(selector, SelectionKey.OP_WRITE, player2Key.attachment());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
 
-        while(!Thread.interrupted()){
-            try {
+
+            while(!Thread.interrupted()){
                 selector.select(200);
-            } catch (IOException e) {
-                e.printStackTrace();
-                break;
-            }
 
-            long elapsedTime = System.currentTimeMillis() - startTime;
-            if(elapsedTime >= WQSettings.CHALLENGE_TIMEOUT){
-                handleTimeout();
-                System.out.println("Sono passati " + WQSettings.CHALLENGE_TIMEOUT + " secondi, addiooo");
-                break;
-            }
+                long elapsedTime = System.currentTimeMillis() - startTime;
+                if(elapsedTime >= WQSettings.CHALLENGE_TIMEOUT){
+                    handleTimeout();
+                    System.out.println("Sono passati " + WQSettings.CHALLENGE_TIMEOUT + " secondi, addiooo");
+                    break;
+                }
 
 //                if(finished == 2)
 //                    break;
 
 
-            Iterator<SelectionKey> keysIterator = selector.selectedKeys().iterator();
+                Iterator<SelectionKey> keysIterator = selector.selectedKeys().iterator();
 
-            while (keysIterator.hasNext()) {
-                SelectionKey key = keysIterator.next();
-                keysIterator.remove();
-                try {
+                while (keysIterator.hasNext()) {
+                    SelectionKey key = keysIterator.next();
+                    keysIterator.remove();
+
                     if (key.isReadable())
                         handleRead(key);
-                     else if (key.isWritable())
+                    else if (key.isWritable())
                         handleWrite(key);
-                } catch (IOException e) {
-                    handleDisconnect(key);
                 }
-
-
             }
+        }
+        catch (IOException e) {
+            handleDisconnect();
         }
 
         System.out.println("FINE DELLA SFIDA2");
-}
+    }
 
-    private void handleDisconnect(SelectionKey key) {
+    private void handleDisconnect() {
         System.out.println("Un giocatore si è disconnesso, termino la partita.");
-        key.cancel();
-        try {
-            key.channel().close();
-            ClientResources resources = (ClientResources) key.attachment();
-
-            String username = resources.getUsername();
-            if(username != null) {
-                System.out.println("ADDIO " + username);
-                loggedUsers.remove(username);
-                System.out.println(loggedUsers.keySet());
-            }
-
-        } catch (IOException cex) {
-            cex.printStackTrace();
-        }
     }
 
     private void handleTimeout() {
@@ -146,29 +116,20 @@ public class ChallengeHandler implements Runnable {
         }
 
         try {
-            if (player1Key.isValid())
-                IO.writeString(socketP1, P1_R.buffer, "FIN " + P1_R.isWinner + " " + P1_R.correct_answers +
-                        " " + P1_R.wrong_answers + " " + P2_R.challengeScore);
+            IO.writeString(socketP1, P1_R.buffer, "FIN " + P1_R.isWinner + " " + P1_R.correct_answers +
+                    " " + P1_R.wrong_answers + " " + P2_R.challengeScore);
 
-            if (player2Key.isValid())
-                IO.writeString(socketP2, P2_R.buffer, "FIN " + P2_R.isWinner + " " + P2_R.correct_answers +
-                        " " + P2_R.wrong_answers + " " + P1_R.challengeScore);
+            IO.writeString(socketP2, P2_R.buffer, "FIN " + P2_R.isWinner + " " + P2_R.correct_answers +
+                    " " + P2_R.wrong_answers + " " + P1_R.challengeScore);
 
+            player1Key.interestOps(0);
+            player2Key.interestOps(0);
 
             P1_R.reset();
             P2_R.reset();
 
-
-            if (player1Key.isValid()) {
-                player1Key.interestOps(0);
-                socketP1.register(oldSelector, SelectionKey.OP_READ, player1Key.attachment());
-            }
-            if (player2Key.isValid()){
-                player2Key.interestOps(0);
-                socketP2.register(oldSelector, SelectionKey.OP_READ, player2Key.attachment());
-            }
-
-
+            socketP1.register(oldSelector, SelectionKey.OP_READ, player1Key.attachment());
+            socketP2.register(oldSelector, SelectionKey.OP_READ, player2Key.attachment());
             oldSelector.wakeup();
         } catch (IOException e) {
             e.printStackTrace();

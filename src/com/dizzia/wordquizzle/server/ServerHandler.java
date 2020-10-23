@@ -22,11 +22,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 public class ServerHandler implements Runnable {
-    private static Database database;
-    private final ConcurrentHashMap<String, InetSocketAddress> loggedUsers;
+    public static Database database;
+    public static ConcurrentHashMap<String, InetSocketAddress> loggedUsers;
     private final ConcurrentHashMap<String, SelectionKey> keyMap;
-    private final WQDictionary wqDictionary;
-    private Selector selector;
+    public static WQDictionary wqDictionary;
+    public static Selector selector;
 
 
     public ServerHandler(Database database) {
@@ -155,7 +155,7 @@ public class ServerHandler implements Runnable {
                     key.interestOps(0);
                     challengerKey.interestOps(0);
 
-                    ChallengeHandler h = new ChallengeHandler(key, challengerKey, wqDictionary, selector, database);
+                    ChallengeHandler h = new ChallengeHandler(key, challengerKey);
                     Thread t = new Thread(h);
                     t.start();
                 }
@@ -201,7 +201,7 @@ public class ServerHandler implements Runnable {
             serverChannel.register(selector, SelectionKey.OP_ACCEPT);
         } catch (IOException ex) {
             ex.printStackTrace();
-            return;
+//            return;
         }
 
         while (true) {

@@ -5,10 +5,10 @@ import java.awt.*;
 
 
 public interface WQSettings {
-    int N_WORDS = 5;
+    int N_WORDS = 8;
     int UNIT_SECONDS = 1000;
-    int CHALLENGE_TIMEOUT = 10 * UNIT_SECONDS;
-    int CHALLENGE_REQUEST_TIMEOUT = 5 * UNIT_SECONDS;
+    int CHALLENGE_TIMEOUT = 60 * UNIT_SECONDS;
+    int CHALLENGE_REQUEST_TIMEOUT = 7 * UNIT_SECONDS;
 
     int RIGHT_ANSWER_POINTS = 2;
     int WRONG_ANSWER_POINTS = -1;

@@ -20,16 +20,16 @@
     ],
     "crash": [
       "dario",
-      "zeb89",
-	  "Davide",
-	  "Raffaele"
+      "Davide",
+      "Raffaele",
+      "zeb89"
     ]
   },
   "userTable": {
     "dario": {
       "username": "dario",
       "password": "f",
-      "score": 78
+      "score": 80
     },
     "victor": {
       "username": "victor",
@@ -59,7 +59,7 @@
     "crash": {
       "username": "crash",
       "password": "4",
-      "score": 51
+      "score": 59
     }
   }
 }

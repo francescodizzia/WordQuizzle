@@ -40,8 +40,10 @@ public class ChallengeFrame extends JFrame implements ActionListener {
         wordCounter.setText("1/" + WQSettings.N_WORDS);
         container.add(wordCounter);
 
+
         wordLabel.setFont(new Font("Serif", Font.BOLD, 16));
-        wordLabel.setBounds(165,280, 150, 30);
+        wordLabel.setBounds(145,275, 120, 30);
+        wordLabel.setHorizontalAlignment(SwingConstants.CENTER);
         wordLabel.setText(firstWord.toUpperCase());
         container.add(wordLabel);
 

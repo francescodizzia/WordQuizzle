@@ -54,7 +54,7 @@ public class LoginFrame extends JFrame implements ActionListener{
 
         this.setTitle("WordQuizzle - Login");
         this.setVisible(true);
-        this.setBounds(10, 10, 480, 360);
+        this.setBounds(10, 10, 480, 340);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setResizable(false);
@@ -76,7 +76,7 @@ public class LoginFrame extends JFrame implements ActionListener{
                 JOptionPane.showMessageDialog(this, "Errore: impossibile collegarsi al server",
                 "Errore di rete", JOptionPane.ERROR_MESSAGE);
                 remoteException.printStackTrace();
-                
+
             }
 
             switch(register_code) {

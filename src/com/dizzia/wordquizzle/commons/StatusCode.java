@@ -8,8 +8,5 @@ public interface StatusCode {
     int USER_ALREADY_REGISTERED = -4;
     int USER_ALREADY_LOGGED = -5;
     int WRONG_PASSWORD = -6;
-    int REFUSED = -7;
-
-
-
+    int SELF_REQUEST = -7;
 }

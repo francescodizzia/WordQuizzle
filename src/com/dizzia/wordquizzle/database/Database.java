@@ -47,6 +47,9 @@ public class Database {
 
 
         public int makeFriends(String usernameA, String usernameB) {
+          if(usernameA.equals(usernameB))
+              return StatusCode.SELF_REQUEST;
+
           if(!userGraph.containsKey(usernameA) || !userGraph.containsKey(usernameB)) {
                 return StatusCode.USER_NOT_FOUND;
           }
@@ -67,7 +70,6 @@ public class Database {
             for(String friend: friendlist)
                 board.add(new LeaderboardPair(friend, getScore(friend)));
 
-
             board.sort((o1, o2) -> {
                 if (o1.getScore() > o2.getScore())
                     return -1;
@@ -82,7 +84,6 @@ public class Database {
 
         public String getFriendList(String username){
             Gson gson = new Gson();
-
             List<String> list = new ArrayList<>(userGraph.get(username));
             return gson.toJson(list);
         }

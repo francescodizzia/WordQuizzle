@@ -129,7 +129,6 @@ public class HubFrame extends JFrame implements ActionListener {
                     input.flip();
                     String response = StandardCharsets.UTF_8.decode(input).toString();
 
-
                     if (response.compareTo("REFUSED") == 0)
                         JOptionPane.showMessageDialog(this, "L'utente ha rifiutato la sfida...",
                                 "Errore", JOptionPane.ERROR_MESSAGE);
@@ -140,8 +139,6 @@ public class HubFrame extends JFrame implements ActionListener {
                     JOptionPane.showMessageDialog(this, "Tempo scaduto, l'utente non ha risposto!",
                             "Errore", JOptionPane.ERROR_MESSAGE);
                 }
-
-
             }
             else
                 JOptionPane.showMessageDialog(this, "Seleziona un amico da sfidare!\n" +
@@ -154,6 +151,9 @@ public class HubFrame extends JFrame implements ActionListener {
             int result = WQClient.aggiungi_amico(textField.getText());
             if(result == StatusCode.OK)
                 updateFriendList(WQClient.lista_amici());
+            else if(result == StatusCode.SELF_REQUEST)
+                JOptionPane.showMessageDialog(this, "Non puoi aggiungere te stesso agli amici!",
+                        "Errore", JOptionPane.ERROR_MESSAGE);
             else
                 JOptionPane.showMessageDialog(this, "Utente non trovato!",
                         "Errore", JOptionPane.ERROR_MESSAGE);
