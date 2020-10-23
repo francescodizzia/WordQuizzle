@@ -4,6 +4,7 @@ import com.dizzia.wordquizzle.commons.IO;
 import com.dizzia.wordquizzle.commons.WQSettings;
 import com.dizzia.wordquizzle.database.Database;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -25,9 +26,10 @@ public class ChallengeHandler implements Runnable {
     int finished = 0;
     int N = WQSettings.N_WORDS;
 
+    boolean close = false;
 
-    public ChallengeHandler(SelectionKey player1Key, SelectionKey player2Key) {
-        database = ServerHandler.database;
+    public ChallengeHandler(SelectionKey player1Key, SelectionKey player2Key, Database database) {
+        this.database = database;
         loggedUsers = ServerHandler.loggedUsers;
         this.player1Key = player1Key;
         this.player2Key = player2Key;
@@ -52,7 +54,7 @@ public class ChallengeHandler implements Runnable {
             return;
         }
 
-        while(!Thread.interrupted()){
+        while(!close){
             try {
                 selector.select(200);
             } catch (IOException e) {
@@ -67,9 +69,14 @@ public class ChallengeHandler implements Runnable {
                 break;
             }
 
-//                if(finished == 2)
-//                    break;
-
+            if(finished == 2) {
+                try {
+                    handleEndReport();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            }
 
             Iterator<SelectionKey> keysIterator = selector.selectedKeys().iterator();
 
@@ -93,6 +100,7 @@ public class ChallengeHandler implements Runnable {
 }
 
     private void handleDisconnect(SelectionKey key) {
+        finished++;
         System.out.println("Un giocatore si è disconnesso, termino la partita.");
         key.cancel();
         try {
@@ -162,14 +170,17 @@ public class ChallengeHandler implements Runnable {
             if (player1Key.isValid()) {
                 player1Key.interestOps(0);
                 socketP1.register(oldSelector, SelectionKey.OP_READ, player1Key.attachment());
+                System.out.println("P1 ritorna al vecchio selector");
             }
             if (player2Key.isValid()){
                 player2Key.interestOps(0);
                 socketP2.register(oldSelector, SelectionKey.OP_READ, player2Key.attachment());
+                System.out.println("P2 ritorna al vecchio selector");
             }
 
 
             oldSelector.wakeup();
+            close = true;
         } catch (IOException e) {
             e.printStackTrace();
         }

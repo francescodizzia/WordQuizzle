@@ -80,18 +80,20 @@ public class ChallengeFrame extends JFrame implements ActionListener {
                 clicked++;
 
                 if (clicked == WQSettings.N_WORDS) {
-                    this.setVisible(false);
-                    WaitingDialog waitingDialog = new WaitingDialog();
+                    //this.setVisible(false);
+                    //THREAD KILL
                     this.dispose();
+                    WaitingDialog waitingDialog = new WaitingDialog();
                     WQClient.waitEnd(waitingDialog);
                 } else {
                     String k = WQClient.readString();
 
                     String[] results = k.split(" ");
                     if(results[0].compareTo("FIN") == 0){
-                        this.setVisible(false);
-                        WaitingDialog waitingDialog = new WaitingDialog();
+                        //this.setVisible(false);
                         this.dispose();
+                        WaitingDialog waitingDialog = new WaitingDialog();
+
                         int winner = Integer.parseInt(results[1]);
                         int correct_answers = Integer.parseInt(results[2]);
                         int wrong_answers = Integer.parseInt(results[3]);

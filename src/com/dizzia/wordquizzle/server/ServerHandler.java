@@ -31,7 +31,7 @@ public class ServerHandler implements Runnable {
 
     public ServerHandler(Database database) {
         loggedUsers = new ConcurrentHashMap<>();
-        ServerHandler.database = database;
+        this.database = database;
         keyMap = new ConcurrentHashMap<>();
         wqDictionary = new WQDictionary();
     }
@@ -76,7 +76,7 @@ public class ServerHandler implements Runnable {
                 if (login_result == StatusCode.OK) {
                     if(!loggedUsers.containsKey(args[1])) {
                         //TODO
-                        loggedUsers.put(args[1], (InetSocketAddress) client.socket().getLocalSocketAddress());
+                        loggedUsers.put(args[1], (InetSocketAddress) client.socket().getRemoteSocketAddress());
                         System.out.println(loggedUsers.keySet());
                         resources.setUsername(args[1]);
                         keyMap.put(args[1], key);
@@ -119,10 +119,11 @@ public class ServerHandler implements Runnable {
                 break;
             case "CHALLENGE":
                 if (loggedUsers.containsKey(args[1])){
-                    System.out.println("richiesta di sfida da " + CURRENT_USER + " [" + loggedUsers.get(CURRENT_USER) + "] a "
-                                + args[1] + " [" + loggedUsers.get(args[1]) + "]");
+                    ClientResources friend = (ClientResources) keyMap.get(args[1]).attachment();
+                    System.out.println("richiesta di sfida da " + CURRENT_USER + " [" + loggedUsers.get(CURRENT_USER).getAddress()
+                            + ":" + resources.getUDP_port() + "] a "
+                                + args[1] + " [" + loggedUsers.get(args[1]).getAddress() + ":" + friend.getUDP_port() + "]");
                     try {
-                        ClientResources friend = (ClientResources) keyMap.get(args[1]).attachment();
                         friend.challengeTime = System.currentTimeMillis();
                         sendUDP(loggedUsers.get(args[1]), friend.getUDP_port(), "challenge " + CURRENT_USER);
                     } catch (SocketException e) {
@@ -155,21 +156,17 @@ public class ServerHandler implements Runnable {
                     key.interestOps(0);
                     challengerKey.interestOps(0);
 
-                    ChallengeHandler h = new ChallengeHandler(key, challengerKey);
+                    ChallengeHandler h = new ChallengeHandler(key, challengerKey, database);
                     Thread t = new Thread(h);
                     t.start();
                 }
                 else {
                     System.out.println("TIMEOUT ");
-//                    challengerResources.buffer.clear();
-//                    challengerResources.buffer.put("TIMEOUT".getBytes());
-//                    challengerResources.buffer.flip();
                     resources.buffer.clear();
                     resources.buffer.put("TIMEOUT".getBytes());
                     resources.challengeTime = 0;
                     resources.buffer.flip();
                     key.interestOps(SelectionKey.OP_WRITE);
-//                    challengerKey.interestOps(SelectionKey.OP_WRITE);
                 }
                 break;
             case "REFUSE":
@@ -201,7 +198,6 @@ public class ServerHandler implements Runnable {
             serverChannel.register(selector, SelectionKey.OP_ACCEPT);
         } catch (IOException ex) {
             ex.printStackTrace();
-//            return;
         }
 
         while (true) {

@@ -5,16 +5,16 @@ import java.awt.*;
 
 
 public interface WQSettings {
-    int N_WORDS = 8;
+    int N_WORDS = 2;
     int UNIT_SECONDS = 1000;
-    int CHALLENGE_TIMEOUT = 60 * UNIT_SECONDS;
+    int CHALLENGE_TIMEOUT = 15 * UNIT_SECONDS;
     int CHALLENGE_REQUEST_TIMEOUT = 7 * UNIT_SECONDS;
 
     int RIGHT_ANSWER_POINTS = 2;
     int WRONG_ANSWER_POINTS = -1;
     int WINNER_EXTRA_POINTS = 3;
 
-
+//    String RMI_IP = "slazard.it";
     String RMI_IP = "localhost";
     String RMI_ADDRESS = "rmi://" + RMI_IP + "/WordQuizzle_544107";
 

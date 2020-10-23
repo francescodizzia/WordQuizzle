@@ -12,6 +12,11 @@ public class TimerLabel extends JLabel {
             remainingTime--;
             repaint();
 
+            if(WQClient.endgame){
+                timer.stop();
+            }
+
+
             if(remainingTime == 0){
                 timer.stop();
                 frame.dispose();

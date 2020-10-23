@@ -1,6 +1,8 @@
 package com.dizzia.wordquizzle.database;
 
 
+import java.util.concurrent.locks.ReentrantLock;
+
 public class User {
 
     private final String username;

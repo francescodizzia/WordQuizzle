@@ -1,5 +1,11 @@
 {
   "userGraph": {
+    "1": [
+      "2"
+    ],
+    "2": [
+      "1"
+    ],
     "dario": [
       "victor",
       "zeb89",
@@ -26,10 +32,20 @@
     ]
   },
   "userTable": {
+    "1": {
+      "username": "1",
+      "password": "2",
+      "score": -16
+    },
+    "2": {
+      "username": "2",
+      "password": "3",
+      "score": -16
+    },
     "dario": {
       "username": "dario",
       "password": "f",
-      "score": 80
+      "score": -9
     },
     "victor": {
       "username": "victor",
@@ -59,7 +75,7 @@
     "crash": {
       "username": "crash",
       "password": "4",
-      "score": 59
+      "score": 8
     }
   }
 }

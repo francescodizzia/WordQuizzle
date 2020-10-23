@@ -1,4 +1,4 @@
-package com.dizzia.wordquizzle;
+package com.dizzia.wordquizzle.commons;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

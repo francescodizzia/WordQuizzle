@@ -1,7 +1,7 @@
 package com.dizzia.wordquizzle.server;
 
 import com.dizzia.wordquizzle.commons.WQSettings;
-import com.dizzia.wordquizzle.RegisterInterface;
+import com.dizzia.wordquizzle.commons.RegisterInterface;
 import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.database.Database;
 import com.google.gson.Gson;
@@ -18,7 +18,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class WQServer implements RegisterInterface {
     public static ServerHandler server;
-    static Database db;
+    private static Database db;
 
 
     public int registerUser(String nickUtente, String password) {

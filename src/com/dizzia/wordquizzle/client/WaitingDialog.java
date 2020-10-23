@@ -21,6 +21,7 @@ public class WaitingDialog extends JDialog {
         this.setResizable(false);
         container.add(wordLabel);
         this.setVisible(true);
+
     }
 
 

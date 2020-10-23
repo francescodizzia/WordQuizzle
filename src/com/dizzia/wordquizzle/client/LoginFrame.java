@@ -1,6 +1,6 @@
 package com.dizzia.wordquizzle.client;
 
-import com.dizzia.wordquizzle.RegisterInterface;
+import com.dizzia.wordquizzle.commons.RegisterInterface;
 import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.commons.WQSettings;
 
