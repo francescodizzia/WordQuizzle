@@ -4,25 +4,21 @@ import com.dizzia.wordquizzle.commons.IO;
 import com.dizzia.wordquizzle.commons.WQSettings;
 import com.dizzia.wordquizzle.database.Database;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ChallengeHandler implements Runnable {
+public class ChallengeHandler_original implements Runnable {
     private final SelectionKey player1Key;
     private final SelectionKey player2Key;
     private final Vector<String> chosenWords;
     private final ConcurrentHashMap<String, InetSocketAddress> loggedUsers;
-    private final Vector<ArrayList<String>> translatedWords;
     private final Selector oldSelector;
     private final Database database;
 
@@ -31,20 +27,13 @@ public class ChallengeHandler implements Runnable {
 
     boolean close = false;
 
-    public ChallengeHandler(SelectionKey player1Key, SelectionKey player2Key, Database database) {
+    public ChallengeHandler_original(SelectionKey player1Key, SelectionKey player2Key, Database database) {
         this.database = database;
         loggedUsers = ServerHandler.loggedUsers;
         this.player1Key = player1Key;
         this.player2Key = player2Key;
         oldSelector = ServerHandler.selector;
         chosenWords = ServerHandler.wqDictionary.getDistinctWords(N);
-        translatedWords = new Vector<>();
-
-        for(String chosenWord: chosenWords){
-            translatedWords.add(WQDictionary.getTranslatedWords(chosenWord));
-        }
-
-        System.out.println(Arrays.toString(translatedWords.toArray()));
     }
 
 
@@ -216,15 +205,14 @@ public class ChallengeHandler implements Runnable {
             IO.read(client, resources.buffer);
 
             String m = StandardCharsets.UTF_8.decode(resources.buffer).toString();
-//            if(WQDictionary.getTranslatedWords(chosenWords.get(resources.translatedWords-1)).contains(m)) {
-            if(translatedWords.get(resources.translatedWords-1).contains(m)) {
+            if(WQDictionary.getTranslatedWords(chosenWords.get(resources.translatedWords-1)).contains(m)) {
                 System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " CORRETTA (+2)");
                 resources.challengeScore += WQSettings.RIGHT_ANSWER_POINTS;
                 resources.correct_answers++;
                 database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + WQSettings.RIGHT_ANSWER_POINTS);
             }
             else {
-                System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " ERRATA (-1)");
+                System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " SBAGLIATA (-1)");
                 resources.challengeScore += WQSettings.WRONG_ANSWER_POINTS;
                 resources.wrong_answers++;
                 database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + WQSettings.WRONG_ANSWER_POINTS);

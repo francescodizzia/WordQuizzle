@@ -14,6 +14,7 @@ public class TimerLabel extends JLabel {
 
             if(WQClient.endgame){
                 timer.stop();
+                return;
             }
 
 

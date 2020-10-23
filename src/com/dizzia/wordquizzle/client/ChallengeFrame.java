@@ -42,7 +42,7 @@ public class ChallengeFrame extends JFrame implements ActionListener {
 
 
         wordLabel.setFont(new Font("Serif", Font.BOLD, 16));
-        wordLabel.setBounds(145,275, 120, 30);
+        wordLabel.setBounds(125,275, 140, 30);
         wordLabel.setHorizontalAlignment(SwingConstants.CENTER);
         wordLabel.setText(firstWord.toUpperCase());
         container.add(wordLabel);

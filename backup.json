@@ -45,7 +45,7 @@
     "dario": {
       "username": "dario",
       "password": "f",
-      "score": -9
+      "score": 0
     },
     "victor": {
       "username": "victor",
@@ -75,7 +75,7 @@
     "crash": {
       "username": "crash",
       "password": "4",
-      "score": 8
+      "score": 37
     }
   }
 }
