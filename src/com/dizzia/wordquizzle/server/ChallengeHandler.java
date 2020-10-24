@@ -111,7 +111,7 @@ public class ChallengeHandler implements Runnable {
 
     private void handleDisconnect(SelectionKey key) {
         finished++;
-        System.out.println("Un giocatore si è disconnesso, termino la partita.");
+        System.out.println("Un giocatore si è disconnesso.");
         key.cancel();
         try {
             key.channel().close();
@@ -211,12 +211,14 @@ public class ChallengeHandler implements Runnable {
         SocketChannel client = (SocketChannel) key.channel();
         ClientResources resources = (ClientResources) key.attachment();
 
+        System.out.println(client.isBlocking());
+
         if (resources != null) {
            String s = resources.getUsername();
             IO.read(client, resources.buffer);
 
             String m = StandardCharsets.UTF_8.decode(resources.buffer).toString();
-//            if(WQDictionary.getTranslatedWords(chosenWords.get(resources.translatedWords-1)).contains(m)) {
+
             if(translatedWords.get(resources.translatedWords-1).contains(m)) {
                 System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " CORRETTA (+2)");
                 resources.challengeScore += WQSettings.RIGHT_ANSWER_POINTS;
@@ -243,6 +245,8 @@ public class ChallengeHandler implements Runnable {
     private void handleWrite(SelectionKey key) throws IOException {
         SocketChannel client = (SocketChannel) key.channel();
         ClientResources resources = (ClientResources) key.attachment();
+
+        System.out.println(client.isBlocking());
 
         if (resources.translatedWords >= N)
             handleEndGame(key);

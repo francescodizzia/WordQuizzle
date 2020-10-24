@@ -6,6 +6,7 @@ import java.nio.channels.SocketChannel;
 
 public class IO {
 
+
     public static void prepareString(ByteBuffer buffer, String string){
         buffer.clear();
         buffer.put(string.getBytes());

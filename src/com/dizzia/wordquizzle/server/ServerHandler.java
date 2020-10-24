@@ -231,12 +231,12 @@ public class ServerHandler implements Runnable {
 
                         ByteBuffer input = resources.buffer;
                         input.clear();
-                        int read_byte = client.read(input);
+                        int read_bytes = client.read(input);
                         input.flip();
 
-                        if(read_byte == -1) {
+                        if(read_bytes == -1)
                             handleDisconnect(key);
-                        }else {
+                        else {
                             String line = StandardCharsets.UTF_8.decode(input).toString();
                             commandParser(line, client, key);
                         }
@@ -244,10 +244,18 @@ public class ServerHandler implements Runnable {
                     else if(key.isWritable()){
                         ClientResources k = (ClientResources) key.attachment();
                         SocketChannel client = (SocketChannel) key.channel();
-                        ByteBuffer output = k.buffer;
-                        client.write(output);
 
-                        key.interestOps(SelectionKey.OP_READ);
+                        ByteBuffer output = k.buffer;
+                        int written_bytes = 0;
+//                                client.write(output);
+
+                        while(output.hasRemaining() && written_bytes != -1)
+                            written_bytes = client.write(output);
+
+                        if(written_bytes == -1)
+                            handleDisconnect(key);
+                        else
+                            key.interestOps(SelectionKey.OP_READ);
                     }
                 } catch (IOException ex) {
                     handleDisconnect(key);
@@ -267,7 +275,7 @@ public class ServerHandler implements Runnable {
 
             String username = resources.getUsername();
             if(username != null) {
-                System.out.println("ADDIO " + username);
+                System.out.println("Arrivederci " + username);
                 loggedUsers.remove(username);
                 System.out.println(loggedUsers.keySet());
             }
