@@ -48,8 +48,8 @@ public class ChallengeFrame extends JFrame implements ActionListener {
         container.add(wordLabel);
 
 
-        timerLabel.setFont(new Font("Serif", Font.BOLD, 16));
-        timerLabel.setBounds(30,100, 150, 150);
+        timerLabel.setFont(new Font("Serif", Font.BOLD, 24));
+        timerLabel.setBounds(360,160, 150, 150);
         container.add(timerLabel);
 
         myWord.setBounds(500, 277, 144, 26);

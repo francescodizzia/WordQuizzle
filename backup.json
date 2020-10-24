@@ -1,81 +1,86 @@
 {
   "userGraph": {
     "1": [
-      "2"
+      "alice"
     ],
-    "2": [
-      "1"
+    "davide": [],
+    "bob": [
+      "francesco"
     ],
     "dario": [
       "victor",
-      "zeb89",
+      "francesco",
       "crash"
     ],
     "victor": [
       "dario",
-      "zeb89",
+      "francesco",
       "crash"
     ],
-    "Davide": [],
-    "aqwqwewqweqwqewqewq": [],
+    "alice": [
+      "1",
+      "francesco"
+    ],
     "Raffaele": [],
-    "zeb89": [
+    "francesco": [
+      "bob",
       "victor",
       "dario",
+      "alice",
       "crash"
     ],
     "crash": [
+      "davide",
       "dario",
-      "Davide",
       "Raffaele",
-      "zeb89"
+      "francesco"
     ]
   },
   "userTable": {
     "1": {
       "username": "1",
-      "password": "2",
+      "password": "dhdhdh",
       "score": -16
     },
-    "2": {
-      "username": "2",
-      "password": "3",
-      "score": -16
-    },
-    "dario": {
-      "username": "dario",
-      "password": "f",
-      "score": 0
-    },
-    "victor": {
-      "username": "victor",
-      "password": "88",
-      "score": 18
-    },
-    "Davide": {
+    "davide": {
       "username": "davide",
       "password": "semplice",
       "score": 9
     },
-    "aqwqwewqweqwqewqewq": {
-      "username": "aqwqwewqweqwqewqewq",
+    "bob": {
+      "username": "bob",
       "password": "a",
-      "score": 0
+      "score": 13
+    },
+    "dario": {
+      "username": "dario",
+      "password": "f",
+      "score": 33
+    },
+    "victor": {
+      "username": "victor",
+      "password": "88t",
+      "score": 18
+    },
+    "alice": {
+      "username": "alice",
+      "password": "3",
+      "score": 24
     },
     "Raffaele": {
       "username": "raffaele",
-      "password": "tuamamma",
+      "password": "lul",
       "score": 9
     },
-    "zeb89": {
-      "username": "zeb89",
-      "password": "fiero",
-      "score": -15
+    "francesco": {
+      "username": "francesco",
+      "password": "kek",
+      "score": 47
     },
     "crash": {
       "username": "crash",
       "password": "4",
-      "score": 37
+      "score": 44
     }
   }
 }
