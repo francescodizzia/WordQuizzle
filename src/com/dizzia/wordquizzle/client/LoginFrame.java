@@ -114,9 +114,9 @@ public class LoginFrame extends JFrame implements ActionListener{
 
 
     public static int registra_utente(String nickUtente, String password) throws RemoteException, NotBoundException {
-        registry = LocateRegistry.getRegistry(WQSettings.RMI_IP, RegisterInterface.REG_PORT);
+        registry = LocateRegistry.getRegistry(WQSettings.HOSTNAME, RegisterInterface.REG_PORT);
         stub = (RegisterInterface) registry.lookup(WQSettings.RMI_ADDRESS);
-        return stub.registerUser(nickUtente, password);
+        return stub.registra_utente(nickUtente, password);
     }
 
 }

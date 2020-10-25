@@ -1,5 +1,6 @@
 package com.dizzia.wordquizzle.server;
 
+import com.dizzia.wordquizzle.commons.ByteBufferIO;
 import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.commons.WQSettings;
 import com.dizzia.wordquizzle.database.Database;
@@ -15,7 +16,6 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,8 +30,8 @@ public class ServerHandler implements Runnable {
 
 
     public ServerHandler(Database database) {
+        ServerHandler.database = database;
         loggedUsers = new ConcurrentHashMap<>();
-        this.database = database;
         keyMap = new ConcurrentHashMap<>();
         wqDictionary = new WQDictionary();
     }
@@ -44,8 +44,6 @@ public class ServerHandler implements Runnable {
         file.write(jsonString);
         file.close();
     }
-
-
 
 
     private void sendUDP(InetSocketAddress address, int port, String message) throws SocketException {
@@ -61,41 +59,24 @@ public class ServerHandler implements Runnable {
         }
     }
 
+
     private void commandParser(String command, SocketChannel client, SelectionKey key) {
         String[] args = command.split(" ");
         ClientResources resources = (ClientResources) key.attachment();
-        String CURRENT_USER = resources.getUsername();
+        String CURRENT_USER = resources.username;
         String COMMAND_NAME = args[0].toUpperCase();
 
-        System.out.println(Arrays.toString(args));
+        System.out.println(command);
 
         switch (COMMAND_NAME) {
             case "LOGIN":
-                int login_result = database.checkCredentials(args[1], args[2]);
-
-                if (login_result == StatusCode.OK) {
-                    if(!loggedUsers.containsKey(args[1])) {
-                        //TODO
-                        loggedUsers.put(args[1], (InetSocketAddress) client.socket().getRemoteSocketAddress());
-                        System.out.println(loggedUsers.keySet());
-                        resources.setUsername(args[1]);
-                        keyMap.put(args[1], key);
-                        resources.port = Integer.parseInt(args[3]);
-                    }else{
-                        login_result = StatusCode.USER_ALREADY_LOGGED;
-                    }
-                }
-                resources.buffer.clear();
-                resources.buffer.putInt(login_result);
-                resources.buffer.flip();
-
+                int login_result = login(client, resources, key, args[1], args[2], args[3]);
+                ByteBufferIO.prepareInt(resources.buffer, login_result);
                 key.interestOps(SelectionKey.OP_WRITE);
                 break;
             case "ADD_FRIEND":
-                int result = database.makeFriends(CURRENT_USER, args[1]);
-                resources.buffer.clear();
-                resources.buffer.putInt(result);
-                resources.buffer.flip();
+                int add_friend_result = aggiungi_amico(CURRENT_USER, args[1]);
+                ByteBufferIO.prepareInt(resources.buffer, add_friend_result);
                 key.interestOps(SelectionKey.OP_WRITE);
                 try {
                     serialize();
@@ -104,45 +85,26 @@ public class ServerHandler implements Runnable {
                 }
                 break;
             case "FRIENDLIST":
-                String list = database.getFriendList(CURRENT_USER);
-                resources.buffer.clear();
-                resources.buffer.put(list.getBytes());
-                resources.buffer.flip();
+                String friendList = lista_amici(CURRENT_USER);
+                ByteBufferIO.prepareString(resources.buffer, friendList);
                 key.interestOps(SelectionKey.OP_WRITE);
                 break;
             case "LEADERBOARD":
-                String leaderboard = database.getLeaderboard(CURRENT_USER);
-                resources.buffer.clear();
-                resources.buffer.put(leaderboard.getBytes());
-                resources.buffer.flip();
+                String leaderboard = mostra_classifica(CURRENT_USER);
+                ByteBufferIO.prepareString(resources.buffer, leaderboard);
                 key.interestOps(SelectionKey.OP_WRITE);
                 break;
             case "CHALLENGE":
-                if (loggedUsers.containsKey(args[1])){
-                    ClientResources friend = (ClientResources) keyMap.get(args[1]).attachment();
-                    System.out.println("richiesta di sfida da " + CURRENT_USER + " [" + loggedUsers.get(CURRENT_USER).getAddress()
-                            + ":" + resources.getUDP_port() + "] a "
-                                + args[1] + " [" + loggedUsers.get(args[1]).getAddress() + ":" + friend.getUDP_port() + "]");
-                    try {
-                        friend.challengeTime = System.currentTimeMillis();
-                        sendUDP(loggedUsers.get(args[1]), friend.getUDP_port(), "challenge " + CURRENT_USER);
-                    } catch (SocketException e) {
-                        e.printStackTrace();
-                    }
-                }
-
+                sfida(resources, CURRENT_USER, args[1]);
                 key.interestOps(SelectionKey.OP_WRITE);
                 break;
             case "SCORE":
-                resources.buffer.clear();
-                resources.buffer.putInt(database.getScore(CURRENT_USER));
-                resources.buffer.flip();
+                int punteggio = mostra_punteggio(CURRENT_USER);
+                ByteBufferIO.prepareInt(resources.buffer, punteggio);
                 key.interestOps(SelectionKey.OP_WRITE);
                 break;
             case "LOGOUT":
-                loggedUsers.remove(CURRENT_USER);
-                System.out.println(CURRENT_USER + " logged out");
-                System.out.println(loggedUsers.keySet());
+                handleDisconnect(key);
                 key.interestOps(SelectionKey.OP_READ);
                 break;
             case "ACCEPT":
@@ -151,7 +113,7 @@ public class ServerHandler implements Runnable {
 
                 long elapsedTime = System.currentTimeMillis() - resources.challengeTime;
 
-                if(elapsedTime < WQSettings.CHALLENGE_REQUEST_TIMEOUT) {
+                if (elapsedTime < WQSettings.CHALLENGE_REQUEST_TIMEOUT) {
                     System.out.println("IN TEMPO");
                     key.interestOps(0);
                     challengerKey.interestOps(0);
@@ -159,27 +121,25 @@ public class ServerHandler implements Runnable {
                     ChallengeHandler h = new ChallengeHandler(key, challengerKey, database);
                     Thread t = new Thread(h);
                     t.start();
-                }
-                else {
+                } else {
                     System.out.println("TIMEOUT ");
-                    resources.buffer.clear();
-                    resources.buffer.put("TIMEOUT".getBytes());
+                    ByteBufferIO.prepareString(resources.buffer, "TIMEOUT");
                     resources.challengeTime = 0;
-                    resources.buffer.flip();
                     key.interestOps(SelectionKey.OP_WRITE);
                 }
                 break;
             case "REFUSE":
                 SelectionKey challengerKey2 = keyMap.get(args[1]);
-                ClientResources challengerResource2 =  (ClientResources) challengerKey2.attachment();
-                challengerResource2.buffer.clear();
-                challengerResource2.buffer.put("REFUSED".getBytes());
-                challengerResource2.buffer.flip();
+                ClientResources challengerResource2 = (ClientResources) challengerKey2.attachment();
+                ByteBufferIO.prepareString(challengerResource2.buffer, "REFUSED");
                 challengerKey2.interestOps(SelectionKey.OP_WRITE);
                 break;
         }
     }
 
+    private int mostra_punteggio(String username) {
+        return database.getScore(username);
+    }
 
 
     public void run() {
@@ -224,8 +184,7 @@ public class ServerHandler implements Runnable {
                         ClientResources resources = new ClientResources();
                         System.out.println(client.getLocalAddress().toString());
                         key2.attach(resources);
-                    }
-                    else if(key.isReadable()){
+                    } else if (key.isReadable()) {
                         ClientResources resources = (ClientResources) key.attachment();
                         SocketChannel client = (SocketChannel) key.channel();
 
@@ -234,25 +193,23 @@ public class ServerHandler implements Runnable {
                         int read_bytes = client.read(input);
                         input.flip();
 
-                        if(read_bytes == -1)
+                        if (read_bytes == -1)
                             handleDisconnect(key);
                         else {
                             String line = StandardCharsets.UTF_8.decode(input).toString();
                             commandParser(line, client, key);
                         }
-                    }
-                    else if(key.isWritable()){
+                    } else if (key.isWritable()) {
                         ClientResources k = (ClientResources) key.attachment();
                         SocketChannel client = (SocketChannel) key.channel();
 
                         ByteBuffer output = k.buffer;
                         int written_bytes = 0;
-//                                client.write(output);
 
-                        while(output.hasRemaining() && written_bytes != -1)
+                        while (output.hasRemaining() && written_bytes != -1)
                             written_bytes = client.write(output);
 
-                        if(written_bytes == -1)
+                        if (written_bytes == -1)
                             handleDisconnect(key);
                         else
                             key.interestOps(SelectionKey.OP_READ);
@@ -267,14 +224,14 @@ public class ServerHandler implements Runnable {
     }
 
 
-    private void handleDisconnect(SelectionKey key){
+    private void handleDisconnect(SelectionKey key) {
         key.cancel();
         try {
             key.channel().close();
             ClientResources resources = (ClientResources) key.attachment();
 
-            String username = resources.getUsername();
-            if(username != null) {
+            String username = resources.username;
+            if (username != null) {
                 System.out.println("Arrivederci " + username);
                 loggedUsers.remove(username);
                 System.out.println(loggedUsers.keySet());
@@ -285,6 +242,54 @@ public class ServerHandler implements Runnable {
         }
     }
 
+
+    private int login(SocketChannel client, ClientResources resources, SelectionKey key, String username, String password, String udp_port) {
+        int check = database.checkCredentials(username, password);
+
+        if(check == StatusCode.OK) {
+            if (!loggedUsers.containsKey(username)) {
+                loggedUsers.put(username, (InetSocketAddress) client.socket().getRemoteSocketAddress());
+                System.out.println(loggedUsers.keySet());
+                resources.username = username;
+                keyMap.put(username, key);
+                resources.udp_port = Integer.parseInt(udp_port);
+                return StatusCode.OK;
+            } else
+                return StatusCode.USER_ALREADY_LOGGED;
+        }
+
+        return StatusCode.GENERIC_ERROR;
+}
+
+
+    private int aggiungi_amico(String usernameA, String usernameB){
+        return database.makeFriends(usernameA, usernameB);
+    }
+
+
+
+    private String lista_amici(String username){
+        return database.getFriendList(username);
+    }
+
+    private String mostra_classifica(String username) {
+        return database.getLeaderboard(username);
+    }
+
+    private void sfida(ClientResources resources, String usernameA, String usernameB){
+        if (loggedUsers.containsKey(usernameB)) {
+            ClientResources friend = (ClientResources) keyMap.get(usernameB).attachment();
+            System.out.println("richiesta di sfida da " + usernameA + " [" + loggedUsers.get(usernameA).getAddress()
+                    + ":" + resources.udp_port + "] a "
+                    + usernameB + " [" + loggedUsers.get(usernameB).getAddress() + ":" + friend.udp_port + "]");
+            try {
+                friend.challengeTime = System.currentTimeMillis();
+                sendUDP(loggedUsers.get(usernameB), friend.udp_port, "challenge " + usernameA);
+            } catch (SocketException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 
 }

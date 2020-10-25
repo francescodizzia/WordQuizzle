@@ -18,7 +18,6 @@ public class WQClient {
     static SocketChannel server;
     static DatagramSocket datagramSocket;
     static int udp_port = -1;
-    static int port = 1919;
 
     static boolean endgame = false;
 
@@ -60,7 +59,7 @@ public class WQClient {
         System.out.println(password);
 
         try {
-            SocketAddress address = new InetSocketAddress(WQSettings.RMI_IP, port);
+            SocketAddress address = new InetSocketAddress(WQSettings.HOSTNAME, WQSettings.TCP_PORT);
             server = SocketChannel.open(address);
 
 

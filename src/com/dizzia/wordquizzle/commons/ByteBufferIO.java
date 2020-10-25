@@ -4,28 +4,31 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public class ByteBufferIO {
-    //TODO
     public static int MAX_STRING_LENGTH = 256;
-    static int INTEGER_BYTE_SIZE = 4;
 
-    public static int readInt(SocketChannel channel) throws IOException {
-        ByteBuffer input = ByteBuffer.allocate(4);
-        input.clear();
-        channel.read(input);
-        input.flip();
-        return input.getInt();
+    public static void prepareString(ByteBuffer buffer, String string){
+        buffer.clear();
+        buffer.put(string.getBytes());
+        buffer.flip();
     }
 
-    public static void writeInt(SocketChannel channel, int integer) throws IOException {
-        ByteBuffer output = ByteBuffer.allocate(4);
-        output.clear();
-        output.putInt(integer);
-        output.flip();
-        channel.write(output);
+    public static void prepareInt(ByteBuffer buffer, int integer){
+        buffer.clear();
+        buffer.putInt(integer);
+        buffer.flip();
     }
+
+
+    public static void writeString(SocketChannel channel, ByteBuffer buffer, String string) throws IOException {
+        prepareString(buffer, string);
+        int written_bytes = 0;
+        while(buffer.hasRemaining() && written_bytes != -1)
+            written_bytes = channel.write(buffer);
+    }
+
+
 
 
     public static String readString(SocketChannel channel) throws IOException {
@@ -47,5 +50,19 @@ public class ByteBufferIO {
         channel.write(output);
     }
 
+    public static int readInt(SocketChannel channel) throws IOException {
+        ByteBuffer input = ByteBuffer.allocate(4);
+        input.clear();
+        channel.read(input);
+        input.flip();
+        return input.getInt();
+    }
+
+    public static void readString(SocketChannel channel, ByteBuffer buffer) throws IOException {
+        buffer.clear();
+        int read_byte = channel.read(buffer);
+        buffer.flip();
+
+    }
 
 }

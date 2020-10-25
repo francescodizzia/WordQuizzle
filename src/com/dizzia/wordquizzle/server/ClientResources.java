@@ -6,10 +6,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 
 public class ClientResources {
-    private String username;
+    String username;
     ByteBuffer buffer;
-    public int port;
-    public int challengeScore = 0;
+    int udp_port;
+    int challengeScore = 0;
 
 
     SelectionKey challenged = null;
@@ -24,17 +24,6 @@ public class ClientResources {
         buffer = ByteBuffer.allocate(ByteBufferIO.MAX_STRING_LENGTH);
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public int getUDP_port() {
-        return port;
-    }
 
     public void reset(){
         challenged = null;

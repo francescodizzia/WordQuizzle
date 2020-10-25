@@ -1,10 +1,9 @@
 package com.dizzia.wordquizzle.server;
 
-import com.dizzia.wordquizzle.commons.IO;
+import com.dizzia.wordquizzle.commons.ByteBufferIO;
 import com.dizzia.wordquizzle.commons.WQSettings;
 import com.dizzia.wordquizzle.database.Database;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -20,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ChallengeHandler implements Runnable {
     private final SelectionKey player1Key;
     private final SelectionKey player2Key;
-    private final Vector<String> chosenWords;
+    private final ArrayList<String> chosenWords;
     private final ConcurrentHashMap<String, InetSocketAddress> loggedUsers;
     private final Vector<ArrayList<String>> translatedWords;
     private final Selector oldSelector;
@@ -117,9 +116,9 @@ public class ChallengeHandler implements Runnable {
             key.channel().close();
             ClientResources resources = (ClientResources) key.attachment();
 
-            String username = resources.getUsername();
+            String username = resources.username;
             if(username != null) {
-                System.out.println("ADDIO " + username);
+                System.out.println("Arrivederci " + username);
                 loggedUsers.remove(username);
                 System.out.println(loggedUsers.keySet());
             }
@@ -146,30 +145,30 @@ public class ChallengeHandler implements Runnable {
         SocketChannel socketP1 = (SocketChannel) player1Key.channel();
         SocketChannel socketP2 = (SocketChannel) player2Key.channel();
 
-        System.out.println(P1_R.getUsername() + " (P1) score: " + P1_R.challengeScore + "    (P2) score: " + P2_R.challengeScore);
+        System.out.println(P1_R.username + " (P1) score: " + P1_R.challengeScore + "    (P2) score: " + P2_R.challengeScore);
 
         if (P1_R.challengeScore > P2_R.challengeScore) {
             P1_R.isWinner = 1;
             P2_R.isWinner = -1;
             P1_R.challengeScore += WQSettings.WINNER_EXTRA_POINTS;
-            database.updateScore(P1_R.getUsername(), database.getScore(P1_R.getUsername()) + WQSettings.WINNER_EXTRA_POINTS);
+            database.updateScore(P1_R.username, database.getScore(P1_R.username) + WQSettings.WINNER_EXTRA_POINTS);
             ServerHandler.serialize();
         }
         else if (P1_R.challengeScore < P2_R.challengeScore) {
             P1_R.isWinner = -1;
             P2_R.isWinner = 1;
             P2_R.challengeScore += WQSettings.WINNER_EXTRA_POINTS;
-            database.updateScore(P2_R.getUsername(), database.getScore(P2_R.getUsername()) + WQSettings.WINNER_EXTRA_POINTS);
+            database.updateScore(P2_R.username, database.getScore(P2_R.username) + WQSettings.WINNER_EXTRA_POINTS);
             ServerHandler.serialize();
         }
 
         try {
             if (player1Key.isValid())
-                IO.writeString(socketP1, P1_R.buffer, "FIN " + P1_R.isWinner + " " + P1_R.correct_answers +
+                ByteBufferIO.writeString(socketP1, P1_R.buffer, "FIN " + P1_R.isWinner + " " + P1_R.correct_answers +
                         " " + P1_R.wrong_answers + " " + P2_R.challengeScore);
 
             if (player2Key.isValid())
-                IO.writeString(socketP2, P2_R.buffer, "FIN " + P2_R.isWinner + " " + P2_R.correct_answers +
+                ByteBufferIO.writeString(socketP2, P2_R.buffer, "FIN " + P2_R.isWinner + " " + P2_R.correct_answers +
                         " " + P2_R.wrong_answers + " " + P1_R.challengeScore);
 
 
@@ -214,8 +213,8 @@ public class ChallengeHandler implements Runnable {
         System.out.println(client.isBlocking());
 
         if (resources != null) {
-           String s = resources.getUsername();
-            IO.read(client, resources.buffer);
+           String s = resources.username;
+            ByteBufferIO.readString(client, resources.buffer);
 
             String m = StandardCharsets.UTF_8.decode(resources.buffer).toString();
 
@@ -223,13 +222,13 @@ public class ChallengeHandler implements Runnable {
                 System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " CORRETTA (+2)");
                 resources.challengeScore += WQSettings.RIGHT_ANSWER_POINTS;
                 resources.correct_answers++;
-                database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + WQSettings.RIGHT_ANSWER_POINTS);
+                database.updateScore(resources.username, database.getScore(resources.username) + WQSettings.RIGHT_ANSWER_POINTS);
             }
             else {
                 System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " ERRATA (-1)");
                 resources.challengeScore += WQSettings.WRONG_ANSWER_POINTS;
                 resources.wrong_answers++;
-                database.updateScore(resources.getUsername(), database.getScore(resources.getUsername()) + WQSettings.WRONG_ANSWER_POINTS);
+                database.updateScore(resources.username, database.getScore(resources.username) + WQSettings.WRONG_ANSWER_POINTS);
             }
 
             ServerHandler.serialize();
@@ -251,7 +250,7 @@ public class ChallengeHandler implements Runnable {
         if (resources.translatedWords >= N)
             handleEndGame(key);
         else{
-            IO.writeString(client, resources.buffer, chosenWords.get(resources.translatedWords));
+            ByteBufferIO.writeString(client, resources.buffer, chosenWords.get(resources.translatedWords));
             resources.translatedWords++;
             key.interestOps(SelectionKey.OP_READ);
         }
