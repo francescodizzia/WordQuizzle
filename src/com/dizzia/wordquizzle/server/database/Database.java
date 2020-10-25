@@ -1,4 +1,4 @@
-package com.dizzia.wordquizzle.database;
+package com.dizzia.wordquizzle.server.database;
 
 import com.dizzia.wordquizzle.commons.StatusCode;
 import com.google.gson.Gson;

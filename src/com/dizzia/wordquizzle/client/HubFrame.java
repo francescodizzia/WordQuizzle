@@ -3,7 +3,7 @@ package com.dizzia.wordquizzle.client;
 
 import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.commons.WQSettings;
-import com.dizzia.wordquizzle.database.LeaderboardPair;
+import com.dizzia.wordquizzle.server.database.LeaderboardPair;
 import com.google.gson.Gson;
 
 import javax.swing.*;

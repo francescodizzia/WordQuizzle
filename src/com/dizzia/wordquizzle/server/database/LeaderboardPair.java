@@ -1,4 +1,4 @@
-package com.dizzia.wordquizzle.database;
+package com.dizzia.wordquizzle.server.database;
 
 public class LeaderboardPair {
     private final String username;

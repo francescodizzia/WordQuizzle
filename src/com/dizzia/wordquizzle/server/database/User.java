@@ -1,7 +1,5 @@
-package com.dizzia.wordquizzle.database;
+package com.dizzia.wordquizzle.server.database;
 
-
-import java.util.concurrent.locks.ReentrantLock;
 
 public class User {
 

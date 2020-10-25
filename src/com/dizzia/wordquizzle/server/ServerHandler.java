@@ -3,7 +3,7 @@ package com.dizzia.wordquizzle.server;
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
 import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.commons.WQSettings;
-import com.dizzia.wordquizzle.database.Database;
+import com.dizzia.wordquizzle.server.database.Database;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -143,15 +143,13 @@ public class ServerHandler implements Runnable {
 
 
     public void run() {
-        //TODO
-        int port = 1919;
-        System.out.println("In ascolto sulla porta " + port);
+        System.out.println("In ascolto sulla porta " + WQSettings.TCP_PORT);
         ServerSocketChannel serverChannel;
 
         try {
             serverChannel = ServerSocketChannel.open();
             ServerSocket ss = serverChannel.socket();
-            InetSocketAddress address = new InetSocketAddress(port);
+            InetSocketAddress address = new InetSocketAddress(WQSettings.TCP_PORT);
             ss.bind(address);
             serverChannel.configureBlocking(false);
             selector = Selector.open();
