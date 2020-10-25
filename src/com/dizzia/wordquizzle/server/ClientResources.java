@@ -3,20 +3,16 @@ package com.dizzia.wordquizzle.server;
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
 
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
 
 public class ClientResources {
     String username;
     ByteBuffer buffer;
     int udp_port;
     int challengeScore = 0;
-
-
-    SelectionKey challenged = null;
+    long challengeTime = 0;
     int translatedWords = 0;
     int correct_answers = 0;
     int wrong_answers = 0;
-    long challengeTime = 0;
     int isWinner = 0;
 
 
@@ -26,7 +22,6 @@ public class ClientResources {
 
 
     public void reset(){
-        challenged = null;
         translatedWords = 0;
         correct_answers = 0;
         wrong_answers = 0;

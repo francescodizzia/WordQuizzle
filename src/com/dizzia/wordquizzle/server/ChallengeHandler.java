@@ -24,11 +24,9 @@ public class ChallengeHandler implements Runnable {
     private final Vector<ArrayList<String>> translatedWords;
     private final Selector oldSelector;
     private final Database database;
-
-    int finished = 0;
-    int N = WQSettings.N_WORDS;
-
-    boolean close = false;
+    private final int N = WQSettings.N_WORDS;
+    private int finished = 0;
+    private boolean close = false;
 
     public ChallengeHandler(SelectionKey player1Key, SelectionKey player2Key, Database database) {
         this.database = database;
