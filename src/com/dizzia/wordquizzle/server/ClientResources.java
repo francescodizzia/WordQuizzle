@@ -5,23 +5,28 @@ import com.dizzia.wordquizzle.commons.ByteBufferIO;
 import java.nio.ByteBuffer;
 
 public class ClientResources {
+    //Informazioni base dell'utente
     String username;
     ByteBuffer buffer;
     int udp_port;
-    boolean isBusy = false;
-    int challengeScore = 0;
-    long challengeTime = 0;
-    int translatedWords = 0;
-    int correct_answers = 0;
-    int wrong_answers = 0;
-    int isWinner = 0;
+
+    //Informazioni relative alla sfida in cui l'utente si trova
+    boolean isBusy;
+    int challengeScore;
+    long challengeTime;
+    int translatedWords;
+    int correct_answers;
+    int wrong_answers;
+    int isWinner;
 
 
     public ClientResources() {
+        reset();
         buffer = ByteBuffer.allocate(ByteBufferIO.MAX_STRING_LENGTH);
     }
 
 
+    //Reinizializza le variabili
     public void reset(){
         translatedWords = 0;
         correct_answers = 0;

@@ -19,6 +19,8 @@ public class UDPListener implements Runnable {
         this.datagramSocket = datagramSocket;
     }
 
+    //Il thread si mette in attesa della richiesta UDP e alla ricezione mostra una finestra per
+    //che permette di accettare o rifiutare la sfida
     public void run() {
         byte[] buf = new byte[256];
 

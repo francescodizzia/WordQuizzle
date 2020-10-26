@@ -1,5 +1,6 @@
-package com.dizzia.wordquizzle.server.database;
+package com.dizzia.wordquizzle.database;
 
+//Classe contenente le coppie <username, score>, utile per la classifica degli utenti
 public class LeaderboardPair {
     private final String username;
     private final int score;
@@ -8,7 +9,6 @@ public class LeaderboardPair {
         this.username = username;
         this.score = score;
     }
-
 
     public int getScore() {
         return score;

@@ -3,6 +3,11 @@ package com.dizzia.wordquizzle.client;
 import com.dizzia.wordquizzle.commons.WQSettings;
 import javax.swing.*;
 
+//Label particolare che funge anche da Timer:
+//ogni secondo si aggiorna, scala un secondo dal timer,
+//viene ridisegnato sulla GUI e al raggiungimento dello
+//zero chiude la finestra e gestisce la conclusione della
+//partita
 public class TimerLabel extends JLabel {
     public int remainingTime = WQSettings.CHALLENGE_TIMEOUT / 1000;
     Timer timer;

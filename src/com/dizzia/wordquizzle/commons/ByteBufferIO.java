@@ -8,12 +8,14 @@ import java.nio.charset.StandardCharsets;
 public class ByteBufferIO {
     public static int MAX_STRING_LENGTH = 256;
 
+    //Inserisce la stringa in un buffer
     public static void prepareString(ByteBuffer buffer, String string){
         buffer.clear();
         buffer.put(string.getBytes());
         buffer.flip();
     }
 
+    //Inserisce un intero in un buffer
     public static void prepareInt(ByteBuffer buffer, int integer){
         buffer.clear();
         buffer.putInt(integer);
@@ -21,6 +23,7 @@ public class ByteBufferIO {
     }
 
 
+    //Scrive una stringa in un channel
     public static void writeString(SocketChannel channel, ByteBuffer buffer, String string) throws IOException {
         prepareString(buffer, string);
         int written_bytes = 0;
@@ -29,8 +32,7 @@ public class ByteBufferIO {
     }
 
 
-
-
+    //Legge una stringa da un channel
     public static String readString(SocketChannel channel) throws IOException {
         ByteBuffer input = ByteBuffer.allocate(MAX_STRING_LENGTH);
         input.clear();
@@ -40,6 +42,7 @@ public class ByteBufferIO {
     }
 
 
+    //Scrive una stringa in un channel, creando un nuovo buffer
     public static void writeString(SocketChannel channel, String message) throws IOException {
         ByteBuffer output = ByteBuffer.allocate(MAX_STRING_LENGTH);
         output.clear();
@@ -50,19 +53,22 @@ public class ByteBufferIO {
         channel.write(output);
     }
 
+
+    //Legge un intero da un channel
+    public static void readString(SocketChannel channel, ByteBuffer buffer) throws IOException {
+        buffer.clear();
+        channel.read(buffer);
+        buffer.flip();
+    }
+
+
+    //Legge un intero da un channel, creando un nuovo buffer
     public static int readInt(SocketChannel channel) throws IOException {
         ByteBuffer input = ByteBuffer.allocate(4);
         input.clear();
         channel.read(input);
         input.flip();
         return input.getInt();
-    }
-
-    public static void readString(SocketChannel channel, ByteBuffer buffer) throws IOException {
-        buffer.clear();
-        int read_byte = channel.read(buffer);
-        buffer.flip();
-
     }
 
 }

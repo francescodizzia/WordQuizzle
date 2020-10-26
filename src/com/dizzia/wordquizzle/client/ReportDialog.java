@@ -9,7 +9,7 @@ public class ReportDialog extends JDialog {
     Container container = getContentPane();
     JLabel wordLabel = new JLabel();
 
-
+    //Mostra una finestra contenente il resoconto della partita
     public ReportDialog(int isWinner, int corrected_answers, int wrong_answers, int opponentScore) {
         container.setLayout(null);
         wordLabel.setFont(new Font("Serif", Font.PLAIN, 18));

@@ -3,7 +3,7 @@ package com.dizzia.wordquizzle.client;
 
 import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.commons.WQSettings;
-import com.dizzia.wordquizzle.server.database.LeaderboardPair;
+import com.dizzia.wordquizzle.database.LeaderboardPair;
 import com.google.gson.Gson;
 
 import javax.swing.*;
@@ -118,10 +118,10 @@ public class HubFrame extends JFrame implements ActionListener {
                 WQClient.writeString("challenge " + list.getSelectedValue());
 
                 try {
+                    //Gestione del timeout tramite setSocketTimeout
                     ByteBuffer input = ByteBuffer.allocate(256);
                     input.clear();
                     WQClient.server.socket().setSoTimeout(WQSettings.CHALLENGE_REQUEST_TIMEOUT);
-
                     InputStream inStream = WQClient.server.socket().getInputStream();
                     ReadableByteChannel wrappedChannel = Channels.newChannel(inStream);
                     wrappedChannel.read(input);
@@ -171,9 +171,10 @@ public class HubFrame extends JFrame implements ActionListener {
 
             StringBuilder result = new StringBuilder();
             int i = 0;
-            //TODO
+
             for(LeaderboardPair friend: friends)
-                result.append("[").append(++i).append("#] ").append(friend.getUsername()).append(" (").append(friend.getScore()).append(")\n");
+                result.append("[").append(++i).append("#] ").append(friend.getUsername())
+                        .append(" (").append(friend.getScore()).append(")\n");
 
             JOptionPane.showMessageDialog(this, result,
                     "Classifica", JOptionPane.INFORMATION_MESSAGE);

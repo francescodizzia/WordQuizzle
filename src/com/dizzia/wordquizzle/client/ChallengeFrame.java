@@ -80,8 +80,6 @@ public class ChallengeFrame extends JFrame implements ActionListener {
                 clicked++;
 
                 if (clicked == WQSettings.N_WORDS) {
-                    //this.setVisible(false);
-                    //THREAD KILL
                     this.dispose();
                     WaitingDialog waitingDialog = new WaitingDialog();
                     WQClient.waitEnd(waitingDialog);
@@ -90,7 +88,6 @@ public class ChallengeFrame extends JFrame implements ActionListener {
 
                     String[] results = k.split(" ");
                     if(results[0].compareTo("FIN") == 0){
-                        //this.setVisible(false);
                         this.dispose();
                         WaitingDialog waitingDialog = new WaitingDialog();
 

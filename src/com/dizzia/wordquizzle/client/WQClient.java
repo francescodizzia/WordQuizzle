@@ -19,7 +19,6 @@ public class WQClient {
     static SocketChannel server;
     static DatagramSocket datagramSocket;
     static int udp_port = -1;
-
     static boolean endgame = false;
 
 
@@ -51,7 +50,6 @@ public class WQClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return r;
     }
 
@@ -116,6 +114,7 @@ public class WQClient {
 
     public static void main(String[] a) {
 
+        //Inizializza il DatagramSocket necessario per la ricezione delle richieste UDP
         try {
             datagramSocket = new DatagramSocket();
             System.out.println("Ascolto sulla porta " + datagramSocket.getLocalPort());
@@ -131,9 +130,7 @@ public class WQClient {
             System.out.println(e);
         }
 
-
         loginFrame = new LoginFrame();
-
     }
 
     public static void inizio_sfida(String firstWord) {
@@ -142,6 +139,8 @@ public class WQClient {
     }
 
 
+    //Si mette in attesa della conclusione della partita per entrambi
+    //i giocatori
     public static void waitEnd(JDialog dialog) {
         endgame = true;
 

@@ -3,7 +3,7 @@ package com.dizzia.wordquizzle.server;
 import com.dizzia.wordquizzle.commons.WQSettings;
 import com.dizzia.wordquizzle.commons.RegisterInterface;
 import com.dizzia.wordquizzle.commons.StatusCode;
-import com.dizzia.wordquizzle.server.database.Database;
+import com.dizzia.wordquizzle.database.Database;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
@@ -70,7 +70,7 @@ public class WQServer implements RegisterInterface {
         }
 
 
-        //
+        //Esporto l'oggetto remoto e inizializzo il necessario per RMI
         try {
             WQServer obj = new WQServer();
             RegisterInterface stub = (RegisterInterface) UnicastRemoteObject.exportObject(obj, STUB_PORT);
@@ -81,6 +81,7 @@ public class WQServer implements RegisterInterface {
         }
 
 
+        //Lancio il ServerHandler
         server = new ServerHandler(db);
         Thread thread = new Thread(server);
         thread.start();

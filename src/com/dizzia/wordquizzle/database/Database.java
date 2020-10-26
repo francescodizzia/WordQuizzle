@@ -1,4 +1,4 @@
-package com.dizzia.wordquizzle.server.database;
+package com.dizzia.wordquizzle.database;
 
 import com.dizzia.wordquizzle.commons.StatusCode;
 import com.google.gson.Gson;
@@ -21,6 +21,7 @@ public class Database {
         }
 
 
+        //Verifica la validità delle credenziali fornite
         public int checkCredentials(String username, String password){
             User user = userTable.get(username);
 
@@ -33,11 +34,11 @@ public class Database {
             if(user.getPassword().equals(password))
                 return StatusCode.OK;
 
-
             return StatusCode.WRONG_PASSWORD;
         }
 
 
+        //Aggiunge un nuovo utente
         public int newUser(String username, String password) {
             User user = new User(password);
             userTable.put(username, user);
@@ -50,6 +51,8 @@ public class Database {
         }
 
 
+        //Rende i due utenti amici, aggiungendo l'altro nella lista propria
+        //lista
         public int makeFriends(String usernameA, String usernameB) {
           if(usernameA.equals(usernameB))
               return StatusCode.SELF_REQUEST;
@@ -63,7 +66,7 @@ public class Database {
           return StatusCode.OK;
         }
 
-
+        //Ottiene la classifica ordinata in JSON
         public String getLeaderboard(String username){
             List<String> friendlist = new ArrayList<>(userGraph.get(username));
             List<LeaderboardPair> board = new ArrayList<>();
@@ -74,6 +77,7 @@ public class Database {
             for(String friend: friendlist)
                 board.add(new LeaderboardPair(friend, getScore(friend)));
 
+            //Ordina la classifica
             board.sort((o1, o2) -> {
                 if (o1.getScore() > o2.getScore())
                     return -1;
@@ -86,17 +90,19 @@ public class Database {
         }
 
 
+        //Ottiene la lista amici in JSON
         public String getFriendList(String username){
             Gson gson = new Gson();
             List<String> list = new ArrayList<>(userGraph.get(username));
             return gson.toJson(list);
         }
 
-
+        //Ottiene il punteggio dell'utente
         public int getScore(String username){
             return userTable.get(username).getScore();
         }
 
+        //Aggiorna il punteggio dell'utente
         public void updateScore(String username, int newScore){
             userTable.get(username).updateScore(newScore);
         }
