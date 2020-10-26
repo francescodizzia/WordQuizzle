@@ -1,4 +1,4 @@
-package com.dizzia.wordquizzle.database;
+package com.dizzia.wordquizzle.server;
 
 //Classe che rappresenta una semplice coppia <password, score>
 public class User {

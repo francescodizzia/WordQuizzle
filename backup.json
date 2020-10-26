@@ -1,0 +1,11 @@
+{
+  "userGraph": {
+    "test": []
+  },
+  "userTable": {
+    "test": {
+      "password": "abc",
+      "score": 0
+    }
+  }
+}

@@ -1,6 +1,7 @@
-package com.dizzia.wordquizzle.database;
+package com.dizzia.wordquizzle.server;
 
 import com.dizzia.wordquizzle.commons.StatusCode;
+import com.dizzia.wordquizzle.commons.LeaderboardPair;
 import com.google.gson.Gson;
 
 import java.util.*;

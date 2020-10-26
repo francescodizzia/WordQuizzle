@@ -1,4 +1,4 @@
-package com.dizzia.wordquizzle.database;
+package com.dizzia.wordquizzle.commons;
 
 //Classe contenente le coppie <username, score>, utile per la classifica degli utenti
 public class LeaderboardPair {

@@ -2,7 +2,6 @@ package com.dizzia.wordquizzle.server;
 
 import com.dizzia.wordquizzle.commons.ByteBufferIO;
 import com.dizzia.wordquizzle.commons.WQSettings;
-import com.dizzia.wordquizzle.database.Database;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
