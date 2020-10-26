@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class ServerHandler implements Runnable {
@@ -28,6 +30,9 @@ public class ServerHandler implements Runnable {
     private final HashMap<String, SelectionKey> keyMap;
     public static WQDictionary wqDictionary;
     public static Selector selector;
+
+    private final ExecutorService executor = Executors.newCachedThreadPool();
+    private DatagramSocket datagramSocket;
 
 
     public ServerHandler(Database database) {
@@ -47,8 +52,7 @@ public class ServerHandler implements Runnable {
     }
 
 
-    private void sendUDP(InetSocketAddress address, int port, String message) throws SocketException {
-        DatagramSocket datagramSocket = new DatagramSocket();
+    private void sendUDP(InetSocketAddress address, int port, String message)  {
         byte[] buffer = message.getBytes(StandardCharsets.UTF_8);
 
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address.getAddress(), port);
@@ -120,14 +124,14 @@ public class ServerHandler implements Runnable {
                     key.interestOps(0);
                     challengerKey.interestOps(0);
 
-
                     ClientResources challengerResources = (ClientResources) challengerKey.attachment();
                     challengerResources.isBusy = true;
                     resources.isBusy = true;
 
                     ChallengeHandler h = new ChallengeHandler(key, challengerKey, database);
                     Thread t = new Thread(h);
-                    t.start();
+//                    t.start();
+                    executor.execute(t);
                 } else {
                     System.out.println("TIMEOUT ");
                     ByteBufferIO.prepareString(resources.buffer, "TIMEOUT");
@@ -161,11 +165,15 @@ public class ServerHandler implements Runnable {
             serverChannel.configureBlocking(false);
             selector = Selector.open();
             serverChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+            datagramSocket = new DatagramSocket();
         } catch (IOException ex) {
             ex.printStackTrace();
+            return;
         }
 
-        while (true) {
+
+        while (!Thread.interrupted()) {
             try {
                 selector.select();
             } catch (IOException ex) {
@@ -223,9 +231,8 @@ public class ServerHandler implements Runnable {
                     handleDisconnect(key);
                 }
             }
-
-
         }
+        executor.shutdown();
     }
 
 
@@ -263,7 +270,7 @@ public class ServerHandler implements Runnable {
                 return StatusCode.USER_ALREADY_LOGGED;
         }
 
-        return StatusCode.GENERIC_ERROR;
+        return check;
 }
 
 
@@ -287,15 +294,11 @@ public class ServerHandler implements Runnable {
             System.out.println("richiesta di sfida da " + usernameA + " [" + loggedUsers.get(usernameA).getAddress()
                     + ":" + resources.udp_port + "] a "
                     + usernameB + " [" + loggedUsers.get(usernameB).getAddress() + ":" + friend.udp_port + "]");
-            try {
-                if(!friend.isBusy) {
-                    friend.challengeTime = System.currentTimeMillis();
-                    sendUDP(loggedUsers.get(usernameB), friend.udp_port, "challenge " + usernameA);
-                }else
-                    ByteBufferIO.prepareString(resources.buffer, StatusCode.BUSY_FRIEND);
-            } catch (SocketException e) {
-                e.printStackTrace();
-            }
+            if(!friend.isBusy) {
+                friend.challengeTime = System.currentTimeMillis();
+                sendUDP(loggedUsers.get(usernameB), friend.udp_port, "challenge " + usernameA);
+            }else
+                ByteBufferIO.prepareString(resources.buffer, StatusCode.BUSY_FRIEND);
         }
     }
 

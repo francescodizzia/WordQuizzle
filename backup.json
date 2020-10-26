@@ -2,6 +2,7 @@
   "userGraph": {
     "cortex": [
       "dario",
+      "nina",
       "crash"
     ],
     "dario": [
@@ -10,6 +11,7 @@
       "crash"
     ],
     "nina": [
+      "cortex",
       "dario",
       "crash"
     ],
@@ -22,19 +24,19 @@
   "userTable": {
     "cortex": {
       "password": "4",
-      "score": -8
+      "score": -19
     },
     "dario": {
       "password": "f",
-      "score": 0
+      "score": 4
     },
     "nina": {
       "password": "4",
-      "score": 0
+      "score": -5
     },
     "crash": {
       "password": "4",
-      "score": 2
+      "score": -10
     }
   }
 }

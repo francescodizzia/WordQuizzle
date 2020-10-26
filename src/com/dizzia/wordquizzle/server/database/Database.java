@@ -24,11 +24,15 @@ public class Database {
         public int checkCredentials(String username, String password){
             User user = userTable.get(username);
 
-            if(user == null){
+            if(user == null)
                 return StatusCode.USER_NOT_FOUND;
-            }else if(user.getPassword().equals(password)){
+
+            if(password == null || password.equals(""))
+                return StatusCode.EMPTY_PASSWORD;
+
+            if(user.getPassword().equals(password))
                 return StatusCode.OK;
-            }
+
 
             return StatusCode.WRONG_PASSWORD;
         }

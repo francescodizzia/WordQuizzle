@@ -91,6 +91,11 @@ public class WQClient {
                     JOptionPane.showMessageDialog(loginFrame, "L'utente inserito risulta già connesso!",
                             "Errore di login", JOptionPane.ERROR_MESSAGE);
                     break;
+                case StatusCode.EMPTY_PASSWORD:
+                    System.out.println("Password vuota");
+                    JOptionPane.showMessageDialog(loginFrame, "Password vuota!",
+                            "Errore di login", JOptionPane.ERROR_MESSAGE);
+                    break;
             }
 
         } catch (IOException e) {

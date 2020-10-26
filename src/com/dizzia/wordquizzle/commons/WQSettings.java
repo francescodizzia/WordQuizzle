@@ -16,7 +16,8 @@ public interface WQSettings {
 
 
     String HOSTNAME = "localhost";
-    int TCP_PORT = 1919;
+//    int TCP_PORT = 1919;
+    int TCP_PORT = 54410;
     String RMI_ADDRESS = "rmi://" + HOSTNAME + "/WordQuizzle_544107";
 
 
