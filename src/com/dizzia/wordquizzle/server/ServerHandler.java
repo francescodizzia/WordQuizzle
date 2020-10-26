@@ -125,7 +125,6 @@ public class ServerHandler implements Runnable {
                     challengerResources.isBusy = true;
                     resources.isBusy = true;
 
-
                     ChallengeHandler h = new ChallengeHandler(key, challengerKey, database);
                     Thread t = new Thread(h);
                     t.start();
@@ -139,7 +138,7 @@ public class ServerHandler implements Runnable {
             case "REFUSE":
                 SelectionKey challengerKey2 = keyMap.get(args[1]);
                 ClientResources challengerResource2 = (ClientResources) challengerKey2.attachment();
-                ByteBufferIO.prepareString(challengerResource2.buffer, "REFUSED");
+                ByteBufferIO.prepareString(challengerResource2.buffer, StatusCode.REFUSED);
                 challengerKey2.interestOps(SelectionKey.OP_WRITE);
                 break;
         }
@@ -293,7 +292,7 @@ public class ServerHandler implements Runnable {
                     friend.challengeTime = System.currentTimeMillis();
                     sendUDP(loggedUsers.get(usernameB), friend.udp_port, "challenge " + usernameA);
                 }else
-                    ByteBufferIO.prepareString(resources.buffer, "BUSY");
+                    ByteBufferIO.prepareString(resources.buffer, StatusCode.BUSY_FRIEND);
             } catch (SocketException e) {
                 e.printStackTrace();
             }

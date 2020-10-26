@@ -129,10 +129,10 @@ public class HubFrame extends JFrame implements ActionListener {
                     input.flip();
                     String response = StandardCharsets.UTF_8.decode(input).toString();
 
-                    if (response.compareTo("REFUSED") == 0)
+                    if (response.compareTo(StatusCode.REFUSED) == 0)
                         JOptionPane.showMessageDialog(this, "L'utente ha rifiutato la sfida...",
                                 "Errore", JOptionPane.ERROR_MESSAGE);
-                    else if(response.compareTo("BUSY") == 0)
+                    else if(response.compareTo(StatusCode.BUSY_FRIEND) == 0)
                         JOptionPane.showMessageDialog(this, "L'utente è già impegnato in un'altra sfida...",
                                 "Errore", JOptionPane.ERROR_MESSAGE);
                     else
