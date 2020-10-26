@@ -132,6 +132,9 @@ public class HubFrame extends JFrame implements ActionListener {
                     if (response.compareTo("REFUSED") == 0)
                         JOptionPane.showMessageDialog(this, "L'utente ha rifiutato la sfida...",
                                 "Errore", JOptionPane.ERROR_MESSAGE);
+                    else if(response.compareTo("BUSY") == 0)
+                        JOptionPane.showMessageDialog(this, "L'utente è già impegnato in un'altra sfida...",
+                                "Errore", JOptionPane.ERROR_MESSAGE);
                     else
                         WQClient.inizio_sfida(response);
 

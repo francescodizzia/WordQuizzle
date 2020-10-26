@@ -35,7 +35,7 @@ public class Database {
 
 
         public int newUser(String username, String password) {
-            User user = new User(username, password);
+            User user = new User(password);
             userTable.put(username, user);
 
             if (userGraph.containsKey(username))

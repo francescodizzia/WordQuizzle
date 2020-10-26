@@ -208,22 +208,19 @@ public class ChallengeHandler implements Runnable {
         SocketChannel client = (SocketChannel) key.channel();
         ClientResources resources = (ClientResources) key.attachment();
 
-        System.out.println(client.isBlocking());
-
         if (resources != null) {
-           String s = resources.username;
             ByteBufferIO.readString(client, resources.buffer);
 
             String m = StandardCharsets.UTF_8.decode(resources.buffer).toString();
 
             if(translatedWords.get(resources.translatedWords-1).contains(m)) {
-                System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " CORRETTA (+2)");
+                System.out.println("[" + resources.username + "] Traduzione della parola #" + (resources.translatedWords) + " CORRETTA (+2)");
                 resources.challengeScore += WQSettings.RIGHT_ANSWER_POINTS;
                 resources.correct_answers++;
                 database.updateScore(resources.username, database.getScore(resources.username) + WQSettings.RIGHT_ANSWER_POINTS);
             }
             else {
-                System.out.println("[" + s + "] Traduzione della parola #" + (resources.translatedWords) + " ERRATA (-1)");
+                System.out.println("[" + resources.username + "] Traduzione della parola #" + (resources.translatedWords) + " ERRATA (-1)");
                 resources.challengeScore += WQSettings.WRONG_ANSWER_POINTS;
                 resources.wrong_answers++;
                 database.updateScore(resources.username, database.getScore(resources.username) + WQSettings.WRONG_ANSWER_POINTS);
@@ -242,8 +239,6 @@ public class ChallengeHandler implements Runnable {
     private void handleWrite(SelectionKey key) throws IOException {
         SocketChannel client = (SocketChannel) key.channel();
         ClientResources resources = (ClientResources) key.attachment();
-
-        System.out.println(client.isBlocking());
 
         if (resources.translatedWords >= N)
             handleEndGame(key);

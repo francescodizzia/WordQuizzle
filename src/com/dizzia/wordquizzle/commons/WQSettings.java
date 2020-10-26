@@ -6,9 +6,9 @@ import java.awt.*;
 
 public interface WQSettings {
     int N_WORDS = 8;
-    int UNIT_SECONDS = 1000;
-    int CHALLENGE_TIMEOUT = 60 * UNIT_SECONDS;
-    int CHALLENGE_REQUEST_TIMEOUT = 8 * UNIT_SECONDS;
+    int UNIT = 1000;
+    int CHALLENGE_TIMEOUT = 60 * UNIT;
+    int CHALLENGE_REQUEST_TIMEOUT = 8 * UNIT;
 
     int RIGHT_ANSWER_POINTS = 2;
     int WRONG_ANSWER_POINTS = -1;
@@ -20,23 +20,4 @@ public interface WQSettings {
     String RMI_ADDRESS = "rmi://" + HOSTNAME + "/WordQuizzle_544107";
 
 
-
-    static void applyCustomTheme() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
-        UIManager.put( "control", new Color(81, 86, 88));
-        UIManager.put( "info", new Color(40,42,54));
-        UIManager.put( "nimbusBase", new Color(18, 30, 49));
-        UIManager.put( "nimbusDisabledText", new Color( 128, 128, 128));
-        UIManager.put( "nimbusLightBackground", new Color(18, 30, 49));
-        UIManager.put( "nimbusSelectedText", new Color(255, 255, 255));
-        UIManager.put( "nimbusSelectionBackground", new Color(104, 93, 156));
-        UIManager.put( "text", new Color(230, 230, 230));
-
-        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-            if ("Nimbus".equals(info.getName())) {
-                javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                break;
-            }
-        }
-
-    }
 }

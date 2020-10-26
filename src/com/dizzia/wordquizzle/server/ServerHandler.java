@@ -16,6 +16,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ServerHandler implements Runnable {
     public static Database database;
     public static ConcurrentHashMap<String, InetSocketAddress> loggedUsers;
-    private final ConcurrentHashMap<String, SelectionKey> keyMap;
+    private final HashMap<String, SelectionKey> keyMap;
     public static WQDictionary wqDictionary;
     public static Selector selector;
 
@@ -32,7 +33,7 @@ public class ServerHandler implements Runnable {
     public ServerHandler(Database database) {
         ServerHandler.database = database;
         loggedUsers = new ConcurrentHashMap<>();
-        keyMap = new ConcurrentHashMap<>();
+        keyMap = new HashMap<>();
         wqDictionary = new WQDictionary();
     }
 
@@ -115,8 +116,15 @@ public class ServerHandler implements Runnable {
 
                 if (elapsedTime < WQSettings.CHALLENGE_REQUEST_TIMEOUT) {
                     System.out.println("IN TEMPO");
+
                     key.interestOps(0);
                     challengerKey.interestOps(0);
+
+
+                    ClientResources challengerResources = (ClientResources) challengerKey.attachment();
+                    challengerResources.isBusy = true;
+                    resources.isBusy = true;
+
 
                     ChallengeHandler h = new ChallengeHandler(key, challengerKey, database);
                     Thread t = new Thread(h);
@@ -176,7 +184,7 @@ public class ServerHandler implements Runnable {
                     if (key.isAcceptable()) {
                         ServerSocketChannel server = (ServerSocketChannel) key.channel();
                         SocketChannel client = server.accept();
-                        System.out.println("Accepted connection from " + client);
+                        System.out.println("Accettata connessione da " + client);
                         client.configureBlocking(false);
                         SelectionKey key2 = client.register(selector, SelectionKey.OP_READ);
                         ClientResources resources = new ClientResources();
@@ -281,8 +289,11 @@ public class ServerHandler implements Runnable {
                     + ":" + resources.udp_port + "] a "
                     + usernameB + " [" + loggedUsers.get(usernameB).getAddress() + ":" + friend.udp_port + "]");
             try {
-                friend.challengeTime = System.currentTimeMillis();
-                sendUDP(loggedUsers.get(usernameB), friend.udp_port, "challenge " + usernameA);
+                if(!friend.isBusy) {
+                    friend.challengeTime = System.currentTimeMillis();
+                    sendUDP(loggedUsers.get(usernameB), friend.udp_port, "challenge " + usernameA);
+                }else
+                    ByteBufferIO.prepareString(resources.buffer, "BUSY");
             } catch (SocketException e) {
                 e.printStackTrace();
             }

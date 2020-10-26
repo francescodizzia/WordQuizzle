@@ -5,6 +5,7 @@ import com.dizzia.wordquizzle.commons.StatusCode;
 import com.dizzia.wordquizzle.commons.WQSettings;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -120,7 +121,7 @@ public class WQClient {
         }
 
         try {
-            WQSettings.applyCustomTheme();
+            applyCustomTheme();
         } catch (ClassNotFoundException | UnsupportedLookAndFeelException | InstantiationException | IllegalAccessException e) {
             System.out.println(e);
         }
@@ -177,6 +178,28 @@ public class WQClient {
     public static String classifica() {
         WQClient.writeString("leaderboard");
         return WQClient.readString();
+    }
+
+
+
+
+    static void applyCustomTheme() throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+        UIManager.put( "control", new Color(81, 86, 88));
+        UIManager.put( "info", new Color(40,42,54));
+        UIManager.put( "nimbusBase", new Color(18, 30, 49));
+        UIManager.put( "nimbusDisabledText", new Color( 128, 128, 128));
+        UIManager.put( "nimbusLightBackground", new Color(18, 30, 49));
+        UIManager.put( "nimbusSelectedText", new Color(255, 255, 255));
+        UIManager.put( "nimbusSelectionBackground", new Color(104, 93, 156));
+        UIManager.put( "text", new Color(230, 230, 230));
+
+        for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            if ("Nimbus".equals(info.getName())) {
+                javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                break;
+            }
+        }
+
     }
 
 

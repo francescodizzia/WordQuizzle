@@ -8,6 +8,7 @@ public class ClientResources {
     String username;
     ByteBuffer buffer;
     int udp_port;
+    boolean isBusy = false;
     int challengeScore = 0;
     long challengeTime = 0;
     int translatedWords = 0;
@@ -28,5 +29,6 @@ public class ClientResources {
         challengeTime = 0;
         challengeScore = 0;
         isWinner = 0;
+        isBusy = false;
     }
 }

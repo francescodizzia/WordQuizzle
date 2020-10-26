@@ -1,86 +1,40 @@
 {
   "userGraph": {
-    "1": [
-      "alice"
-    ],
-    "davide": [],
-    "bob": [
-      "francesco"
+    "cortex": [
+      "dario",
+      "crash"
     ],
     "dario": [
-      "victor",
-      "francesco",
+      "cortex",
+      "nina",
       "crash"
     ],
-    "victor": [
+    "nina": [
       "dario",
-      "francesco",
-      "crash"
-    ],
-    "alice": [
-      "1",
-      "francesco"
-    ],
-    "Raffaele": [],
-    "francesco": [
-      "bob",
-      "victor",
-      "dario",
-      "alice",
       "crash"
     ],
     "crash": [
-      "davide",
+      "cortex",
       "dario",
-      "Raffaele",
-      "francesco"
+      "nina"
     ]
   },
   "userTable": {
-    "1": {
-      "username": "1",
-      "password": "dhdhdh",
-      "score": -16
-    },
-    "davide": {
-      "username": "davide",
-      "password": "semplice",
-      "score": 9
-    },
-    "bob": {
-      "username": "bob",
-      "password": "a",
-      "score": 13
+    "cortex": {
+      "password": "4",
+      "score": -8
     },
     "dario": {
-      "username": "dario",
       "password": "f",
-      "score": -15
+      "score": 0
     },
-    "victor": {
-      "username": "victor",
-      "password": "88t",
-      "score": 18
-    },
-    "alice": {
-      "username": "alice",
-      "password": "3",
-      "score": 24
-    },
-    "Raffaele": {
-      "username": "raffaele",
-      "password": "lul",
-      "score": 9
-    },
-    "francesco": {
-      "username": "francesco",
-      "password": "kek",
-      "score": 47
+    "nina": {
+      "password": "4",
+      "score": 0
     },
     "crash": {
-      "username": "crash",
       "password": "4",
-      "score": 66
+      "score": 2
     }
   }
 }

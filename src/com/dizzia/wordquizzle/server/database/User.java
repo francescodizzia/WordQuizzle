@@ -3,21 +3,15 @@ package com.dizzia.wordquizzle.server.database;
 
 public class User {
 
-    private final String username;
     private final String password;
     private int score;
 
 
-    public User(String username, String password) {
-        this.username = username.toLowerCase();
+    public User(String password) {
         this.password = password;
         score = 0;
     }
 
-
-    public String getUsername(){
-        return username;
-    }
 
     public String getPassword(){
         return password;

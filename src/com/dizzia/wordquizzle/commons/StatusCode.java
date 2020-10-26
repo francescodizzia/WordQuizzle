@@ -9,4 +9,5 @@ public interface StatusCode {
     int USER_ALREADY_LOGGED = -5;
     int WRONG_PASSWORD = -6;
     int SELF_REQUEST = -7;
+    int BUSY_FRIEND = -8;
 }
