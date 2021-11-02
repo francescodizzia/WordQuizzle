@@ -44,19 +44,19 @@ dell’operazione (che chiameremo **status code**), in alcune operazioni
 al posto del codice il server invierà direttamente il dato richiesto,
 come nel caso del comando *FRIENDLIST*.
 
+| Status code                | Valore associato | 
+| -------------              |:-------------:| 
+| OK                         | 200 | 
+| GENERIC\_ERROR             | -1 |
+| USER\_NOT\_FOUND           | -2 |
+| EMPTY\_PASSWORD            | -3 |
+| USER\_ALREADY\_REGISTERED  | -4 |
+| USER\_ALREADY\_LOGGED      | -5 |
+| WRONG\_PASSWORD            | -6 |
+| SELF\_REQUEST              | -7 |
+| REFUSED                    | “REFUSED” |
+| BUSY\_FRIEND               | “BUSY” |
 
-  **Status code**              **Valore associato**
-  --------------------------- ----------------------
-  OK                                   200
-  GENERIC\_ERROR                        -1
-  USER\_NOT\_FOUND                      -2
-  EMPTY\_PASSWORD                       -3
-  USER\_ALREADY\_REGISTERED             -4
-  USER\_ALREADY\_LOGGED                 -5
-  WRONG\_PASSWORD                       -6
-  SELF\_REQUEST                         -7
-  REFUSED                           “REFUSED”
-  BUSY\_FRIEND                        “BUSY”
 
 Buona parte degli status code è abbastanza autoesplicativa, gli ultimi
 un po’ meno: *SELF\_REQUEST* viene riscontrato quando un utente tenta di
@@ -136,21 +136,7 @@ punti) si ritroverebbe ugualmente con il punteggio effettivo al suo
 ritorno, mentre l’altro giocatore può concludere la sua partita
 tranquillamente come se nulla fosse. Una volta appurato che la partita
 si può concludere definitivamente, vengono assegnati eventuali punti
-extra al vincitore e viene mandato ai giocatori il seguente messaggio:\
- \
-\
- \
-Dove \<*isWinner*\> è un intero che vale:\
- \
-
-$   
-    \begin{cases*}
-        1 & se il giocatore ha vinto la partita \\
-        0 & se la partita è finita in pareggio \\
-     -1 & se il giocatore ha perso la partita \\
-    \end{cases*}
-    
-$\
+extra al vincitore e viene mandato un messaggio ai giocatori.\
  \
 Infine i client, ricevuto il messaggio, potranno stampare a schermo un
 resoconto sull’esito della partita, mentre dal lato server le chiavi
@@ -369,27 +355,29 @@ Istruzioni per la compilazione ed esecuzione
 
 Una volta estratto l’archivio, è necessario spostarsi da terminale
 all’interno della cartella WordQuizzle. A quel punto per compilare
-bisogna digitare:\
+bisogna digitare:  
 
-`javac src/com/dizzia/wordquizzle/server/*.java src/com/dizzia/wordquizzle/commons/*.java src/com/dizzia/wordquizzle/client/*.java -cp libs/*`
+`javac src/com/dizzia/wordquizzle/server/*.java  
+src/com/dizzia/wordquizzle/commons/*.java  
+src/com/dizzia/wordquizzle/client/*.java -cp libs/*`  
 
 Mentre per eseguire server e client è necessario spostarsi nella
-cartella *src* (`cd src`) e digitare rispettivamente:\
- 
-`java com.dizzia.wordquizzle.server.WQServer`\
-`java com.dizzia.wordquizzle.client.WQClient`\
- 
+cartella *src* (`cd src`) e digitare rispettivamente:  
+
+`java com.dizzia.wordquizzle.server.WQServer`  
+`java com.dizzia.wordquizzle.client.WQClient`  
+
 **Importante:** nel caso in cui si compili diversamente assicurarsi che
 nella stessa directory da cui si eseguono questi ultimi due comandi
 siano presenti tutti i file ausiliari (*security.policy* e *words.txt*
-per il server e la cartella *resources* per il client).
+per il server e la cartella *resources* per il client).  
 
 Alternativa precompilata
 ------------------------
 
 In alternativa è possibile avviare anche delle versioni già compilate in
 formato .jar, sempre nella cartella WordQuizzle. Per avviarle è
-sufficiente digitare:\
+sufficiente digitare:  
 
-`java -jar WQServer.jar`\
+`java -jar WQServer.jar`  
 `java -jar WQClient.jar`
